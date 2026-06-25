@@ -1,0 +1,31 @@
+modLoader = "javafml"
+loaderVersion = "[4,)"
+# TODO
+issueTrackerURL = ""
+license = "${mod_license}"
+
+[[mods]]
+modId = "${mod_id}"
+version = "${version}"
+displayName = "${mod_name}"
+authors = "${mod_authors}"
+description = '''
+${mod_description}
+'''
+
+#[[mixins]]
+#config = "phoenix.mixins.json"
+
+[[dependencies.phoenix]]
+    modId = "neoforge"
+    type = "required"
+    versionRange = "${neoforge_version_range}"
+    ordering = "NONE"
+    side = "BOTH"
+
+[[dependencies.phoenix]]
+    modId = "minecraft"
+    type = "required"
+    versionRange = "${minecraft_version_range}"
+    ordering = "NONE"
+    side = "BOTH"

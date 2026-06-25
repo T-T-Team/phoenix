@@ -1,0 +1,97 @@
+import net.darkhax.curseforgegradle.*
+
+plugins {
+    id 'net.fabricmc.fabric-loom' version "${fabric_loom}"
+    id 'net.darkhax.curseforgegradle' version "${cursegradle_plugin_version}"
+    id 'com.modrinth.minotaur' version "${modrinth_plugin_version}"
+}
+
+dependencies {
+    minecraft "com.mojang:minecraft:${minecraft_version}"
+
+    implementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
+    implementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
+
+    compileOnly project(":common")
+}
+
+loom {
+    def accessWidenerFile = project(":common").file("src/main/resources/${mod_id}.accesswidener")
+    if (accessWidenerFile.exists()) {
+        accessWidenerPath.set(accessWidenerFile)
+    }
+
+    runs {
+        client {
+            client()
+            setConfigName("Fabric Client")
+            ideConfigGenerated(true)
+            runDir("run/client")
+        }
+        server {
+            server()
+            setConfigName("Fabric Server")
+            ideConfigGenerated(true)
+            runDir("run/server")
+        }
+    }
+}
+
+jar {
+    manifest {
+        attributes([
+                "Specification-Title"     : "${mod_name}",
+                "Specification-Vendor"    : "${mod_authors}",
+                "Specification-Version"   : project.mod_version,
+                "Implementation-Title"    : "${mod_name}",
+                "Implementation-Version"  : project.mod_version,
+                "Implementation-Vendor"   : "${mod_authors}",
+                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+        ])
+    }
+
+    exclude("META-INF/accesstransformer.cfg")
+    archiveFileName = "${mod_id}-fabric-${project.version}.jar"
+}
+
+processResources {
+    from project(":common").sourceSets.main.resources
+}
+
+tasks.withType(JavaCompile) {
+    source(project(":common").sourceSets.main.allSource)
+}
+
+List versionList = compatible_mc_versions.split(",")
+tasks.register("curseforge", TaskPublishCurseForge) {
+    dependsOn(tasks.jar)
+    group = "publishing"
+    apiToken = CURSEFORGE_TOKEN
+    debugMode = debug_publish.toBoolean()
+
+    def artifact = upload(curseforge_project_id, tasks.jar.archiveFile)
+    artifact.changelogType = Constants.CHANGELOG_MARKDOWN
+    artifact.changelog = file("../CHANGELOG.md").exists() ? file("../CHANGELOG.md").text : "-- No changelog --"
+    artifact.releaseType = Constants.RELEASE_TYPE_RELEASE
+    artifact.displayName = "phoenix-fabric-${version}"
+    artifact.addModLoader("Fabric")
+    artifact.addEnvironment("Client")
+    artifact.addJavaVersion("Java 25")
+    versionList.each { gameVersion ->
+        artifact.addGameVersion(gameVersion)
+    }
+}
+
+modrinth {
+    token = MODRINTH_TOKEN
+    projectId = modrinth_project_id
+    uploadFile = jar
+    debugMode = debug_publish.toBoolean()
+    versionNumber = "${version}"
+    versionName = "phoenix-fabric-${version}"
+    versionType = "release"
+    gameVersions = versionList
+    changelog = file("../CHANGELOG.md").exists() ? file("../CHANGELOG.md").text : "-- No changelog --"
+    loaders = ["fabric"]
+}
+tasks.modrinth.dependsOn(tasks.jar)
