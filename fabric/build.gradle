@@ -6,11 +6,17 @@ plugins {
     id 'com.modrinth.minotaur' version "${modrinth_plugin_version}"
 }
 
+repositories {
+    maven { url 'https://maven.terraformersmc.com/' }
+}
+
 dependencies {
     minecraft "com.mojang:minecraft:${minecraft_version}"
 
     implementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
     implementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
+
+    runtimeOnly "com.terraformersmc:modmenu:${modmenu}"
 
     compileOnly project(":common")
 }
