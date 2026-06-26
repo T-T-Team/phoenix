@@ -1,5 +1,6 @@
 package dev.tnt.phoenix.platform;
 
+import dev.tnt.phoenix.platform.init.PlatformMenuProvider;
 import dev.tnt.phoenix.platform.init.Reference;
 import dev.tnt.phoenix.platform.init.RegistrationManager;
 import net.fabricmc.fabric.api.creativetab.v1.FabricCreativeModeTab;
@@ -58,7 +59,7 @@ public final class FabricPlatform implements Platform {
 
             @Override
             public Component getDisplayName() {
-                return provider.getTitle();
+                return provider.title();
             }
 
             @Override

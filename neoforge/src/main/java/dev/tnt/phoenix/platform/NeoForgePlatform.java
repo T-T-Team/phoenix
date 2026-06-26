@@ -1,5 +1,6 @@
 package dev.tnt.phoenix.platform;
 
+import dev.tnt.phoenix.platform.init.PlatformMenuProvider;
 import dev.tnt.phoenix.platform.init.Reference;
 import dev.tnt.phoenix.platform.init.RegistrationManager;
 import net.minecraft.core.Registry;
@@ -52,7 +53,7 @@ public final class NeoForgePlatform implements Platform {
     public <T> void openMenu(ServerPlayer player, StreamCodec<? super FriendlyByteBuf, T> codec, PlatformMenuProvider<T> provider) {
         player.openMenu(new SimpleMenuProvider(
                 provider::createMenu,
-                provider.getTitle()
+                provider.title()
         ), buf -> {
             T data = provider.getMenuData(player);
             codec.encode(buf, data);
