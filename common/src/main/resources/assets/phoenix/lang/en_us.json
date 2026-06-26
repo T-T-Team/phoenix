@@ -1,5 +1,7 @@
 {
   "item.phoenix.phoenix_slot_machine": "Phoenix Slot Machine",
 
-  "itemGroup.phoenix.phoenix": "Phoenix"
+  "itemGroup.phoenix.phoenix": "Phoenix",
+
+  "container.phoenix.phoenix_slot_machine": "Phoenix Slot Machine"
 }

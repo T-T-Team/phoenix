@@ -5,8 +5,6 @@ import java.util.ServiceLoader;
 
 public final class Services {
 
-    public static final Platform PLATFORM = load(Platform.class);
-
     public static <T> T load(Class<T> itf) {
         ServiceLoader<T> loader = ServiceLoader.load(itf);
         T service = loader.findFirst().orElse(null);

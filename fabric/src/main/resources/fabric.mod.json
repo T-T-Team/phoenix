@@ -17,6 +17,9 @@
   "entrypoints": {
     "main": [
       "dev.tnt.phoenix.PhoenixFabric"
+    ],
+    "client": [
+      "dev.tnt.phoenix.client.PhoenixFabricClient"
     ]
   },
   "mixins": [
