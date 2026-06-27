@@ -24,9 +24,14 @@ public class PhoenixSlotMachineScreen extends AbstractContainerScreen<PhoenixSlo
     private static final Identifier BUTTON_AUTO = Phoenix.identifier("textures/gui/button_auto.png");
     private static final Identifier BUTTON_BET = Phoenix.identifier("textures/gui/button_bet.png");
     private static final Identifier BUTTON_HOLD = Phoenix.identifier("textures/gui/button_hold.png");
+    private static final Identifier BUTTON_MULTIWIN = Phoenix.identifier("textures/gui/button_multiwin.png");
+    private static final Identifier BUTTON_PAY = Phoenix.identifier("textures/gui/button_pay.png");
+    private static final Identifier BUTTON_RISK_CLUBS = Phoenix.identifier("textures/gui/button_risk_clubs.png");
+    private static final Identifier BUTTON_RISK_HEARTS = Phoenix.identifier("textures/gui/button_risk_hearts.png");
+    private static final Identifier BUTTON_START = Phoenix.identifier("textures/gui/button_start.png");
     // layout
-    private static final int CONTENT_WIDTH = 176;
-    private static final int CONTENT_HEIGHT = 166;
+    private static final int CONTENT_WIDTH = 170;
+    private static final int CONTENT_HEIGHT = 256;
 
     public PhoenixSlotMachineScreen(PhoenixSlotMachineMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title, CONTENT_WIDTH, CONTENT_HEIGHT);
@@ -35,14 +40,16 @@ public class PhoenixSlotMachineScreen extends AbstractContainerScreen<PhoenixSlo
     @Override
     protected void init() {
         super.init();
-        this.addBottomButtonRow(7, 16);
+        this.addBottomButtonRow(8, 16);
+        this.addRenderableWidget(new IconButtonWithHighlightWidget(this.leftPos + this.imageWidth - 40, this.topPos + 4, 16, 16, Component.translatable("label.phoenix.ui.button_multiwin"), BUTTON_MULTIWIN));
+        this.addRenderableWidget(new IconButtonWithHighlightWidget(this.leftPos + this.imageWidth - 20, this.topPos + 4, 16, 16, Component.translatable("label.phoenix.ui.button_pay"), BUTTON_PAY));
     }
 
     @Override
     public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
         super.extractBackground(graphics, mouseX, mouseY, a);
         // background TODO
-        graphics.fill(this.leftPos, this.titleLabelY, this.leftPos + this.imageWidth, this.topPos + this.imageHeight, 0x66FFFFFF);
+        graphics.fill(this.leftPos, this.topPos, this.leftPos + this.imageWidth, this.topPos + this.imageHeight, 0x66FFFFFF);
         // sprites
         // TODO
     }
@@ -54,11 +61,16 @@ public class PhoenixSlotMachineScreen extends AbstractContainerScreen<PhoenixSlo
     private void addBottomButtonRow(int count, int size) {
         int buttonOffset = 5;
         int buttonWidth = size + buttonOffset;
-        int rowLeft = this.leftPos + (this.imageWidth - (count * buttonWidth - buttonOffset) / 2);
-        int rowTop = this.topPos + this.imageHeight - 30;
+        int rowLeft = this.leftPos + (this.imageWidth - (count * buttonWidth - buttonOffset)) / 2;
+        int rowTop = this.topPos + this.imageHeight - 20;
         this.addRenderableWidget(new IconButtonWithHighlightWidget(rowLeft, rowTop, size, size, Component.translatable("label.phoenix.ui.button_auto"), BUTTON_AUTO));
-        this.addRenderableWidget(new IconButtonWithHighlightWidget(rowLeft + buttonWidth, rowTop, size, size, Component.translatable("label.phoenix.ui.button_bet"), BUTTON_BET));
+        this.addRenderableWidget(new IconButtonWithHighlightWidget(rowLeft + buttonWidth, rowTop, size, size, Component.translatable("label.phoenix.ui.button_hold"), BUTTON_HOLD));
         this.addRenderableWidget(new IconButtonWithHighlightWidget(rowLeft + buttonWidth * 2, rowTop, size, size, Component.translatable("label.phoenix.ui.button_hold"), BUTTON_HOLD));
+        this.addRenderableWidget(new IconButtonWithHighlightWidget(rowLeft + buttonWidth * 3, rowTop, size, size, Component.translatable("label.phoenix.ui.button_hold"), BUTTON_HOLD));
+        this.addRenderableWidget(new IconButtonWithHighlightWidget(rowLeft + buttonWidth * 4, rowTop, size, size, Component.translatable("label.phoenix.ui.button_bet"), BUTTON_BET));
+        this.addRenderableWidget(new IconButtonWithHighlightWidget(rowLeft + buttonWidth * 5, rowTop, size, size, Component.translatable("label.phoenix.ui.button_risk_clubs"), BUTTON_RISK_CLUBS));
+        this.addRenderableWidget(new IconButtonWithHighlightWidget(rowLeft + buttonWidth * 6, rowTop, size, size, Component.translatable("label.phoenix.ui.button_risk_hearts"), BUTTON_RISK_HEARTS));
+        this.addRenderableWidget(new IconButtonWithHighlightWidget(rowLeft + buttonWidth * 7, rowTop, size, size, Component.translatable("label.phoenix.ui.button_start"), BUTTON_START));
     }
 
     private static final class IconButtonWithHighlightWidget extends AbstractButton {

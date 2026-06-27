@@ -3,5 +3,14 @@
 
   "itemGroup.phoenix.phoenix": "Phoenix",
 
-  "container.phoenix.phoenix_slot_machine": "Phoenix Slot Machine"
+  "container.phoenix.phoenix_slot_machine": "Phoenix Slot Machine",
+
+  "label.phoenix.ui.button_multiwin": "Transfer Multiwin",
+  "label.phoenix.ui.button_pay": "Payout",
+  "label.phoenix.ui.button_auto": "Auto Play",
+  "label.phoenix.ui.button_hold": "Hold",
+  "label.phoenix.ui.button_bet": "Bet",
+  "label.phoenix.ui.button_risk_clubs": "Risk Clubs",
+  "label.phoenix.ui.button_risk_hearts": "Risk Hearts",
+  "label.phoenix.ui.button_start": "Start"
 }
