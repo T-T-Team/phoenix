@@ -8,6 +8,7 @@ import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.input.InputWithModifiers;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -51,10 +52,11 @@ public class PhoenixSlotMachineScreen extends AbstractContainerScreen<PhoenixSlo
     public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
         super.extractBackground(graphics, mouseX, mouseY, a);
         // background TODO
-        graphics.fill(this.leftPos, this.topPos, this.leftPos + this.imageWidth, this.topPos + this.imageHeight, 0x66FFFFFF);
+        graphics.fill(this.leftPos, this.topPos, this.leftPos + this.imageWidth, this.topPos + this.imageHeight, 0x66404040);
         // sprites
         // TODO
         graphics.blit(CHERRY, 10, 10, 18, 18, 0.0f, 1.0f, 0.0f, 1.0f);
+
     }
 
     @Override
