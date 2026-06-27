@@ -29,6 +29,8 @@ public class PhoenixSlotMachineScreen extends AbstractContainerScreen<PhoenixSlo
     private static final Identifier BUTTON_RISK_CLUBS = Phoenix.identifier("textures/gui/button_risk_clubs.png");
     private static final Identifier BUTTON_RISK_HEARTS = Phoenix.identifier("textures/gui/button_risk_hearts.png");
     private static final Identifier BUTTON_START = Phoenix.identifier("textures/gui/button_start.png");
+    // icons
+    private static final Identifier CHERRY = Phoenix.identifier("textures/gui/cherry.png");
     // layout
     private static final int CONTENT_WIDTH = 170;
     private static final int CONTENT_HEIGHT = 256;
@@ -52,6 +54,7 @@ public class PhoenixSlotMachineScreen extends AbstractContainerScreen<PhoenixSlo
         graphics.fill(this.leftPos, this.topPos, this.leftPos + this.imageWidth, this.topPos + this.imageHeight, 0x66FFFFFF);
         // sprites
         // TODO
+        graphics.blit(CHERRY, 10, 10, 18, 18, 0.0f, 1.0f, 0.0f, 1.0f);
     }
 
     @Override
