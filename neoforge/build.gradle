@@ -57,7 +57,7 @@ List versionList = compatible_mc_versions.split(",")
 tasks.register("curseforge", TaskPublishCurseForge) {
     dependsOn(tasks.jar)
     group = "publishing"
-    apiToken = CURSEFORGE_TOKEN
+    apiToken = project.findProperty("CURSEFORGE_TOKEN").toString() ?: ""
     debugMode = debug_publish.toBoolean()
 
     def artifact = upload(curseforge_project_id, tasks.jar.archiveFile)
@@ -74,7 +74,7 @@ tasks.register("curseforge", TaskPublishCurseForge) {
 }
 
 modrinth {
-    token = MODRINTH_TOKEN
+    token = project.findProperty("MODRINTH_TOKEN").toString() ?: ""
     projectId = modrinth_project_id
     uploadFile = jar
     debugMode = debug_publish.toBoolean()
