@@ -26,7 +26,7 @@ public class PhoenixSlotMachineScreen extends AbstractContainerScreen<PhoenixSlo
     private static final Identifier SPRITE_PRICE_SLOT = Phoenix.identifier("price_slot");
     private static final Identifier SPRITE_SLOT = Phoenix.identifier("slot");
     // textures
-    private static final Identifier BUTTON_AUTO = Phoenix.identifier("textures/gui/button_auto.png");
+    private static final Identifier BUTTON_ADVANCED = Phoenix.identifier("textures/gui/button_advanced.png");
     private static final Identifier BUTTON_BET = Phoenix.identifier("textures/gui/button_bet.png");
     private static final Identifier BUTTON_HOLD = Phoenix.identifier("textures/gui/button_hold.png");
     private static final Identifier BUTTON_MULTIWIN = Phoenix.identifier("textures/gui/button_multiwin.png");
@@ -34,8 +34,6 @@ public class PhoenixSlotMachineScreen extends AbstractContainerScreen<PhoenixSlo
     private static final Identifier BUTTON_RISK_CLUBS = Phoenix.identifier("textures/gui/button_risk_clubs.png");
     private static final Identifier BUTTON_RISK_HEARTS = Phoenix.identifier("textures/gui/button_risk_hearts.png");
     private static final Identifier BUTTON_START = Phoenix.identifier("textures/gui/button_start.png");
-    // icons
-    private static final Identifier CHERRY = Phoenix.identifier("textures/gui/cherry.png");
     // layout
     private static final int CONTENT_WIDTH = 170;
     private static final int CONTENT_HEIGHT = 256;
@@ -59,7 +57,7 @@ public class PhoenixSlotMachineScreen extends AbstractContainerScreen<PhoenixSlo
         SlotMachineConfig config = Phoenix.SLOT_MACHINES.getSlotMachine(Phoenix.SLOT_MACHINE_CONFIG_PHOENIX).orElseThrow();
         List<Identifier> sprites = config.getSprites();
         for (IconButtonWithHighlightWidget holdButton : this.holdButtons) {
-            this.addRenderableWidget(new SpinWheelWidget(holdButton.getX() - 2, holdButton.getY() - 80, holdButton.getWidth() + 4, 60, sprites));
+            this.addRenderableWidget(new SpinWheelWidget(holdButton.getX() - 2, holdButton.getY() - 100, holdButton.getWidth() + 4, 55, sprites));
         }
     }
 
@@ -70,7 +68,6 @@ public class PhoenixSlotMachineScreen extends AbstractContainerScreen<PhoenixSlo
         graphics.fill(this.leftPos, this.topPos, this.leftPos + this.imageWidth, this.topPos + this.imageHeight, 0x66404040);
         // sprites
         // TODO
-        graphics.blit(CHERRY, 10, 10, 18, 18, 0.0f, 1.0f, 0.0f, 1.0f);
 
     }
 
@@ -83,7 +80,7 @@ public class PhoenixSlotMachineScreen extends AbstractContainerScreen<PhoenixSlo
         int buttonWidth = size + buttonOffset;
         int rowLeft = this.leftPos + (this.imageWidth - (count * buttonWidth - buttonOffset)) / 2;
         int rowTop = this.topPos + this.imageHeight - 20;
-        this.addRenderableWidget(new IconButtonWithHighlightWidget(rowLeft, rowTop, size, size, Component.translatable("label.phoenix.ui.button_auto"), BUTTON_AUTO));
+        this.addRenderableWidget(new IconButtonWithHighlightWidget(rowLeft, rowTop, size, size, Component.translatable("label.phoenix.ui.button_advanced"), BUTTON_ADVANCED));
         for (int i = 0; i < SPIN_WHEELS; i++) {
             int posIndex = i + 1;
             IconButtonWithHighlightWidget widget = this.addRenderableWidget(new IconButtonWithHighlightWidget(rowLeft + buttonWidth * posIndex, rowTop, size, size, Component.translatable("label.phoenix.ui.button_hold"), BUTTON_HOLD));
@@ -146,7 +143,7 @@ public class PhoenixSlotMachineScreen extends AbstractContainerScreen<PhoenixSlo
             for (int i = 0; i < this.displayedIcons; i++) {
                 int spriteIndex = i % this.sprites.size();
                 Identifier sprite = this.sprites.get(spriteIndex);
-                int y = this.getY() + i * (ICON_SIZE + 2);
+                int y = this.getY() + 2 + i * (ICON_SIZE + 2);
                 graphics.blit(sprite, this.getX() + 2, y, this.getX() + 2 + ICON_SIZE, y + ICON_SIZE, 0.0F, 1.0F, 0.0F, 1.0F);
             }
             graphics.disableScissor();

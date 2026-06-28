@@ -10,8 +10,47 @@
     },
     {
       "id": "joker",
-      "sprite": "phoenix:spinwheel/joker",
-      "hidden": true
+      "sprite": "phoenix:spinwheel/joker"
+    },
+    {
+      "id": "bar",
+      "sprite": "phoenix:spinwheel/bar"
+    },
+    {
+      "id": "barbar",
+      "sprite": "phoenix:spinwheel/barbar"
+    },
+    {
+      "id": "barbarbar",
+      "sprite": "phoenix:spinwheel/barbarbar"
+    },
+    {
+      "id": "bell",
+      "sprite": "phoenix:spinwheel/bell"
+    },
+    {
+      "id": "lemon",
+      "sprite": "phoenix:spinwheel/lemon"
+    },
+    {
+      "id": "melon",
+      "sprite": "phoenix:spinwheel/melon"
+    },
+    {
+      "id": "orange",
+      "sprite": "phoenix:spinwheel/orange"
+    },
+    {
+      "id": "plum",
+      "sprite": "phoenix:spinwheel/plum"
+    },
+    {
+      "id": "seven",
+      "sprite": "phoenix:spinwheel/seven"
+    },
+    {
+      "id": "star",
+      "sprite": "phoenix:spinwheel/star"
     }
   ],
   "wildcards": [
@@ -22,9 +61,17 @@
       "combination": [
         "cherry",
         "cherry",
-        "cherry"
+        "*"
       ],
-      "amount": 1000
+      "amount": 2
+    },
+    {
+      "combination": [
+        "lemon",
+        "lemon",
+        "*"
+      ],
+      "amount": 2
     }
   ]
 }
