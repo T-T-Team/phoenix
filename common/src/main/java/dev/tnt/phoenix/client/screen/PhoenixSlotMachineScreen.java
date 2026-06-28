@@ -34,8 +34,10 @@ public class PhoenixSlotMachineScreen extends AbstractContainerScreen<PhoenixSlo
     private static final Identifier BUTTON_RISK_CLUBS = Phoenix.identifier("textures/gui/button_risk_clubs.png");
     private static final Identifier BUTTON_RISK_HEARTS = Phoenix.identifier("textures/gui/button_risk_hearts.png");
     private static final Identifier BUTTON_START = Phoenix.identifier("textures/gui/button_start.png");
+    // symbols
+    private static final Identifier CHERRY = Phoenix.identifier("textures/spinwheel/cherry.png");
     // layout
-    private static final int CONTENT_WIDTH = 170;
+    private static final int CONTENT_WIDTH = 220;
     private static final int CONTENT_HEIGHT = 256;
     private static final int SPIN_WHEELS = 3;
 
@@ -66,6 +68,11 @@ public class PhoenixSlotMachineScreen extends AbstractContainerScreen<PhoenixSlo
         super.extractBackground(graphics, mouseX, mouseY, a);
         // background TODO
         graphics.fill(this.leftPos, this.topPos, this.leftPos + this.imageWidth, this.topPos + this.imageHeight, 0x66404040);
+        int winFrameX = this.leftPos + 3;
+        int winFrameY = this.topPos + this.imageHeight - 60;
+        graphics.blitSprite(RenderPipelines.GUI_TEXTURED, SPRITE_PRICE_SLOT, winFrameX, winFrameY, 120, 30);
+        graphics.blit(CHERRY, winFrameX + 2, winFrameY + 2, winFrameX + 10, winFrameY + 10, 0.0f, 1.0f, 0.0f, 1.0f);
+        graphics.blit(CHERRY, winFrameX + 7, winFrameY + 2, winFrameX + 15, winFrameY + 10, 0.0f, 1.0f, 0.0f, 1.0f);
         // sprites
         // TODO
 
