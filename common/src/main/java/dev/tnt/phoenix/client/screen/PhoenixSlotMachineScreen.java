@@ -71,6 +71,23 @@ public class PhoenixSlotMachineScreen extends AbstractContainerScreen<PhoenixSlo
         int winFrameX = this.leftPos + 3;
         int winFrameY = this.topPos + this.imageHeight - 60;
         graphics.blitSprite(RenderPipelines.GUI_TEXTURED, SPRITE_PRICE_SLOT, winFrameX, winFrameY, 120, 30);
+
+        int rows = 3;
+        int columns = 6;
+        int columnSize = 3;
+        int iconSize = 8;
+        int iconOverlaySpacing = iconSize / 2 + 1;
+        int offset = 2;
+        for (int y = 0; y < rows; y++) {
+            for (int x = 0; x < columns; x++) {
+                int px = winFrameX + offset + x * (columnSize * iconSize);
+                int py = winFrameY + offset + y * (columnSize + iconSize);
+                for (int i = 0; i < columnSize; i++) {
+                    int left = px + i * iconOverlaySpacing;
+                    graphics.blit(CHERRY, left, py, left + iconSize, py + iconSize, 0.0F, 1.0F, 0.0F, 1.0F);
+                }
+            }
+        }
         graphics.blit(CHERRY, winFrameX + 2, winFrameY + 2, winFrameX + 10, winFrameY + 10, 0.0f, 1.0f, 0.0f, 1.0f);
         graphics.blit(CHERRY, winFrameX + 7, winFrameY + 2, winFrameX + 15, winFrameY + 10, 0.0f, 1.0f, 0.0f, 1.0f);
         // sprites
