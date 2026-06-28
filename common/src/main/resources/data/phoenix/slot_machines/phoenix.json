@@ -1,0 +1,13 @@
+{
+  "spin_entries": [
+    {
+      "id": "cherry",
+      "sprite": "phoenix:spinwheel/cherry"
+    },
+    {
+      "id": "grapes",
+      "sprite": "phoenix:spinwheel/grapes"
+    }
+  ],
+  "winning_combinations": []
+}

@@ -2,6 +2,7 @@ package dev.tnt.phoenix;
 
 import dev.tnt.phoenix.block.PhoenixSlotMachineBlock;
 import dev.tnt.phoenix.block.entity.PhoenixSlotMachineBlockEntity;
+import dev.tnt.phoenix.data.SlotMachineDataManager;
 import dev.tnt.phoenix.menu.PhoenixSlotMachineMenu;
 import dev.tnt.phoenix.platform.Platform;
 import dev.tnt.phoenix.platform.Services;
@@ -30,6 +31,9 @@ public class Phoenix {
 
     public static final String MOD_ID = "phoenix";
     public static final Platform PLATFORM = Services.load(Platform.class);
+
+    // Data managers
+    public static final SlotMachineDataManager SLOT_MACHINES = new SlotMachineDataManager();
 
     // Registries
     public static final RegistrationManager<Block> BLOCKS_REGISTRY = PLATFORM.createRegistryManager(BuiltInRegistries.BLOCK);
