@@ -80,7 +80,7 @@ public class PhoenixSlotMachineScreen extends AbstractContainerScreen<PhoenixSlo
         int offset = 2;
         for (int y = 0; y < rows; y++) {
             for (int x = 0; x < columns; x++) {
-                int px = winFrameX + offset + x * (columnSize * iconSize);
+                int px = winFrameX + offset + x * (columnSize * (iconSize + 3));
                 int py = winFrameY + offset + y * (columnSize + iconSize);
                 for (int i = 0; i < columnSize; i++) {
                     int left = px + i * iconOverlaySpacing;
@@ -88,8 +88,6 @@ public class PhoenixSlotMachineScreen extends AbstractContainerScreen<PhoenixSlo
                 }
             }
         }
-        graphics.blit(CHERRY, winFrameX + 2, winFrameY + 2, winFrameX + 10, winFrameY + 10, 0.0f, 1.0f, 0.0f, 1.0f);
-        graphics.blit(CHERRY, winFrameX + 7, winFrameY + 2, winFrameX + 15, winFrameY + 10, 0.0f, 1.0f, 0.0f, 1.0f);
         // sprites
         // TODO
 
