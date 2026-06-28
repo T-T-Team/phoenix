@@ -35,6 +35,9 @@ public class Phoenix {
     // Data managers
     public static final SlotMachineDataManager SLOT_MACHINES = new SlotMachineDataManager();
 
+    // Slot machine configs
+    public static final Identifier SLOT_MACHINE_CONFIG_PHOENIX = identifier("phoenix");
+
     // Registries
     public static final RegistrationManager<Block> BLOCKS_REGISTRY = PLATFORM.createRegistryManager(BuiltInRegistries.BLOCK);
     public static final RegistrationManager<BlockEntityType<?>> BLOCK_ENTITY_REGISTRY = PLATFORM.createRegistryManager(BuiltInRegistries.BLOCK_ENTITY_TYPE);

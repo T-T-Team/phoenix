@@ -1,5 +1,5 @@
 {
-  "spin_entries": [
+  "entries": [
     {
       "id": "cherry",
       "sprite": "phoenix:spinwheel/cherry"
@@ -7,7 +7,24 @@
     {
       "id": "grapes",
       "sprite": "phoenix:spinwheel/grapes"
+    },
+    {
+      "id": "joker",
+      "sprite": "phoenix:spinwheel/joker",
+      "hidden": true
     }
   ],
-  "winning_combinations": []
+  "wildcards": [
+    "joker"
+  ],
+  "winning_combinations": [
+    {
+      "combination": [
+        "cherry",
+        "cherry",
+        "cherry"
+      ],
+      "amount": 1000
+    }
+  ]
 }
