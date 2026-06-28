@@ -59,7 +59,7 @@ public class PhoenixSlotMachineScreen extends AbstractContainerScreen<PhoenixSlo
         SlotMachineConfig config = Phoenix.SLOT_MACHINES.getSlotMachine(Phoenix.SLOT_MACHINE_CONFIG_PHOENIX).orElseThrow();
         List<Identifier> sprites = config.getSprites();
         for (IconButtonWithHighlightWidget holdButton : this.holdButtons) {
-            this.addRenderableWidget(new SpinWheelWidget(holdButton.getX(), holdButton.getY() - 80, holdButton.getWidth(), 60, sprites));
+            this.addRenderableWidget(new SpinWheelWidget(holdButton.getX() - 2, holdButton.getY() - 80, holdButton.getWidth() + 4, 60, sprites));
         }
     }
 
@@ -104,7 +104,6 @@ public class PhoenixSlotMachineScreen extends AbstractContainerScreen<PhoenixSlo
             super(x, y, width, height, CommonComponents.EMPTY);
             this.icon = icon;
             this.iconHighlight = icon.withPath(path -> path.replace(".png", "_on.png"));
-            this.active = false;
             this.setTooltip(Tooltip.create(tooltip));
             this.setTooltipDelay(Duration.ofMillis(300L));
         }
@@ -112,10 +111,10 @@ public class PhoenixSlotMachineScreen extends AbstractContainerScreen<PhoenixSlo
         @Override
         protected void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
             Identifier icon = this.active ? this.iconHighlight : this.icon;
-            if (this.isHovered) {
+            graphics.blit(icon, this.getX(), this.getY(), this.getRight(), this.getBottom(), 0.0F, 1.0F, 0.0F, 1.0F);
+            if (this.active && this.isHovered) {
                 graphics.fill(this.getX(), this.getY(), this.getRight(), this.getBottom(), 0x44FFFFFF);
             }
-            graphics.blit(icon, this.getX(), this.getY(), this.getRight(), this.getBottom(), 0.0F, 1.0F, 0.0F, 1.0F);
         }
 
         @Override
@@ -130,25 +129,27 @@ public class PhoenixSlotMachineScreen extends AbstractContainerScreen<PhoenixSlo
 
     private static final class SpinWheelWidget extends AbstractWidget {
 
-        private static final int ICON_SIZE = 8;
+        private static final int ICON_SIZE = 16;
         private final List<Identifier> sprites;
         private final int displayedIcons;
 
         public SpinWheelWidget(int x, int y, int width, int height, List<Identifier> sprites) {
             super(x, y, width, height, CommonComponents.EMPTY);
             this.sprites = sprites;
-            this.displayedIcons = (height - (ICON_SIZE + 4)) / ICON_SIZE;
+            this.displayedIcons = height / (ICON_SIZE + 2) + 1;
         }
 
         @Override
         protected void extractWidgetRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
             graphics.blitSprite(RenderPipelines.GUI_TEXTURED, SPRITE_SLOT, this.getX(), this.getY(), this.getWidth(), this.getHeight());
+            graphics.enableScissor(this.getX(), this.getY(), this.getRight(), this.getBottom());
             for (int i = 0; i < this.displayedIcons; i++) {
                 int spriteIndex = i % this.sprites.size();
                 Identifier sprite = this.sprites.get(spriteIndex);
-                int y = this.getY() + 1 + i * 10;
-                graphics.blit(sprite, this.getX() + 4, y, this.getX() + 4 + ICON_SIZE, y + ICON_SIZE, 0.0F, 1.0F, 0.0F, 1.0F);
+                int y = this.getY() + i * (ICON_SIZE + 2);
+                graphics.blit(sprite, this.getX() + 2, y, this.getX() + 2 + ICON_SIZE, y + ICON_SIZE, 0.0F, 1.0F, 0.0F, 1.0F);
             }
+            graphics.disableScissor();
         }
 
         @Override
