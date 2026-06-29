@@ -56,22 +56,400 @@
   "wildcards": [
     "joker"
   ],
-  "winning_combinations": [
-    {
-      "combination": [
-        "cherry",
-        "cherry",
-        "*"
+  "sequences": {
+    "low": [
+      [
+        {
+          "symbol": "cherry",
+          "count": 5
+        },
+        {
+          "symbol": "lemon",
+          "count": 4
+        },
+        {
+          "symbol": "orange",
+          "count": 3
+        },
+        {
+          "symbol": "plum",
+          "count": 2
+        },
+        {
+          "symbol": "bell",
+          "count": 2
+        },
+        {
+          "symbol": "grape",
+          "count": 2
+        },
+        {
+          "symbol": "melon",
+          "count": 2
+        },
+        {
+          "symbol": "bar",
+          "count": 1
+        },
+        {
+          "symbol": "barbar",
+          "count": 1
+        },
+        {
+          "symbol": "barbarbar",
+          "count": 1
+        },
+        {
+          "symbol": "joker",
+          "count": 2
+        }
       ],
-      "amount": 2
-    },
-    {
-      "combination": [
-        "lemon",
-        "lemon",
-        "*"
+      [
+        {
+          "symbol": "cherry",
+          "count": 4
+        },
+        {
+          "symbol": "lemon",
+          "count": 5
+        },
+        {
+          "symbol": "orange",
+          "count": 3
+        },
+        {
+          "symbol": "plum",
+          "count": 2
+        },
+        {
+          "symbol": "bell",
+          "count": 2
+        },
+        {
+          "symbol": "grape",
+          "count": 2
+        },
+        {
+          "symbol": "melon",
+          "count": 2
+        },
+        {
+          "symbol": "bar",
+          "count": 1
+        },
+        {
+          "symbol": "barbar",
+          "count": 1
+        },
+        {
+          "symbol": "barbarbar",
+          "count": 1
+        },
+        {
+          "symbol": "joker",
+          "count": 2
+        }
       ],
-      "amount": 2
-    }
-  ]
+      [
+        {
+          "symbol": "cherry",
+          "count": 4
+        },
+        {
+          "symbol": "lemon",
+          "count": 4
+        },
+        {
+          "symbol": "orange",
+          "count": 4
+        },
+        {
+          "symbol": "plum",
+          "count": 2
+        },
+        {
+          "symbol": "bell",
+          "count": 2
+        },
+        {
+          "symbol": "grape",
+          "count": 2
+        },
+        {
+          "symbol": "melon",
+          "count": 2
+        },
+        {
+          "symbol": "bar",
+          "count": 1
+        },
+        {
+          "symbol": "barbar",
+          "count": 1
+        },
+        {
+          "symbol": "barbarbar",
+          "count": 1
+        },
+        {
+          "symbol": "joker",
+          "count": 2
+        }
+      ]
+    ],
+    "high": [
+      [
+        {
+          "symbol": "cherry",
+          "count": 5
+        },
+        {
+          "symbol": "lemon",
+          "count": 4
+        },
+        {
+          "symbol": "orange",
+          "count": 4
+        },
+        {
+          "symbol": "plum",
+          "count": 3
+        },
+        {
+          "symbol": "bell",
+          "count": 3
+        },
+        {
+          "symbol": "grape",
+          "count": 2
+        },
+        {
+          "symbol": "melon",
+          "count": 2
+        },
+        {
+          "symbol": "seven",
+          "count": 1
+        },
+        {
+          "symbol": "star",
+          "count": 1
+        }
+      ],
+      [
+        {
+          "symbol": "cherry",
+          "count": 4
+        },
+        {
+          "symbol": "lemon",
+          "count": 5
+        },
+        {
+          "symbol": "orange",
+          "count": 4
+        },
+        {
+          "symbol": "plum",
+          "count": 3
+        },
+        {
+          "symbol": "bell",
+          "count": 3
+        },
+        {
+          "symbol": "grape",
+          "count": 2
+        },
+        {
+          "symbol": "melon",
+          "count": 2
+        },
+        {
+          "symbol": "seven",
+          "count": 1
+        },
+        {
+          "symbol": "star",
+          "count": 1
+        }
+      ],
+      [
+        {
+          "symbol": "cherry",
+          "count": 4
+        },
+        {
+          "symbol": "lemon",
+          "count": 4
+        },
+        {
+          "symbol": "orange",
+          "count": 5
+        },
+        {
+          "symbol": "plum",
+          "count": 3
+        },
+        {
+          "symbol": "bell",
+          "count": 3
+        },
+        {
+          "symbol": "grape",
+          "count": 2
+        },
+        {
+          "symbol": "melon",
+          "count": 2
+        },
+        {
+          "symbol": "seven",
+          "count": 1
+        },
+        {
+          "symbol": "star",
+          "count": 1
+        }
+      ]
+    ]
+  },
+  "winning_combinations": {
+    "low": [
+      {
+        "symbols": [
+          "cherry",
+          "lemon",
+          "orange"
+        ],
+        "count": 2,
+        "amount": 2
+      },
+      {
+        "symbols": [
+          "plum",
+          "bell",
+          "grape",
+          "melon"
+        ],
+        "count": 2,
+        "amount": 4
+      },
+      {
+        "symbols": [
+          "cherry"
+        ],
+        "count": 3,
+        "amount": 4
+      },
+      {
+        "symbols": [
+          "lemon"
+        ],
+        "count": 3,
+        "amount": 8
+      },
+      {
+        "symbols": [
+          "orange"
+        ],
+        "count": 3,
+        "amount": 12
+      },
+      {
+        "symbols": [
+          "bar",
+          "barbar"
+        ],
+        "count": 2,
+        "amount": 12
+      },
+      {
+        "symbols": [
+          "plum",
+          "bell"
+        ],
+        "count": 3,
+        "amount": 20
+      },
+      {
+        "symbols": [
+          "barbarbar"
+        ],
+        "count": 2,
+        "amount": 20
+      },
+      {
+        "symbols": [
+          "melon",
+          "grape"
+        ],
+        "count": 3,
+        "amount": 40
+      },
+      {
+        "symbols": [
+          "bar",
+          "barbar",
+          "joker"
+        ],
+        "count": 3,
+        "amount": 50
+      },
+      {
+        "symbols": [
+          "barbarbar"
+        ],
+        "count": 3,
+        "amount": 100
+      }
+    ],
+    "high": [
+      {
+        "symbols": [
+          "cherry",
+          "lemon",
+          "orange"
+        ],
+        "count": 3,
+        "amount": 40
+      },
+      {
+        "symbols": [
+          "plum"
+        ],
+        "count": 3,
+        "amount": 60
+      },
+      {
+        "symbols": [
+          "bell",
+          "grape"
+        ],
+        "count": 3,
+        "amount": 80
+      },
+      {
+        "symbols": [
+          "melon"
+        ],
+        "count": 3,
+        "amount": 100
+      },
+      {
+        "symbols": [
+          "seven"
+        ],
+        "count": 3,
+        "amount": 200
+      },
+      {
+        "symbols": [
+          "star"
+        ],
+        "count": 3,
+        "amount": 300
+      }
+    ]
+  }
 }

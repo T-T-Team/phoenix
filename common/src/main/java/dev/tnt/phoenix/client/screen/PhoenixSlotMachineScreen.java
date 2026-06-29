@@ -58,8 +58,10 @@ public class PhoenixSlotMachineScreen extends AbstractContainerScreen<PhoenixSlo
 
         SlotMachineConfig config = Phoenix.SLOT_MACHINES.getSlotMachine(Phoenix.SLOT_MACHINE_CONFIG_PHOENIX).orElseThrow();
         List<Identifier> sprites = config.getSprites();
-        for (IconButtonWithHighlightWidget holdButton : this.holdButtons) {
-            this.addRenderableWidget(new SpinWheelWidget(holdButton.getX() - 2, holdButton.getY() - 95, holdButton.getWidth() + 4, 55, sprites));
+        for (int i = 0; i < this.holdButtons.size(); i++) {
+            IconButtonWithHighlightWidget holdButton = this.holdButtons.get(i);
+            int offset = (i - 1) * 5;
+            this.addRenderableWidget(new SpinWheelWidget(holdButton.getX() - 2 + offset, holdButton.getY() - 95, holdButton.getWidth() + 4, 55, sprites));
         }
     }
 
