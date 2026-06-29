@@ -78,19 +78,20 @@ public class PhoenixSlotMachineScreen extends AbstractContainerScreen<PhoenixSlo
         int iconSize = 8;
         int iconOverlaySpacing = iconSize / 2 + 1;
         int offset = 2;
+        Identifier icon = Phoenix.identifier("textures/spinwheel/star.png");
         for (int y = 0; y < rows; y++) {
             for (int x = 0; x < columns; x++) {
                 int px = winFrameX + offset + x * (columnSize * (iconSize + 3));
                 int py = winFrameY + offset + y * (columnSize + iconSize);
                 for (int i = 0; i < columnSize; i++) {
                     int left = px + i * iconOverlaySpacing;
-                    graphics.blit(CHERRY, left, py, left + iconSize, py + iconSize, 0.0F, 1.0F, 0.0F, 1.0F);
+                    graphics.blit(icon, left, py, left + iconSize, py + iconSize, 0.0F, 1.0F, 0.0F, 1.0F);
                 }
+                graphics.text(this.font, Component.literal("99"), px + columnSize * iconSize - 6, py, 0xFFFFFFFF, true);
             }
         }
         // sprites
         // TODO
-
     }
 
     @Override
