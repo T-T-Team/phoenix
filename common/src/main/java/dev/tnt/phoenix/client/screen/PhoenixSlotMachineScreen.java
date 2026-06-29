@@ -59,7 +59,7 @@ public class PhoenixSlotMachineScreen extends AbstractContainerScreen<PhoenixSlo
         SlotMachineConfig config = Phoenix.SLOT_MACHINES.getSlotMachine(Phoenix.SLOT_MACHINE_CONFIG_PHOENIX).orElseThrow();
         List<Identifier> sprites = config.getSprites();
         for (IconButtonWithHighlightWidget holdButton : this.holdButtons) {
-            this.addRenderableWidget(new SpinWheelWidget(holdButton.getX() - 2, holdButton.getY() - 100, holdButton.getWidth() + 4, 55, sprites));
+            this.addRenderableWidget(new SpinWheelWidget(holdButton.getX() - 2, holdButton.getY() - 95, holdButton.getWidth() + 4, 55, sprites));
         }
     }
 
@@ -68,9 +68,9 @@ public class PhoenixSlotMachineScreen extends AbstractContainerScreen<PhoenixSlo
         super.extractBackground(graphics, mouseX, mouseY, a);
         // background TODO
         graphics.fill(this.leftPos, this.topPos, this.leftPos + this.imageWidth, this.topPos + this.imageHeight, 0x66404040);
-        int winFrameX = this.leftPos + 3;
-        int winFrameY = this.topPos + this.imageHeight - 60;
-        graphics.blitSprite(RenderPipelines.GUI_TEXTURED, SPRITE_PRICE_SLOT, winFrameX, winFrameY, 120, 30);
+        int winFrameX = this.leftPos + 10;
+        int winFrameY = this.topPos + this.imageHeight - 57;
+        graphics.blitSprite(RenderPipelines.GUI_TEXTURED, SPRITE_PRICE_SLOT, winFrameX, winFrameY, 200, 35);
 
         int rows = 3;
         int columns = 6;
@@ -104,12 +104,12 @@ public class PhoenixSlotMachineScreen extends AbstractContainerScreen<PhoenixSlo
         int rowLeft = this.leftPos + (this.imageWidth - (count * buttonWidth - buttonOffset)) / 2;
         int rowTop = this.topPos + this.imageHeight - 20;
         this.addRenderableWidget(new IconButtonWithHighlightWidget(rowLeft, rowTop, size, size, Component.translatable("label.phoenix.ui.button_advanced"), BUTTON_ADVANCED));
+        this.addRenderableWidget(new IconButtonWithHighlightWidget(rowLeft + buttonWidth, rowTop, size, size, Component.translatable("label.phoenix.ui.button_bet"), BUTTON_BET));
         for (int i = 0; i < SPIN_WHEELS; i++) {
-            int posIndex = i + 1;
+            int posIndex = i + 2;
             IconButtonWithHighlightWidget widget = this.addRenderableWidget(new IconButtonWithHighlightWidget(rowLeft + buttonWidth * posIndex, rowTop, size, size, Component.translatable("label.phoenix.ui.button_hold"), BUTTON_HOLD));
             this.holdButtons.add(widget);
         }
-        this.addRenderableWidget(new IconButtonWithHighlightWidget(rowLeft + buttonWidth * 4, rowTop, size, size, Component.translatable("label.phoenix.ui.button_bet"), BUTTON_BET));
         this.addRenderableWidget(new IconButtonWithHighlightWidget(rowLeft + buttonWidth * 5, rowTop, size, size, Component.translatable("label.phoenix.ui.button_risk_clubs"), BUTTON_RISK_CLUBS));
         this.addRenderableWidget(new IconButtonWithHighlightWidget(rowLeft + buttonWidth * 6, rowTop, size, size, Component.translatable("label.phoenix.ui.button_risk_hearts"), BUTTON_RISK_HEARTS));
         this.addRenderableWidget(new IconButtonWithHighlightWidget(rowLeft + buttonWidth * 7, rowTop, size, size, Component.translatable("label.phoenix.ui.button_start"), BUTTON_START));
