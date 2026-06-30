@@ -7,9 +7,11 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.RandomSource;
 import net.minecraft.util.Util;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public final class SlotMachineConfig {
 
@@ -40,6 +42,12 @@ public final class SlotMachineConfig {
         return entry.texturePath();
     }
 
+    public List<Identifier> generateSequence(RandomSource random, GameType gameType, int sequenceIndex) {
+        Sequence sequence = this.sequences.get(gameType).get(sequenceIndex);
+        return sequence.generate(random, this);
+    }
+
+    @Deprecated
     public List<Identifier> getSprites() {
         return this.entries.values().stream()
                 .filter(SpinWheelEntry::visible)
@@ -65,6 +73,38 @@ public final class SlotMachineConfig {
                 SequencePool.STREAM_CODEC.apply(ByteBufCodecs.list()), Sequence::sequence,
                 Sequence::new
         );
+
+        public List<Identifier> generate(RandomSource random, SlotMachineConfig source) {
+            List<TrackedSequencePool> pools = this.initGenerator();
+            List<Identifier> output = new ArrayList<>();
+            while (!pools.isEmpty()) {
+                TrackedSequencePool pool = pools.get(random.nextInt(pools.size()));
+                String symbol = pool.source.symbol();
+                Identifier sprite = source.getSprite(symbol);
+                output.add(sprite);
+                pool.remaining--;
+                if (pool.remaining == 0)
+                    pools.remove(pool);
+            }
+            return output;
+        }
+
+        private List<TrackedSequencePool> initGenerator() {
+            return this.sequence.stream()
+                    .map(TrackedSequencePool::new)
+                    .collect(Collectors.toList());
+        }
+
+        private static final class TrackedSequencePool {
+
+            private final SequencePool source;
+            private int remaining;
+
+            TrackedSequencePool(SequencePool source) {
+                this.source = source;
+                this.remaining = source.count();
+            }
+        }
     }
 
     private record SequencePool(String symbol, int count) {

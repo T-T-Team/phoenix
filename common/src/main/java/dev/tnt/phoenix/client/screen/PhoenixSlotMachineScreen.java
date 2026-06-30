@@ -58,11 +58,11 @@ public class PhoenixSlotMachineScreen extends AbstractContainerScreen<PhoenixSlo
         this.addRenderableWidget(new IconButtonWithHighlightWidget(this.leftPos + this.imageWidth - 40, this.topPos + 4, 16, 16, Component.translatable("label.phoenix.ui.button_multiwin"), BUTTON_MULTIWIN));
         this.addRenderableWidget(new IconButtonWithHighlightWidget(this.leftPos + this.imageWidth - 20, this.topPos + 4, 16, 16, Component.translatable("label.phoenix.ui.button_pay"), BUTTON_PAY));
         // wheels
-        List<Identifier> sprites = config.getSprites();
         for (int i = 0; i < this.holdButtons.size(); i++) {
             IconButtonWithHighlightWidget holdButton = this.holdButtons.get(i);
             int offset = (i - 1) * 5;
-            this.addRenderableOnly(new SpinWheelWidget(holdButton.getX() - 2 + offset, holdButton.getY() - 95, holdButton.getWidth() + 4, 55, sprites));
+            List<Identifier> sequenceSprites = config.generateSequence(this.minecraft.player.getRandom(), GameType.LOW, i);
+            this.addRenderableOnly(new SpinWheelWidget(holdButton.getX() - 2 + offset, holdButton.getY() - 95, holdButton.getWidth() + 4, 55, sequenceSprites));
         }
         // win combinations
         List<WinCombination> winCombinationsDisplay = config.getWinCombinations(GameType.LOW, true);
