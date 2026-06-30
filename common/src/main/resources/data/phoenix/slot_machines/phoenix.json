@@ -80,7 +80,7 @@
           "count": 2
         },
         {
-          "symbol": "grape",
+          "symbol": "grapes",
           "count": 2
         },
         {
@@ -126,7 +126,7 @@
           "count": 2
         },
         {
-          "symbol": "grape",
+          "symbol": "grapes",
           "count": 2
         },
         {
@@ -172,7 +172,7 @@
           "count": 2
         },
         {
-          "symbol": "grape",
+          "symbol": "grapes",
           "count": 2
         },
         {
@@ -220,7 +220,7 @@
           "count": 3
         },
         {
-          "symbol": "grape",
+          "symbol": "grapes",
           "count": 2
         },
         {
@@ -258,7 +258,7 @@
           "count": 3
         },
         {
-          "symbol": "grape",
+          "symbol": "grapes",
           "count": 2
         },
         {
@@ -296,7 +296,7 @@
           "count": 3
         },
         {
-          "symbol": "grape",
+          "symbol": "grapes",
           "count": 2
         },
         {
@@ -329,7 +329,7 @@
         "symbols": [
           "plum",
           "bell",
-          "grape",
+          "grapes",
           "melon"
         ],
         "count": 2,
@@ -362,7 +362,8 @@
           "barbar"
         ],
         "count": 2,
-        "amount": 12
+        "amount": 12,
+        "render": false
       },
       {
         "symbols": [
@@ -377,12 +378,13 @@
           "barbarbar"
         ],
         "count": 2,
-        "amount": 20
+        "amount": 20,
+        "render": false
       },
       {
         "symbols": [
           "melon",
-          "grape"
+          "grapes"
         ],
         "count": 3,
         "amount": 40
@@ -424,7 +426,7 @@
       {
         "symbols": [
           "bell",
-          "grape"
+          "grapes"
         ],
         "count": 3,
         "amount": 80

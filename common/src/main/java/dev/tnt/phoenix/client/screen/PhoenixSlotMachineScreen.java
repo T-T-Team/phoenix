@@ -1,30 +1,25 @@
 package dev.tnt.phoenix.client.screen;
 
 import dev.tnt.phoenix.Phoenix;
+import dev.tnt.phoenix.client.screen.widget.IconButtonWithHighlightWidget;
+import dev.tnt.phoenix.client.screen.widget.SpinWheelWidget;
+import dev.tnt.phoenix.client.screen.widget.WinCombinationsWidget;
+import dev.tnt.phoenix.data.GameType;
 import dev.tnt.phoenix.data.SlotMachineConfig;
+import dev.tnt.phoenix.data.WinCombination;
 import dev.tnt.phoenix.menu.PhoenixSlotMachineMenu;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.client.gui.components.AbstractButton;
-import net.minecraft.client.gui.components.AbstractWidget;
-import net.minecraft.client.gui.components.Tooltip;
-import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.client.input.InputWithModifiers;
-import net.minecraft.client.renderer.RenderPipelines;
-import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
 public class PhoenixSlotMachineScreen extends AbstractContainerScreen<PhoenixSlotMachineMenu> {
 
-    // sprites
-    private static final Identifier SPRITE_PRICE_SLOT = Phoenix.identifier("price_slot");
-    private static final Identifier SPRITE_SLOT = Phoenix.identifier("slot");
     // textures
     private static final Identifier BUTTON_ADVANCED = Phoenix.identifier("textures/gui/button_advanced.png");
     private static final Identifier BUTTON_BET = Phoenix.identifier("textures/gui/button_bet.png");
@@ -34,8 +29,6 @@ public class PhoenixSlotMachineScreen extends AbstractContainerScreen<PhoenixSlo
     private static final Identifier BUTTON_RISK_CLUBS = Phoenix.identifier("textures/gui/button_risk_clubs.png");
     private static final Identifier BUTTON_RISK_HEARTS = Phoenix.identifier("textures/gui/button_risk_hearts.png");
     private static final Identifier BUTTON_START = Phoenix.identifier("textures/gui/button_start.png");
-    // symbols
-    private static final Identifier CHERRY = Phoenix.identifier("textures/spinwheel/cherry.png");
     // layout
     private static final int CONTENT_WIDTH = 220;
     private static final int CONTENT_HEIGHT = 256;
@@ -51,49 +44,38 @@ public class PhoenixSlotMachineScreen extends AbstractContainerScreen<PhoenixSlo
     protected void init() {
         this.holdButtons.clear();
         super.init();
+        SlotMachineConfig config = Phoenix.SLOT_MACHINES.getSlotMachine(Phoenix.SLOT_MACHINE_CONFIG_PHOENIX)
+                .orElse(null);
+        if (config == null) {
+            this.minecraft.gui.setScreen(null);
+            this.minecraft.player.sendOverlayMessage(Component.literal("Invalid slot machine config!").withStyle(ChatFormatting.RED));
+            return;
+        }
 
+        // bottom buttons
         this.addBottomButtonRow(8, 16);
+        // top right buttons
         this.addRenderableWidget(new IconButtonWithHighlightWidget(this.leftPos + this.imageWidth - 40, this.topPos + 4, 16, 16, Component.translatable("label.phoenix.ui.button_multiwin"), BUTTON_MULTIWIN));
         this.addRenderableWidget(new IconButtonWithHighlightWidget(this.leftPos + this.imageWidth - 20, this.topPos + 4, 16, 16, Component.translatable("label.phoenix.ui.button_pay"), BUTTON_PAY));
-
-        SlotMachineConfig config = Phoenix.SLOT_MACHINES.getSlotMachine(Phoenix.SLOT_MACHINE_CONFIG_PHOENIX).orElseThrow();
+        // wheels
         List<Identifier> sprites = config.getSprites();
         for (int i = 0; i < this.holdButtons.size(); i++) {
             IconButtonWithHighlightWidget holdButton = this.holdButtons.get(i);
             int offset = (i - 1) * 5;
-            this.addRenderableWidget(new SpinWheelWidget(holdButton.getX() - 2 + offset, holdButton.getY() - 95, holdButton.getWidth() + 4, 55, sprites));
+            this.addRenderableOnly(new SpinWheelWidget(holdButton.getX() - 2 + offset, holdButton.getY() - 95, holdButton.getWidth() + 4, 55, sprites));
         }
+        // win combinations
+        List<WinCombination> winCombinationsDisplay = config.getWinCombinations(GameType.LOW, true);
+        WinCombinationsWidget widget = this.addRenderableOnly(new WinCombinationsWidget(this.leftPos + 10, this.topPos + this.imageHeight - 57, this.imageWidth - 20, 35, this.font, config, winCombinationsDisplay));
+        widget.setGrid(3, 6, 3);
+        widget.setLayout(8, 5, 3, 2);
     }
 
     @Override
     public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
         super.extractBackground(graphics, mouseX, mouseY, a);
-        // background TODO
+        // background
         graphics.fill(this.leftPos, this.topPos, this.leftPos + this.imageWidth, this.topPos + this.imageHeight, 0x66404040);
-        int winFrameX = this.leftPos + 10;
-        int winFrameY = this.topPos + this.imageHeight - 57;
-        graphics.blitSprite(RenderPipelines.GUI_TEXTURED, SPRITE_PRICE_SLOT, winFrameX, winFrameY, 200, 35);
-
-        int rows = 3;
-        int columns = 6;
-        int columnSize = 3;
-        int iconSize = 8;
-        int iconOverlaySpacing = iconSize / 2 + 1;
-        int offset = 2;
-        Identifier icon = Phoenix.identifier("textures/spinwheel/star.png");
-        for (int y = 0; y < rows; y++) {
-            for (int x = 0; x < columns; x++) {
-                int px = winFrameX + offset + x * (columnSize * (iconSize + 3));
-                int py = winFrameY + offset + y * (columnSize + iconSize);
-                for (int i = 0; i < columnSize; i++) {
-                    int left = px + i * iconOverlaySpacing;
-                    graphics.blit(icon, left, py, left + iconSize, py + iconSize, 0.0F, 1.0F, 0.0F, 1.0F);
-                }
-                graphics.text(this.font, Component.literal("99"), px + columnSize * iconSize - 6, py, 0xFFFFFFFF, true);
-            }
-        }
-        // sprites
-        // TODO
     }
 
     @Override
@@ -117,65 +99,4 @@ public class PhoenixSlotMachineScreen extends AbstractContainerScreen<PhoenixSlo
         this.addRenderableWidget(new IconButtonWithHighlightWidget(rowLeft + buttonWidth * 7, rowTop, size, size, Component.translatable("label.phoenix.ui.button_start"), BUTTON_START));
     }
 
-    private static final class IconButtonWithHighlightWidget extends AbstractButton {
-
-        private final Identifier icon;
-        private final Identifier iconHighlight;
-
-        public IconButtonWithHighlightWidget(int x, int y, int width, int height, Component tooltip, Identifier icon) {
-            super(x, y, width, height, CommonComponents.EMPTY);
-            this.icon = icon;
-            this.iconHighlight = icon.withPath(path -> path.replace(".png", "_on.png"));
-            this.setTooltip(Tooltip.create(tooltip));
-            this.setTooltipDelay(Duration.ofMillis(300L));
-        }
-
-        @Override
-        protected void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
-            Identifier icon = this.active ? this.iconHighlight : this.icon;
-            graphics.blit(icon, this.getX(), this.getY(), this.getRight(), this.getBottom(), 0.0F, 1.0F, 0.0F, 1.0F);
-            if (this.active && this.isHovered) {
-                graphics.fill(this.getX(), this.getY(), this.getRight(), this.getBottom(), 0x44FFFFFF);
-            }
-        }
-
-        @Override
-        public void onPress(InputWithModifiers input) {
-            // TODO implement
-        }
-
-        @Override
-        protected void updateWidgetNarration(NarrationElementOutput output) {
-        }
-    }
-
-    private static final class SpinWheelWidget extends AbstractWidget {
-
-        private static final int ICON_SIZE = 16;
-        private final List<Identifier> sprites;
-        private final int displayedIcons;
-
-        public SpinWheelWidget(int x, int y, int width, int height, List<Identifier> sprites) {
-            super(x, y, width, height, CommonComponents.EMPTY);
-            this.sprites = sprites;
-            this.displayedIcons = height / (ICON_SIZE + 2) + 1;
-        }
-
-        @Override
-        protected void extractWidgetRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
-            graphics.blitSprite(RenderPipelines.GUI_TEXTURED, SPRITE_SLOT, this.getX(), this.getY(), this.getWidth(), this.getHeight());
-            graphics.enableScissor(this.getX(), this.getY(), this.getRight(), this.getBottom());
-            for (int i = 0; i < this.displayedIcons; i++) {
-                int spriteIndex = i % this.sprites.size();
-                Identifier sprite = this.sprites.get(spriteIndex);
-                int y = this.getY() + 2 + i * (ICON_SIZE + 2);
-                graphics.blit(sprite, this.getX() + 2, y, this.getX() + 2 + ICON_SIZE, y + ICON_SIZE, 0.0F, 1.0F, 0.0F, 1.0F);
-            }
-            graphics.disableScissor();
-        }
-
-        @Override
-        protected void updateWidgetNarration(NarrationElementOutput output) {
-        }
-    }
 }

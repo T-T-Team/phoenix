@@ -5,36 +5,40 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.ExtraCodecs;
 
+import java.util.Collections;
 import java.util.List;
-import java.util.Set;
+import java.util.stream.Stream;
 
-public record WinCombination(List<String> combination, int amount) {
+public record WinCombination(List<String> symbols, int count, int amount, boolean render) {
 
     public static final Codec<WinCombination> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.STRING.listOf(1, 10).fieldOf("combination").forGetter(WinCombination::combination),
-            ExtraCodecs.POSITIVE_INT.fieldOf("amount").forGetter(WinCombination::amount)
+            Codec.STRING.listOf(1, Integer.MAX_VALUE).fieldOf("symbols").forGetter(WinCombination::symbols),
+            ExtraCodecs.POSITIVE_INT.fieldOf("count").forGetter(WinCombination::count),
+            ExtraCodecs.POSITIVE_INT.fieldOf("amount").forGetter(WinCombination::amount),
+            Codec.BOOL.optionalFieldOf("render", true).forGetter(WinCombination::render)
     ).apply(instance, WinCombination::new));
     public static final StreamCodec<ByteBuf, WinCombination> STREAM_CODEC = StreamCodec.composite(
-            ByteBufCodecs.STRING_UTF8.apply(ByteBufCodecs.list()), WinCombination::combination,
+            ByteBufCodecs.STRING_UTF8.apply(ByteBufCodecs.list()), WinCombination::symbols,
+            ByteBufCodecs.INT, WinCombination::count,
             ByteBufCodecs.INT, WinCombination::amount,
+            ByteBufCodecs.BOOL, WinCombination::render,
             WinCombination::new
     );
 
-    public boolean isWin(SlotMachineConfig config, List<String> value) {
-        if (this.combination.size() != value.size())
-            return false;
-        Set<String> wildcards = config.getWildcards();
-        for (int i = 0; i < value.size(); i++) {
-            String entry = value.get(i);
-            if (wildcards.contains(entry))
-                continue;
-            String combinationEntry = this.combination.get(i);
-            if (combinationEntry.equals(entry))
-                continue;
-            return false;
-        }
-        return true;
+    public Stream<WinCombination> spread() {
+        return this.symbols.stream()
+                .map(symbol -> new WinCombination(Collections.singletonList(symbol), this.count, this.amount, this.render));
+    }
+
+    public Identifier getSprite(SlotMachineConfig config) {
+        String symbol = this.symbols.getFirst();
+        return config.getSprite(symbol);
+    }
+
+    public boolean shouldRender(boolean mode) {
+        return this.render == mode;
     }
 }
