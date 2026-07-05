@@ -4,6 +4,7 @@ import com.mojang.serialization.MapCodec;
 import dev.tnt.phoenix.Phoenix;
 import dev.tnt.phoenix.block.entity.PhoenixSlotMachineBlockEntity;
 import dev.tnt.phoenix.menu.PhoenixSlotMachineMenu;
+import dev.tnt.phoenix.network.S2C_OpenPhoenixMachineScreen;
 import dev.tnt.phoenix.platform.init.PlatformMenuProvider;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -34,20 +35,7 @@ public class PhoenixSlotMachineBlock extends HorizontalDirectionalBlock implemen
         if (!level.isClientSide()) {
             ServerPlayer serverPlayer = (ServerPlayer) player;
             PhoenixSlotMachineBlockEntity blockEntity = (PhoenixSlotMachineBlockEntity) level.getBlockEntity(pos);
-            Phoenix.PLATFORM.openMenu(serverPlayer, BlockPos.STREAM_CODEC, new PlatformMenuProvider<>() {
-                @Override
-                public Component title() {
-                    return NAME;
-                }
-                @Override
-                public BlockPos getMenuData(ServerPlayer player) {
-                    return pos;
-                }
-                @Override
-                public AbstractContainerMenu createMenu(int menuId, Inventory inventory, Player player) {
-                    return new PhoenixSlotMachineMenu(menuId, inventory, blockEntity);
-                }
-            });
+            Phoenix.PLATFORM.sendPacket(serverPlayer, new S2C_OpenPhoenixMachineScreen(blockEntity.getBlockPos()));
         }
         return InteractionResult.SUCCESS;
     }

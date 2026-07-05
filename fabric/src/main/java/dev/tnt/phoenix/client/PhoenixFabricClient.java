@@ -1,6 +1,7 @@
 package dev.tnt.phoenix.client;
 
 import dev.tnt.phoenix.client.platform.PlatformScreenManager;
+import dev.tnt.phoenix.network.S2C_OpenPhoenixMachineScreen;
 import dev.tnt.phoenix.network.S2C_SyncSlotMachineConfigs;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -17,6 +18,7 @@ public final class PhoenixFabricClient implements ClientModInitializer {
         PhoenixClient.init();
         PlatformScreenManager.getInstance().registerScreenConstructors(this::registerMenuScreen);
         ClientPlayNetworking.registerGlobalReceiver(S2C_SyncSlotMachineConfigs.TYPE, (payload, _) -> payload.handle());
+        ClientPlayNetworking.registerGlobalReceiver(S2C_OpenPhoenixMachineScreen.TYPE, (payload, _) -> payload.handle());
     }
 
     private <M extends AbstractContainerMenu, S extends Screen & MenuAccess<M>> void registerMenuScreen(MenuType<M> menuType, PlatformScreenManager.ScreenConstructor<M, S> constructor) {

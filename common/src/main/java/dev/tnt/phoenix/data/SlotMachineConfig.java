@@ -18,23 +18,23 @@ public final class SlotMachineConfig {
     public static final Codec<SlotMachineConfig> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             SpinWheelEntry.CODEC.listOf().fieldOf("entries").forGetter(c -> new ArrayList<>(c.entries.values())),
             Codec.unboundedMap(GameType.CODEC, Sequence.CODEC.listOf()).fieldOf("sequences").forGetter(c -> c.sequences),
-            Codec.unboundedMap(GameType.CODEC, WinCombination.CODEC.listOf()).fieldOf("winning_combinations").forGetter(c -> c.winCombinations)
+            Codec.unboundedMap(GameType.CODEC, WinConfiguration.CODEC).fieldOf("win_configuration").forGetter(c -> c.winConfiguration)
     ).apply(instance, SlotMachineConfig::new));
     public static final StreamCodec<FriendlyByteBuf, SlotMachineConfig> STREAM_CODEC = StreamCodec.composite(
             SpinWheelEntry.STREAM_CODEC.apply(ByteBufCodecs.list()), c -> new ArrayList<>(c.entries.values()),
             ByteBufCodecs.map(HashMap::new, GameType.STREAM_CODEC, Sequence.STREAM_CODEC.apply(ByteBufCodecs.list())), c -> c.sequences,
-            ByteBufCodecs.map(HashMap::new, GameType.STREAM_CODEC, WinCombination.STREAM_CODEC.apply(ByteBufCodecs.list())), cfg -> cfg.winCombinations,
+            ByteBufCodecs.map(HashMap::new, GameType.STREAM_CODEC, WinConfiguration.STREAM_CODEC), cfg -> cfg.winConfiguration,
             SlotMachineConfig::new
     );
 
     private final Map<String, SpinWheelEntry> entries;
     private final Map<GameType, List<Sequence>> sequences;
-    private final Map<GameType, List<WinCombination>> winCombinations;
+    private final Map<GameType, WinConfiguration> winConfiguration;
 
-    private SlotMachineConfig(List<SpinWheelEntry> entries, Map<GameType, List<Sequence>> sequences, Map<GameType, List<WinCombination>> winCombinations) {
+    private SlotMachineConfig(List<SpinWheelEntry> entries, Map<GameType, List<Sequence>> sequences, Map<GameType, WinConfiguration> winConfiguration) {
         this.entries = Util.make(new HashMap<>(), map -> entries.forEach(entry -> map.put(entry.id(), entry)));
         this.sequences = sequences;
-        this.winCombinations = winCombinations;
+        this.winConfiguration = winConfiguration;
     }
 
     public Identifier getSprite(String symbol) {
@@ -55,15 +55,8 @@ public final class SlotMachineConfig {
                 .toList();
     }
 
-    public List<WinCombination> getWinCombinations(GameType gameType, boolean renderable) {
-        List<WinCombination> winCombinationList = this.winCombinations.get(gameType);
-        if (winCombinationList == null)
-            return Collections.emptyList();
-        return winCombinationList.stream()
-                .filter(combination -> combination.shouldRender(renderable))
-                .sorted(Comparator.comparingInt(WinCombination::amount))
-                .flatMap(WinCombination::spread)
-                .toList();
+    public WinConfiguration getWinningConfiguration(GameType gameType) {
+        return this.winConfiguration.get(gameType);
     }
 
     private record Sequence(List<SequencePool> sequence) {

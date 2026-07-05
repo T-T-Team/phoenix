@@ -6,6 +6,7 @@ import dev.tnt.phoenix.platform.init.RegistrationManager;
 import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Inventory;
@@ -25,6 +26,8 @@ public interface Platform {
     <M extends AbstractContainerMenu, D> MenuType<M> createMenuType(MenuFactory<M, D> factory, StreamCodec<? super FriendlyByteBuf, D> dataCodec);
 
     <T> void openMenu(ServerPlayer player, StreamCodec<? super FriendlyByteBuf, T> codec, PlatformMenuProvider<T> provider);
+
+    void sendPacket(ServerPlayer target, CustomPacketPayload payload);
 
     @FunctionalInterface
     interface TabPopulator {

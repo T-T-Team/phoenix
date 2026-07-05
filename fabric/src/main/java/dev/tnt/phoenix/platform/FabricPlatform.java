@@ -6,10 +6,12 @@ import dev.tnt.phoenix.platform.init.RegistrationManager;
 import net.fabricmc.fabric.api.creativetab.v1.FabricCreativeModeTab;
 import net.fabricmc.fabric.api.menu.v1.ExtendedMenuProvider;
 import net.fabricmc.fabric.api.menu.v1.ExtendedMenuType;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Inventory;
@@ -67,6 +69,11 @@ public final class FabricPlatform implements Platform {
                 return provider.createMenu(containerId, inventory, player);
             }
         });
+    }
+
+    @Override
+    public void sendPacket(ServerPlayer target, CustomPacketPayload payload) {
+        ServerPlayNetworking.send(target, payload);
     }
 
     public static void bindRegistries() {

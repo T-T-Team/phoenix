@@ -26,8 +26,12 @@ public class WinCombinationsWidget extends AbstractWidget {
     private int maxColumnSize = 3;
     private int iconSize = 8;
     private int iconOverlaySpacing = 4;
+    private int rowSpacing;
     private int columnSpacing = 4;
-    private int offset;
+    private int horizontalOffset;
+    private int verticalOffset;
+    private int textColor = 0xFFFFFFFF;
+    private Identifier blankSprite;
 
     public WinCombinationsWidget(int x, int y, int width, int height, Font font, SlotMachineConfig config, List<WinCombination> combinations) {
         super(x, y, width, height, CommonComponents.EMPTY);
@@ -42,11 +46,28 @@ public class WinCombinationsWidget extends AbstractWidget {
         this.maxColumnSize = maxColumnSize;
     }
 
-    public void setLayout(int iconSize, int iconOverlaySpacing, int columnSpacing, int offset) {
+    public void setLayout(int iconSize, int iconOverlaySpacing, int rowSpacing, int columnSpacing) {
         this.iconSize = iconSize;
         this.iconOverlaySpacing = iconOverlaySpacing;
+        this.rowSpacing = rowSpacing;
         this.columnSpacing = columnSpacing;
-        this.offset = offset;
+    }
+
+    public void setOffsets(int horizontal, int vertical) {
+        this.horizontalOffset = horizontal;
+        this.verticalOffset = vertical;
+    }
+
+    public void setOffsets(int offset) {
+        this.setOffsets(offset, offset);
+    }
+
+    public void setTextColor(int textColor) {
+        this.textColor = textColor;
+    }
+
+    public void setBlankSprite(Identifier sprite) {
+        this.blankSprite = sprite;
     }
 
     @Override
@@ -55,21 +76,24 @@ public class WinCombinationsWidget extends AbstractWidget {
         graphics.blitSprite(RenderPipelines.GUI_TEXTURED, SPRITE_PRICE_SLOT, this.getX(), this.getY(), this.getWidth(), this.getHeight());
         for (int x = 0; x < this.columns; x++) {
             for (int y = 0; y < this.rows; y++) {
-                // TODO spacing adjusted to screen size
-                int px = this.getX() + this.offset + x * (this.maxColumnSize * (this.iconSize + this.columnSpacing));
-                int py = this.getY() + this.offset + y * (this.maxColumnSize + this.iconSize);
-                int index = y * this.columns + x;
+                int index = x * this.rows + y;
+                int px = this.getX() + this.horizontalOffset + x * (this.maxColumnSize * (this.iconSize + this.columnSpacing));
+                int py = this.getY() + this.verticalOffset + y * (this.iconSize + this.rowSpacing);
                 if (index >= this.combinations.size()) {
                     break;
                 }
                 WinCombination combination = this.combinations.get(index);
                 Identifier icon = combination.getSprite(this.config);
-                for (int i = 0; i < Math.min(this.maxColumnSize, combination.count()); i++) {
+                for (int i = 0; i < this.maxColumnSize; i++) {
+                    Identifier sprite = i >= combination.count() ? this.blankSprite : icon;
+                    if (sprite == null) {
+                        break;
+                    }
                     int left = px + i * this.iconOverlaySpacing;
-                    graphics.blit(icon, left, py, left + this.iconSize, py + this.iconSize, 0.0F, 1.0F, 0.0F, 1.0F);
+                    graphics.blit(sprite, left, py, left + this.iconSize, py + this.iconSize, 0.0F, 1.0F, 0.0F, 1.0F);
                 }
                 Component amountLabel = Component.literal(String.valueOf(combination.amount()));
-                graphics.text(this.font, amountLabel, px + this.maxColumnSize * this.iconSize - 6, py, 0xFFFFFFFF, true);
+                graphics.text(this.font, amountLabel, px + this.maxColumnSize * this.iconSize - 5, py + (this.iconSize - this.font.lineHeight) / 2, this.textColor, true);
             }
         }
         graphics.disableScissor();

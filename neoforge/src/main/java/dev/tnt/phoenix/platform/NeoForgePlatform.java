@@ -7,6 +7,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
@@ -16,6 +17,7 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.neoforged.neoforge.common.extensions.IMenuTypeExtension;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -58,5 +60,10 @@ public final class NeoForgePlatform implements Platform {
             T data = provider.getMenuData(player);
             codec.encode(buf, data);
         });
+    }
+
+    @Override
+    public void sendPacket(ServerPlayer target, CustomPacketPayload payload) {
+        PacketDistributor.sendToPlayer(target, payload);
     }
 }
