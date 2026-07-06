@@ -7,6 +7,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.Util;
 
@@ -100,14 +101,16 @@ public final class SlotMachineConfig {
         }
     }
 
-    private record SequencePool(String symbol, int count) {
+    private record SequencePool(String symbol, int count, int weight) {
         public static final Codec<SequencePool> CODEC = RecordCodecBuilder.create(instance -> instance.group(
                 Codec.STRING.fieldOf("symbol").forGetter(SequencePool::symbol),
-                Codec.INT.fieldOf("count").forGetter(SequencePool::count)
+                Codec.INT.fieldOf("count").forGetter(SequencePool::count),
+                ExtraCodecs.POSITIVE_INT.optionalFieldOf("weight", 1).forGetter(SequencePool::weight)
         ).apply(instance, SequencePool::new));
         public static final StreamCodec<ByteBuf, SequencePool> STREAM_CODEC = StreamCodec.composite(
                 ByteBufCodecs.STRING_UTF8, SequencePool::symbol,
                 ByteBufCodecs.INT, SequencePool::count,
+                ByteBufCodecs.INT, SequencePool::weight,
                 SequencePool::new
         );
     }
