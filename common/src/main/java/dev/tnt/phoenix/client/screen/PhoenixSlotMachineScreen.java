@@ -137,11 +137,12 @@ public class PhoenixSlotMachineScreen extends Screen {
         for (int i = 0; i < this.holdButtons.size(); i++) {
             IconButtonWithHighlightWidget holdButton = this.holdButtons.get(i);
             int offset = (i - 1) * 5;
+            // TODO add renderable only
             List<Identifier> sequenceSprites = config.generateSequence(this.minecraft.player.getRandom(), GameType.LOW, i);
-            this.addRenderableOnly(new SpinWheelWidget(holdButton.getX() - 2 + offset, holdButton.getY() - 89, holdButton.getWidth() + 4, 55, sequenceSprites));
+            this.addRenderableWidget(new SpinWheelWidget(holdButton.getX() - 2 + offset, holdButton.getY() - 89, holdButton.getWidth() + 4, 55, sequenceSprites));
 
             List<Identifier> highSequenceSprites = config.generateSequence(this.minecraft.player.getRandom(), GameType.HIGH, i);
-            this.addRenderableOnly(new SpinWheelWidget(holdButton.getX() - 2 + offset, holdButton.getY() - 200, holdButton.getWidth() + 4, 55, highSequenceSprites));
+            this.addRenderableWidget(new SpinWheelWidget(holdButton.getX() - 2 + offset, holdButton.getY() - 200, holdButton.getWidth() + 4, 55, highSequenceSprites));
         }
     }
 
