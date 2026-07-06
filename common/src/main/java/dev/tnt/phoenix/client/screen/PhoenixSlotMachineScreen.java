@@ -7,10 +7,7 @@ import dev.tnt.phoenix.client.screen.widget.BalanceWidget;
 import dev.tnt.phoenix.client.screen.widget.IconButtonWithHighlightWidget;
 import dev.tnt.phoenix.client.screen.widget.SpinWheelWidget;
 import dev.tnt.phoenix.client.screen.widget.WinCombinationsWidget;
-import dev.tnt.phoenix.data.GameType;
-import dev.tnt.phoenix.data.SlotMachineConfig;
-import dev.tnt.phoenix.data.WinCombination;
-import dev.tnt.phoenix.data.WinConfiguration;
+import dev.tnt.phoenix.data.*;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
@@ -60,6 +57,7 @@ public class PhoenixSlotMachineScreen extends Screen {
             return;
         }
         this.blockEntity = phoenixSlotMachineBlockEntity;
+        DataInstanceHolder data = this.blockEntity.getPlayerData(this.minecraft.player.getUUID());
         this.leftPos = (this.width - CONTENT_WIDTH) / 2;
         this.topPos = (this.height - CONTENT_HEIGHT) / 2;
         this.holdButtons.clear();
@@ -91,7 +89,6 @@ public class PhoenixSlotMachineScreen extends Screen {
         lowWinsWidget.setBlankSprite(BLANK);
         // win combinations - special
         IconButtonWithHighlightWidget firstButton = this.holdButtons.getFirst();
-        IconButtonWithHighlightWidget lastButton = this.holdButtons.getLast();
         List<WinCombination> specialCombinationsDisplay = lowConfiguration.getDisplayableCombinations(false);
         WinCombinationsWidget specialWinsWidget = this.addRenderableOnly(new WinCombinationsWidget(this.leftPos + 10, firstButton.getY() - 79, 41, 45, this.font, config, specialCombinationsDisplay));
         specialWinsWidget.setGrid(4, 1, 3);
@@ -108,7 +105,7 @@ public class PhoenixSlotMachineScreen extends Screen {
         // balance widget
         BalanceWidget multiWinBalanceWidget = this.addRenderableOnly(new BalanceWidget(firstButton.getX() - 11, this.topPos + 95, 80, 24, () -> 301500, this.font));
         multiWinBalanceWidget.setTextScale(2.0F);
-        this.addRenderableOnly(new BalanceWidget(this.leftPos + CONTENT_WIDTH - 70, this.topPos + CONTENT_HEIGHT - 69, 60, 16, () -> 100000, this.font));
+        this.addRenderableOnly(new BalanceWidget(this.leftPos + CONTENT_WIDTH - 70, this.topPos + CONTENT_HEIGHT - 69, 60, 16, data::getValue, this.font));
         this.addRenderableOnly(new BalanceWidget(this.leftPos + CONTENT_WIDTH - 62, this.topPos + CONTENT_HEIGHT - 87, 44, 16, () -> 2500, this.font));
         this.addRenderableOnly(new BalanceWidget(this.leftPos + CONTENT_WIDTH - 70, this.topPos + CONTENT_HEIGHT - 109, 60, 20));
 

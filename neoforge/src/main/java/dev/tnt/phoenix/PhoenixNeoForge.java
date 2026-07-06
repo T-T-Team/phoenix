@@ -1,5 +1,6 @@
 package dev.tnt.phoenix;
 
+import dev.tnt.phoenix.data.ItemValueDefinitionManager;
 import dev.tnt.phoenix.data.SlotMachineDataManager;
 import dev.tnt.phoenix.network.S2C_OpenPhoenixMachineScreen;
 import dev.tnt.phoenix.network.S2C_SyncSlotMachineConfigs;
@@ -32,6 +33,7 @@ public final class PhoenixNeoForge {
 
     private void registerDataPacks(AddServerReloadListenersEvent event) {
         event.addListener(SlotMachineDataManager.DATA_MANAGER_IDENTIFIER, Phoenix.SLOT_MACHINES);
+        event.addListener(ItemValueDefinitionManager.DATA_MANAGER_IDENTIFIER, Phoenix.ITEM_VALUES);
     }
 
     private void initNetworking(RegisterPayloadHandlersEvent event) {

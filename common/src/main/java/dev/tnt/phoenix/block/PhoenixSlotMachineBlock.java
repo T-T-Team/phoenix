@@ -3,16 +3,16 @@ package dev.tnt.phoenix.block;
 import com.mojang.serialization.MapCodec;
 import dev.tnt.phoenix.Phoenix;
 import dev.tnt.phoenix.block.entity.PhoenixSlotMachineBlockEntity;
-import dev.tnt.phoenix.menu.PhoenixSlotMachineMenu;
 import dev.tnt.phoenix.network.S2C_OpenPhoenixMachineScreen;
-import dev.tnt.phoenix.platform.init.PlatformMenuProvider;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.item.ItemCooldowns;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
@@ -21,10 +21,14 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jspecify.annotations.Nullable;
 
+import java.util.UUID;
+
 public class PhoenixSlotMachineBlock extends HorizontalDirectionalBlock implements EntityBlock {
 
     public static final MapCodec<PhoenixSlotMachineBlock> CODEC = simpleCodec(PhoenixSlotMachineBlock::new);
     public static final Component NAME = Component.translatable("container.phoenix.phoenix_slot_machine");
+
+    public static final Component MESSAGE_ITEM_NOT_INSERTABLE = Component.translatable("message.phoenix.item_not_insertable").withStyle(ChatFormatting.RED);
 
     public PhoenixSlotMachineBlock(Properties properties) {
         super(properties);
@@ -36,6 +40,30 @@ public class PhoenixSlotMachineBlock extends HorizontalDirectionalBlock implemen
             ServerPlayer serverPlayer = (ServerPlayer) player;
             PhoenixSlotMachineBlockEntity blockEntity = (PhoenixSlotMachineBlockEntity) level.getBlockEntity(pos);
             Phoenix.PLATFORM.sendPacket(serverPlayer, new S2C_OpenPhoenixMachineScreen(blockEntity.getBlockPos()));
+        }
+        return InteractionResult.SUCCESS;
+    }
+
+    @Override
+    protected InteractionResult useItemOn(ItemStack itemStack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
+        if (itemStack.isEmpty()) {
+            return InteractionResult.TRY_WITH_EMPTY_HAND;
+        }
+        // TODO could be improved if we synchronize item values to client
+        if (!level.isClientSide()) {
+            ItemCooldowns cooldowns = player.getCooldowns();
+            if (cooldowns.isOnCooldown(itemStack))
+                return InteractionResult.CONSUME;
+            UUID uid = player.getUUID();
+            PhoenixSlotMachineBlockEntity blockEntity = (PhoenixSlotMachineBlockEntity) level.getBlockEntity(pos);
+            if (blockEntity.insertItem(uid, itemStack, player.isCrouching())) {
+                if (!player.isCreative()) {
+                    itemStack.shrink(player.isCrouching() ? itemStack.count() : 1);
+                }
+                cooldowns.addCooldown(itemStack, 20);
+            } else {
+                player.sendOverlayMessage(MESSAGE_ITEM_NOT_INSERTABLE);
+            }
         }
         return InteractionResult.SUCCESS;
     }

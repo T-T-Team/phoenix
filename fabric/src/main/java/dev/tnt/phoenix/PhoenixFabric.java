@@ -1,5 +1,6 @@
 package dev.tnt.phoenix;
 
+import dev.tnt.phoenix.data.ItemValueDefinitionManager;
 import dev.tnt.phoenix.data.SlotMachineDataManager;
 import dev.tnt.phoenix.network.S2C_OpenPhoenixMachineScreen;
 import dev.tnt.phoenix.network.S2C_SyncSlotMachineConfigs;
@@ -19,9 +20,12 @@ public final class PhoenixFabric implements ModInitializer {
         Phoenix.init();
         FabricPlatform.bindRegistries();
 
+        // data managers
         ResourceLoader resourceLoader = ResourceLoader.get(PackType.SERVER_DATA);
         resourceLoader.registerReloadListener(SlotMachineDataManager.DATA_MANAGER_IDENTIFIER, Phoenix.SLOT_MACHINES);
+        resourceLoader.registerReloadListener(ItemValueDefinitionManager.DATA_MANAGER_IDENTIFIER, Phoenix.ITEM_VALUES);
 
+        // packets
         PayloadTypeRegistry<RegistryFriendlyByteBuf> s2c = PayloadTypeRegistry.clientboundPlay();
         s2c.register(S2C_SyncSlotMachineConfigs.TYPE, S2C_SyncSlotMachineConfigs.STREAM_CODEC);
         s2c.register(S2C_OpenPhoenixMachineScreen.TYPE, S2C_OpenPhoenixMachineScreen.STREAM_CODEC);
