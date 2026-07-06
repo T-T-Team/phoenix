@@ -2,7 +2,7 @@ package dev.tnt.phoenix.data;
 
 import dev.tnt.phoenix.Phoenix;
 import dev.tnt.phoenix.network.S2C_SyncSlotMachineConfigs;
-import net.minecraft.network.FriendlyByteBuf;
+import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.FileToIdConverter;
@@ -16,7 +16,7 @@ import java.util.*;
 public final class SlotMachineDataManager extends SimpleJsonResourceReloadListener<SlotMachineConfig> {
 
     public static final Identifier DATA_MANAGER_IDENTIFIER = Phoenix.identifier("slot_machine_manager");
-    public static final StreamCodec<FriendlyByteBuf, List<SlotMachineConfigWithId>> STREAM_CODEC = StreamCodec.composite(
+    public static final StreamCodec<ByteBuf, List<SlotMachineConfigWithId>> STREAM_CODEC = StreamCodec.composite(
             Identifier.STREAM_CODEC, SlotMachineConfigWithId::id,
             SlotMachineConfig.STREAM_CODEC, SlotMachineConfigWithId::config,
             SlotMachineConfigWithId::new

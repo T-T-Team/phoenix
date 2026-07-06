@@ -53,7 +53,64 @@
       "sprite": "phoenix:spinwheel/star"
     }
   ],
-  "sequences": {
+  "sequence_generators": {
+    "low": [
+      {
+        "generator": "weighted_pools",
+        "pools": [
+          {
+            "symbol": "cherry",
+            "count": 5,
+            "weight": 5
+          }
+        ]
+      },
+      {
+        "generator": "weighted_pools",
+        "pools": [
+          {
+            "symbol": "cherry",
+            "count": 5,
+            "weight": 5
+          }
+        ]
+      },
+      {
+        "generator": "weighted_pools",
+        "pools": [
+          {
+            "symbol": "cherry",
+            "count": 5,
+            "weight": 5
+          }
+        ]
+      }
+    ],
+    "high": [
+      {
+        "generator": "simple_sequence",
+        "sequence": [
+          "cherry",
+          "lemon"
+        ]
+      },
+      {
+        "generator": "simple_sequence",
+        "sequence": [
+          "cherry",
+          "lemon"
+        ]
+      },
+      {
+        "generator": "simple_sequence",
+        "sequence": [
+          "cherry",
+          "lemon"
+        ]
+      }
+    ]
+  },
+  "REMOVE_sequences": {
     "low": [
       [
         {

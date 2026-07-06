@@ -11,7 +11,7 @@ public final class SpinWheelEntry {
 
     public static final Codec<SpinWheelEntry> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.STRING.fieldOf("id").forGetter(SpinWheelEntry::id),
-            Identifier.CODEC.fieldOf("sprite").forGetter(t -> t.sprite),
+            Identifier.CODEC.fieldOf("sprite").forGetter(t -> t.path),
             Codec.BOOL.optionalFieldOf("hidden", false).forGetter(SpinWheelEntry::hidden)
     ).apply(instance, SpinWheelEntry::new));
     public static final StreamCodec<ByteBuf, SpinWheelEntry> STREAM_CODEC = StreamCodec.composite(
