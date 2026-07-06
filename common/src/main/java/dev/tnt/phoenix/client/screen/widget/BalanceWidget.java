@@ -54,7 +54,7 @@ public final class BalanceWidget extends AbstractWidget {
             pose.pushMatrix();
             pose.translate(this.getRight() - 3 - textWidth * this.textScale, this.getY() + 3);
             pose.scale(this.textScale);
-            graphics.text(this.font, text, 0, 0, this.textColor);
+            graphics.text(this.font, text, 0, 0, this.textColor, false);
             pose.popMatrix();
         }
     }
