@@ -1,14 +1,22 @@
 [
   {
-    "item": "#c:nuggets/iron",
+    "item": "#c:ingots/copper",
     "value": 1
   },
   {
     "item": "#c:ingots/iron",
-    "value": 9
+    "value": 5
+  },
+  {
+    "item": "#c:ingots/gold",
+    "value": 10
   },
   {
     "item": "minecraft:emerald",
+    "value": 20
+  },
+  {
+    "item": "minecraft:diamond",
     "value": 50
   }
 ]

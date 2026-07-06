@@ -3,10 +3,7 @@ package dev.tnt.phoenix.client.screen;
 import dev.tnt.phoenix.Phoenix;
 import dev.tnt.phoenix.block.PhoenixSlotMachineBlock;
 import dev.tnt.phoenix.block.entity.PhoenixSlotMachineBlockEntity;
-import dev.tnt.phoenix.client.screen.widget.BalanceWidget;
-import dev.tnt.phoenix.client.screen.widget.IconButtonWithHighlightWidget;
-import dev.tnt.phoenix.client.screen.widget.SpinWheelWidget;
-import dev.tnt.phoenix.client.screen.widget.WinCombinationsWidget;
+import dev.tnt.phoenix.client.screen.widget.*;
 import dev.tnt.phoenix.data.*;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -107,7 +104,7 @@ public class PhoenixSlotMachineScreen extends Screen {
         multiWinBalanceWidget.setTextScale(2.0F);
         this.addRenderableOnly(new BalanceWidget(this.leftPos + CONTENT_WIDTH - 70, this.topPos + CONTENT_HEIGHT - 69, 60, 16, data::getValue, this.font));
         this.addRenderableOnly(new BalanceWidget(this.leftPos + CONTENT_WIDTH - 62, this.topPos + CONTENT_HEIGHT - 87, 44, 16, () -> 2500, this.font));
-        this.addRenderableOnly(new BalanceWidget(this.leftPos + CONTENT_WIDTH - 70, this.topPos + CONTENT_HEIGHT - 109, 60, 20));
+        this.addRenderableOnly(new RiskWidget(this.leftPos + CONTENT_WIDTH - 60, this.topPos + CONTENT_HEIGHT - 109, 40, 20));
 
     }
 
