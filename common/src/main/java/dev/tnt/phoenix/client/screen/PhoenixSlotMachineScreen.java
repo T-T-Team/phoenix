@@ -120,6 +120,11 @@ public class PhoenixSlotMachineScreen extends Screen {
         graphics.fill(this.leftPos, this.topPos, this.leftPos + CONTENT_WIDTH, this.topPos + CONTENT_HEIGHT, 0x66404040);
     }
 
+    @Override
+    public boolean isPauseScreen() {
+        return false;
+    }
+
     private void addSpinWheels(SlotMachineConfig config, WinConfiguration low, WinConfiguration high) {
         IconButtonWithHighlightWidget first = this.holdButtons.getFirst();
         IconButtonWithHighlightWidget last = this.holdButtons.getLast();

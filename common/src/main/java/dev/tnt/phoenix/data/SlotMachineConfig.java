@@ -69,16 +69,17 @@ public final class SlotMachineConfig {
         );
 
         public List<Identifier> generate(RandomSource random, SlotMachineConfig source) {
-            List<TrackedSequencePool> pools = this.initGenerator();
+            WeightedGenerator generator = new WeightedGenerator(this.initGenerator());
             List<Identifier> output = new ArrayList<>();
-            while (!pools.isEmpty()) {
-                TrackedSequencePool pool = pools.get(random.nextInt(pools.size()));
+            while (generator.canGenerate()) {
+                int poolIndex = generator.getPoolIndex(random);
+                TrackedSequencePool pool = generator.getPool(poolIndex);
                 String symbol = pool.source.symbol();
                 Identifier sprite = source.getSprite(symbol);
                 output.add(sprite);
                 pool.remaining--;
                 if (pool.remaining == 0)
-                    pools.remove(pool);
+                    generator.removePool(poolIndex);
             }
             return output;
         }
@@ -113,5 +114,47 @@ public final class SlotMachineConfig {
                 ByteBufCodecs.INT, SequencePool::weight,
                 SequencePool::new
         );
+    }
+
+    private static final class WeightedGenerator {
+
+        private final List<Sequence.TrackedSequencePool> pools;
+        private int totalWeight;
+
+        public WeightedGenerator(List<Sequence.TrackedSequencePool> pools) {
+            this.pools = pools;
+            this.recalculateWeight();
+        }
+
+        public boolean canGenerate() {
+            return !pools.isEmpty();
+        }
+
+        public int getPoolIndex(RandomSource random) {
+            int value = random.nextInt(this.totalWeight);
+            for (int i = this.pools.size() - 1; i >= 0; i--) {
+                Sequence.TrackedSequencePool pool = this.pools.get(i);
+                value -= pool.source.weight;
+                if (value < 0) {
+                    return i;
+                }
+            }
+            throw new IllegalStateException("No pool found");
+        }
+
+        public Sequence.TrackedSequencePool getPool(int index) {
+            return this.pools.get(index);
+        }
+
+        public void removePool(int index) {
+            this.pools.remove(index);
+            this.recalculateWeight();
+        }
+
+        private void recalculateWeight() {
+            this.totalWeight = this.pools.stream()
+                    .mapToInt(v -> v.source.weight)
+                    .sum();
+        }
     }
 }
