@@ -3,6 +3,7 @@ package dev.tnt.phoenix.client.screen;
 import dev.tnt.phoenix.Phoenix;
 import dev.tnt.phoenix.block.PhoenixSlotMachineBlock;
 import dev.tnt.phoenix.block.entity.PhoenixSlotMachineBlockEntity;
+import dev.tnt.phoenix.client.screen.widget.BalanceWidget;
 import dev.tnt.phoenix.client.screen.widget.IconButtonWithHighlightWidget;
 import dev.tnt.phoenix.client.screen.widget.SpinWheelWidget;
 import dev.tnt.phoenix.client.screen.widget.WinCombinationsWidget;
@@ -74,33 +75,42 @@ public class PhoenixSlotMachineScreen extends Screen {
         // bottom buttons
         this.addBottomButtonRow(8, 16);
         // top right buttons
-        this.addRenderableWidget(new IconButtonWithHighlightWidget(this.leftPos + CONTENT_WIDTH - 40, this.topPos + 4, 16, 16, Component.translatable("label.phoenix.ui.button_multiwin"), BUTTON_MULTIWIN));
-        this.addRenderableWidget(new IconButtonWithHighlightWidget(this.leftPos + CONTENT_WIDTH - 20, this.topPos + 4, 16, 16, Component.translatable("label.phoenix.ui.button_pay"), BUTTON_PAY));
+        this.addRenderableWidget(new IconButtonWithHighlightWidget(this.leftPos + CONTENT_WIDTH - 46, this.topPos + 4, 16, 16, Component.translatable("label.phoenix.ui.button_multiwin"), BUTTON_MULTIWIN));
+        this.addRenderableWidget(new IconButtonWithHighlightWidget(this.leftPos + CONTENT_WIDTH - 26, this.topPos + 4, 16, 16, Component.translatable("label.phoenix.ui.button_pay"), BUTTON_PAY));
         // wheels
         WinConfiguration lowConfiguration = config.getWinningConfiguration(GameType.LOW);
         WinConfiguration highConfiguration = config.getWinningConfiguration(GameType.HIGH);
         this.addSpinWheels(config, lowConfiguration, highConfiguration);
         // win combinations - low
         List<WinCombination> winCombinationsDisplay = lowConfiguration.getDisplayableCombinations(true);
-        WinCombinationsWidget lowWinsWidget = this.addRenderableOnly(new WinCombinationsWidget(this.leftPos + 10, this.topPos + CONTENT_HEIGHT - 57, CONTENT_WIDTH - 20, 30, this.font, config, winCombinationsDisplay));
+        WinCombinationsWidget lowWinsWidget = this.addRenderableOnly(new WinCombinationsWidget(this.leftPos + 10, this.topPos + CONTENT_HEIGHT - 51, CONTENT_WIDTH - 20, 30, this.font, config, winCombinationsDisplay));
         lowWinsWidget.setGrid(3, 6, 3);
         lowWinsWidget.setLayout(8, 5, 1, 3);
         lowWinsWidget.setOffsets(2, 2);
+        lowWinsWidget.setTextColor(0xFFCCCC00);
         lowWinsWidget.setBlankSprite(BLANK);
         // win combinations - special
         IconButtonWithHighlightWidget firstButton = this.holdButtons.getFirst();
+        IconButtonWithHighlightWidget lastButton = this.holdButtons.getLast();
         List<WinCombination> specialCombinationsDisplay = lowConfiguration.getDisplayableCombinations(false);
-        WinCombinationsWidget specialWinsWidget = this.addRenderableOnly(new WinCombinationsWidget(this.leftPos + 10, firstButton.getY() - 85, 41, 45, this.font, config, specialCombinationsDisplay));
+        WinCombinationsWidget specialWinsWidget = this.addRenderableOnly(new WinCombinationsWidget(this.leftPos + 10, firstButton.getY() - 79, 41, 45, this.font, config, specialCombinationsDisplay));
         specialWinsWidget.setGrid(4, 1, 3);
         specialWinsWidget.setLayout(8, 5, 3, 3);
+        specialWinsWidget.setTextColor(0xFFCCCC00);
         specialWinsWidget.setOffsets(2);
         // win combinations - high
         List<WinCombination> highCombinationsDisplay = highConfiguration.getDisplayableCombinations(true, Comparator.comparingInt(WinCombination::amount).reversed());
-        WinCombinationsWidget highWinsWidget = this.addRenderableOnly(new WinCombinationsWidget(this.leftPos + CONTENT_WIDTH - 59, this.topPos + 23, 55, 120, this.font, config, highCombinationsDisplay));
+        WinCombinationsWidget highWinsWidget = this.addRenderableOnly(new WinCombinationsWidget(this.leftPos + CONTENT_WIDTH - 65, this.topPos + 23, 55, 120, this.font, config, highCombinationsDisplay));
         highWinsWidget.setGrid(10, 1, 3);
         highWinsWidget.setLayout(12, 7, 1, 3);
         highWinsWidget.setTextColor(0xFFCCCC00);
         highWinsWidget.setOffsets(2, 2);
+        // balance widget
+        this.addRenderableOnly(new BalanceWidget(firstButton.getX() - 8, this.topPos + 95, 74, 24));
+        this.addRenderableOnly(new BalanceWidget(this.leftPos + CONTENT_WIDTH - 70, this.topPos + CONTENT_HEIGHT - 69, 60, 16));
+        this.addRenderableOnly(new BalanceWidget(this.leftPos + CONTENT_WIDTH - 62, this.topPos + CONTENT_HEIGHT - 87, 44, 16));
+        this.addRenderableOnly(new BalanceWidget(this.leftPos + CONTENT_WIDTH - 70, this.topPos + CONTENT_HEIGHT - 109, 60, 20));
+
     }
 
     @Override
@@ -128,7 +138,7 @@ public class PhoenixSlotMachineScreen extends Screen {
             IconButtonWithHighlightWidget holdButton = this.holdButtons.get(i);
             int offset = (i - 1) * 5;
             List<Identifier> sequenceSprites = config.generateSequence(this.minecraft.player.getRandom(), GameType.LOW, i);
-            this.addRenderableOnly(new SpinWheelWidget(holdButton.getX() - 2 + offset, holdButton.getY() - 95, holdButton.getWidth() + 4, 55, sequenceSprites));
+            this.addRenderableOnly(new SpinWheelWidget(holdButton.getX() - 2 + offset, holdButton.getY() - 89, holdButton.getWidth() + 4, 55, sequenceSprites));
 
             List<Identifier> highSequenceSprites = config.generateSequence(this.minecraft.player.getRandom(), GameType.HIGH, i);
             this.addRenderableOnly(new SpinWheelWidget(holdButton.getX() - 2 + offset, holdButton.getY() - 200, holdButton.getWidth() + 4, 55, highSequenceSprites));
