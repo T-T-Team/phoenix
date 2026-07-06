@@ -1,0 +1,12 @@
+{
+  "providers": [
+    {
+      "type": "bitmap",
+      "file": "phoenix:font/digital.png",
+      "ascent": 7,
+      "chars": [
+        "0123456789"
+      ]
+    }
+  ]
+}

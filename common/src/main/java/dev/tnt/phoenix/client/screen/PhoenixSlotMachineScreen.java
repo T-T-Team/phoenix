@@ -106,11 +106,11 @@ public class PhoenixSlotMachineScreen extends Screen {
         highWinsWidget.setTextColor(0xFFCCCC00);
         highWinsWidget.setOffsets(2, 2);
         // balance widget
-        BalanceWidget multiWinBalanceWidget = this.addRenderableOnly(new BalanceWidget(firstButton.getX() - 11, this.topPos + 95, 80, 24, Component.literal("301500"), this.font));
+        BalanceWidget multiWinBalanceWidget = this.addRenderableOnly(new BalanceWidget(firstButton.getX() - 11, this.topPos + 95, 80, 24, () -> 301500, this.font));
         multiWinBalanceWidget.setTextScale(2.0F);
-        this.addRenderableOnly(new BalanceWidget(this.leftPos + CONTENT_WIDTH - 70, this.topPos + CONTENT_HEIGHT - 69, 60, 16, Component.literal("100000"), this.font));
-        this.addRenderableOnly(new BalanceWidget(this.leftPos + CONTENT_WIDTH - 62, this.topPos + CONTENT_HEIGHT - 87, 44, 16, Component.literal("2500"), this.font));
-        this.addRenderableOnly(new BalanceWidget(this.leftPos + CONTENT_WIDTH - 70, this.topPos + CONTENT_HEIGHT - 109, 60, 20, Component.literal(""), this.font));
+        this.addRenderableOnly(new BalanceWidget(this.leftPos + CONTENT_WIDTH - 70, this.topPos + CONTENT_HEIGHT - 69, 60, 16, () -> 100000, this.font));
+        this.addRenderableOnly(new BalanceWidget(this.leftPos + CONTENT_WIDTH - 62, this.topPos + CONTENT_HEIGHT - 87, 44, 16, () -> 2500, this.font));
+        this.addRenderableOnly(new BalanceWidget(this.leftPos + CONTENT_WIDTH - 70, this.topPos + CONTENT_HEIGHT - 109, 60, 20));
 
     }
 
