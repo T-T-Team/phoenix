@@ -58,139 +58,172 @@
       [
         {
           "symbol": "cherry",
-          "count": 5
+          "count": 5,
+          "weight": 5
         },
         {
           "symbol": "lemon",
-          "count": 4
+          "count": 4,
+          "weight": 4
         },
         {
           "symbol": "orange",
-          "count": 3
+          "count": 3,
+          "weight": 3
         },
         {
           "symbol": "plum",
-          "count": 2
+          "count": 2,
+          "weight": 2
         },
         {
           "symbol": "bell",
-          "count": 2
+          "count": 2,
+          "weight": 2
         },
         {
           "symbol": "grapes",
-          "count": 2
+          "count": 2,
+          "weight": 2
         },
         {
           "symbol": "melon",
-          "count": 2
+          "count": 2,
+          "weight": 2
         },
         {
           "symbol": "bar",
-          "count": 1
+          "count": 1,
+          "weight": 1
         },
         {
           "symbol": "barbar",
-          "count": 1
+          "count": 1,
+          "weight": 1
         },
         {
           "symbol": "barbarbar",
-          "count": 1
+          "count": 1,
+          "weight": 1
         },
         {
           "symbol": "joker",
-          "count": 2
+          "count": 2,
+          "weight": 2
         }
       ],
       [
         {
           "symbol": "cherry",
-          "count": 4
+          "count": 4,
+          "weight": 4
         },
         {
           "symbol": "lemon",
-          "count": 5
+          "count": 5,
+          "weight": 5
         },
         {
           "symbol": "orange",
-          "count": 3
+          "count": 3,
+          "weight": 3
         },
         {
           "symbol": "plum",
-          "count": 2
+          "count": 2,
+          "weight": 2
         },
         {
           "symbol": "bell",
-          "count": 2
+          "count": 2,
+          "weight": 2
         },
         {
           "symbol": "grapes",
-          "count": 2
+          "count": 2,
+          "weight": 2
         },
         {
           "symbol": "melon",
-          "count": 2
+          "count": 2,
+          "weight": 2
         },
         {
           "symbol": "bar",
-          "count": 1
+          "count": 1,
+          "weight": 1
         },
         {
           "symbol": "barbar",
-          "count": 1
+          "count": 1,
+          "weight": 1
         },
         {
           "symbol": "barbarbar",
-          "count": 1
+          "count": 1,
+          "weight": 1
         },
         {
           "symbol": "joker",
-          "count": 2
+          "count": 2,
+          "weight": 2
         }
       ],
       [
         {
           "symbol": "cherry",
-          "count": 4
+          "count": 4,
+          "weight": 4
         },
         {
           "symbol": "lemon",
-          "count": 4
+          "count": 4,
+          "weight": 4
         },
         {
           "symbol": "orange",
-          "count": 4
+          "count": 4,
+          "weight": 4
         },
         {
           "symbol": "plum",
-          "count": 2
+          "count": 2,
+          "weight": 2
         },
         {
           "symbol": "bell",
-          "count": 2
+          "count": 2,
+          "weight": 2
         },
         {
           "symbol": "grapes",
-          "count": 2
+          "count": 2,
+          "weight": 2
         },
         {
           "symbol": "melon",
-          "count": 2
+          "count": 2,
+          "weight": 2
         },
         {
           "symbol": "bar",
-          "count": 1
+          "count": 1,
+          "weight": 1
         },
         {
           "symbol": "barbar",
-          "count": 1
+          "count": 1,
+          "weight": 1
         },
         {
           "symbol": "barbarbar",
-          "count": 1
+          "count": 1,
+          "weight": 1
         },
         {
           "symbol": "joker",
-          "count": 2
+          "count": 2,
+          "weight": 2
         }
       ]
     ],
@@ -245,77 +278,95 @@
       [
         {
           "symbol": "cherry",
-          "count": 4
+          "count": 4,
+          "weight": 4
         },
         {
           "symbol": "lemon",
-          "count": 5
+          "count": 5,
+          "weight": 5
         },
         {
           "symbol": "orange",
-          "count": 4
+          "count": 4,
+          "weight": 4
         },
         {
           "symbol": "plum",
-          "count": 3
+          "count": 3,
+          "weight": 3
         },
         {
           "symbol": "bell",
-          "count": 3
+          "count": 3,
+          "weight": 3
         },
         {
           "symbol": "grapes",
-          "count": 2
+          "count": 2,
+          "weight": 2
         },
         {
           "symbol": "melon",
-          "count": 2
+          "count": 2,
+          "weight": 2
         },
         {
           "symbol": "seven",
-          "count": 1
+          "count": 1,
+          "weight": 1
         },
         {
           "symbol": "star",
-          "count": 1
+          "count": 1,
+          "weight": 1
         }
       ],
       [
         {
           "symbol": "cherry",
-          "count": 4
+          "count": 4,
+          "weight": 4
         },
         {
           "symbol": "lemon",
-          "count": 4
+          "count": 4,
+          "weight": 4
         },
         {
           "symbol": "orange",
-          "count": 5
+          "count": 5,
+          "weight": 5
         },
         {
           "symbol": "plum",
-          "count": 3
+          "count": 3,
+          "weight": 3
         },
         {
           "symbol": "bell",
-          "count": 3
+          "count": 3,
+          "weight": 3
         },
         {
           "symbol": "grapes",
-          "count": 2
+          "count": 2,
+          "weight": 2
         },
         {
           "symbol": "melon",
-          "count": 2
+          "count": 2,
+          "weight": 2
         },
         {
           "symbol": "seven",
-          "count": 1
+          "count": 1,
+          "weight": 1
         },
         {
           "symbol": "star",
-          "count": 1
+          "count": 1,
+          "weight": 1
         }
       ]
     ]
