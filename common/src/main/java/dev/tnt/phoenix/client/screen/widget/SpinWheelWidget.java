@@ -47,7 +47,7 @@ public final class SpinWheelWidget extends AbstractWidget {
 
     @Override
     public boolean mouseScrolled(double x, double y, double scrollX, double scrollY) {
-        int pos = Mth.clamp(this.scroll - (int) scrollY, 0, this.sprites.size() - this.displayedIcons);
+        int pos = Mth.clamp(this.scroll - (int) scrollY, 0, this.sprites.size() - this.displayedIcons + 1);
         if (this.scroll != pos) {
             this.scroll = pos;
             return true;
