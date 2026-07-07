@@ -41,7 +41,7 @@ public class Phoenix {
     public static final RegistrationManager<CreativeModeTab> CREATIVE_TABS_REGISTRY = PLATFORM.createRegistryManager(BuiltInRegistries.CREATIVE_MODE_TAB);
 
     // Blocks
-    public static final Reference<PhoenixSlotMachineBlock> BLOCK_PHOENIX_SLOT_MACHINE = registerBlock("phoenix_slot_machine", PhoenixSlotMachineBlock::new);
+    public static final Reference<PhoenixSlotMachineBlock> BLOCK_PHOENIX_SLOT_MACHINE = registerBlock("phoenix", PhoenixSlotMachineBlock::new);
     // Block entities
     public static final Reference<BlockEntityType<PhoenixSlotMachineBlockEntity>> BLOCK_ENTITY_PHOENIX_SLOT_MACHINE = BLOCK_ENTITY_REGISTRY.registerElement("phoenix_slot_machine", () -> new BlockEntityType<>(PhoenixSlotMachineBlockEntity::new, Set.of(BLOCK_PHOENIX_SLOT_MACHINE.get())));
     // Items
