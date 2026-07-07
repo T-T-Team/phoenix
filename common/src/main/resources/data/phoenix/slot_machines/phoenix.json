@@ -241,167 +241,107 @@
         "generator": "simple_sequence",
         "sequence": [
           "cherry",
+          "cherry",
+          "cherry",
+          "bell",
+          "bell",
+          "grapes",
+          "bell",
+          "grapes",
+          "grapes",
+          "seven",
+          "lemon",
+          "lemon",
+          "lemon",
+          "melon",
+          "star",
+          "melon",
+          "orange",
+          "orange",
+          "orange",
+          "cherry",
+          "cherry",
+          "plum",
+          "plum",
+          "plum",
+          "lemon",
+          "orange",
+          "lemon",
+          "orange",
+          "plum",
           "lemon"
         ]
       },
       {
         "generator": "simple_sequence",
         "sequence": [
+          "grapes",
+          "grapes",
+          "seven",
+          "grapes",
+          "lemon",
+          "lemon",
+          "lemon",
+          "orange",
+          "plum",
+          "orange",
           "cherry",
-          "lemon"
+          "cherry",
+          "cherry",
+          "melon",
+          "melon",
+          "lemon",
+          "lemon",
+          "bell",
+          "bell",
+          "cherry",
+          "bell",
+          "cherry",
+          "orange",
+          "orange",
+          "orange",
+          "plum",
+          "plum",
+          "plum",
+          "star",
+          "cherry"
         ]
       },
       {
         "generator": "simple_sequence",
         "sequence": [
+          "plum",
+          "melon",
+          "plum",
+          "melon",
+          "melon",
+          "orange",
+          "orange",
+          "orange",
+          "bell",
+          "bell",
+          "lemon",
+          "lemon",
+          "lemon",
           "cherry",
-          "lemon"
+          "cherry",
+          "plum",
+          "seven",
+          "grapes",
+          "bell",
+          "orange",
+          "orange",
+          "lemon",
+          "grapes",
+          "lemon",
+          "grapes",
+          "star",
+          "cherry",
+          "cherry",
+          "cherry",
+          "orange"
         ]
       }
-    ]
-  },
-    "high": [
-      [
-        {
-          "symbol": "cherry",
-          "count": 5,
-          "weight": 5
-        },
-        {
-          "symbol": "lemon",
-          "count": 4,
-          "weight": 4
-        },
-        {
-          "symbol": "orange",
-          "count": 4,
-          "weight": 4
-        },
-        {
-          "symbol": "plum",
-          "count": 3,
-          "weight": 3
-        },
-        {
-          "symbol": "bell",
-          "count": 3,
-          "weight": 3
-        },
-        {
-          "symbol": "grapes",
-          "count": 2,
-          "weight": 2
-        },
-        {
-          "symbol": "melon",
-          "count": 2,
-          "weight": 2
-        },
-        {
-          "symbol": "seven",
-          "count": 1,
-          "weight": 1
-        },
-        {
-          "symbol": "star",
-          "count": 1,
-          "weight": 1
-        }
-      ],
-      [
-        {
-          "symbol": "cherry",
-          "count": 4,
-          "weight": 4
-        },
-        {
-          "symbol": "lemon",
-          "count": 5,
-          "weight": 5
-        },
-        {
-          "symbol": "orange",
-          "count": 4,
-          "weight": 4
-        },
-        {
-          "symbol": "plum",
-          "count": 3,
-          "weight": 3
-        },
-        {
-          "symbol": "bell",
-          "count": 3,
-          "weight": 3
-        },
-        {
-          "symbol": "grapes",
-          "count": 2,
-          "weight": 2
-        },
-        {
-          "symbol": "melon",
-          "count": 2,
-          "weight": 2
-        },
-        {
-          "symbol": "seven",
-          "count": 1,
-          "weight": 1
-        },
-        {
-          "symbol": "star",
-          "count": 1,
-          "weight": 1
-        }
-      ],
-      [
-        {
-          "symbol": "cherry",
-          "count": 4,
-          "weight": 4
-        },
-        {
-          "symbol": "lemon",
-          "count": 4,
-          "weight": 4
-        },
-        {
-          "symbol": "orange",
-          "count": 5,
-          "weight": 5
-        },
-        {
-          "symbol": "plum",
-          "count": 3,
-          "weight": 3
-        },
-        {
-          "symbol": "bell",
-          "count": 3,
-          "weight": 3
-        },
-        {
-          "symbol": "grapes",
-          "count": 2,
-          "weight": 2
-        },
-        {
-          "symbol": "melon",
-          "count": 2,
-          "weight": 2
-        },
-        {
-          "symbol": "seven",
-          "count": 1,
-          "weight": 1
-        },
-        {
-          "symbol": "star",
-          "count": 1,
-          "weight": 1
-        }
-      ]
     ]
   },
   "win_configuration": {
