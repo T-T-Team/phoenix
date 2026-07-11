@@ -57,7 +57,7 @@ public final class BalanceWidget extends AbstractWidget {
         graphics.blitSprite(RenderPipelines.GUI_TEXTURED, SPRITE, this.getX(), this.getY(), this.getWidth(), this.getHeight());
         // text
         int value = this.valueProvider.getAsInt();
-        String formattedValue = StringUtils.leftPad(String.valueOf(value), this.digits, '0').substring(0, this.digits);
+        String formattedValue = StringUtils.leftPad(String.valueOf(value), this.digits, 'X').substring(0, this.digits);
         Component text = PhoenixClient.getDigitalText(formattedValue);
         int textWidth = this.font.width(text);
         Matrix3x2fStack pose = graphics.pose();
