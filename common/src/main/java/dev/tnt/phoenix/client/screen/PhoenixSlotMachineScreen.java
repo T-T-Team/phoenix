@@ -3,8 +3,10 @@ package dev.tnt.phoenix.client.screen;
 import dev.tnt.phoenix.Phoenix;
 import dev.tnt.phoenix.block.PhoenixSlotMachineBlock;
 import dev.tnt.phoenix.block.entity.PhoenixSlotMachineBlockEntity;
+import dev.tnt.phoenix.client.PhoenixClient;
 import dev.tnt.phoenix.client.screen.widget.*;
 import dev.tnt.phoenix.data.*;
+import dev.tnt.phoenix.network.C2S_SlotMachineRequest;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
@@ -69,13 +71,16 @@ public class PhoenixSlotMachineScreen extends Screen {
 
         // bottom buttons
         this.addBottomButtonRow(8, 16);
+
         // top right buttons
-        this.addRenderableWidget(new IconButtonWithHighlightWidget(this.leftPos + CONTENT_WIDTH - 46, this.topPos + 4, 16, 16, Component.translatable("label.phoenix.ui.button_multiwin"), BUTTON_MULTIWIN));
-        this.addRenderableWidget(new IconButtonWithHighlightWidget(this.leftPos + CONTENT_WIDTH - 26, this.topPos + 4, 16, 16, Component.translatable("label.phoenix.ui.button_pay"), BUTTON_PAY));
+        this.addRenderableWidget(new IconButtonWithHighlightWidget(this.leftPos + CONTENT_WIDTH - 46, this.topPos + 4, 16, 16, Component.translatable("label.phoenix.ui.button_multiwin"), BUTTON_MULTIWIN, this::onMultiWinButtonClicked));
+        this.addRenderableWidget(new IconButtonWithHighlightWidget(this.leftPos + CONTENT_WIDTH - 26, this.topPos + 4, 16, 16, Component.translatable("label.phoenix.ui.button_pay"), BUTTON_PAY, this::onPayoutButtonClicked));
+
         // wheels
         WinConfiguration lowConfiguration = config.getWinningConfiguration(GameType.LOW);
         WinConfiguration highConfiguration = config.getWinningConfiguration(GameType.HIGH);
         this.addSpinWheels(config, lowConfiguration, highConfiguration);
+
         // win combinations - low
         List<WinCombination> winCombinationsDisplay = lowConfiguration.getDisplayableCombinations(true);
         WinCombinationsWidget lowWinsWidget = this.addRenderableOnly(new WinCombinationsWidget(this.leftPos + 10, this.topPos + CONTENT_HEIGHT - 51, CONTENT_WIDTH - 20, 30, this.font, config, winCombinationsDisplay));
@@ -84,6 +89,7 @@ public class PhoenixSlotMachineScreen extends Screen {
         lowWinsWidget.setOffsets(2, 2);
         lowWinsWidget.setTextColor(0xFFCCCC00);
         lowWinsWidget.setBlankSprite(BLANK);
+
         // win combinations - special
         IconButtonWithHighlightWidget firstButton = this.holdButtons.getFirst();
         List<WinCombination> specialCombinationsDisplay = lowConfiguration.getDisplayableCombinations(false);
@@ -92,6 +98,7 @@ public class PhoenixSlotMachineScreen extends Screen {
         specialWinsWidget.setLayout(8, 5, 3, 3);
         specialWinsWidget.setTextColor(0xFFCCCC00);
         specialWinsWidget.setOffsets(2);
+
         // win combinations - high
         List<WinCombination> highCombinationsDisplay = highConfiguration.getDisplayableCombinations(true, Comparator.comparingInt(WinCombination::amount).reversed());
         WinCombinationsWidget highWinsWidget = this.addRenderableOnly(new WinCombinationsWidget(this.leftPos + CONTENT_WIDTH - 65, this.topPos + 23, 55, 120, this.font, config, highCombinationsDisplay));
@@ -99,11 +106,25 @@ public class PhoenixSlotMachineScreen extends Screen {
         highWinsWidget.setLayout(12, 7, 1, 3);
         highWinsWidget.setTextColor(0xFFCCCC00);
         highWinsWidget.setOffsets(2, 2);
-        // balance widget
+
+        // multi win balance
         BalanceWidget multiWinBalanceWidget = this.addRenderableOnly(new BalanceWidget(firstButton.getX() - 11, this.topPos + 95, 80, 24, () -> 301500, this.font));
         multiWinBalanceWidget.setTextScale(2.0F);
-        this.addRenderableOnly(new BalanceWidget(this.leftPos + CONTENT_WIDTH - 70, this.topPos + CONTENT_HEIGHT - 69, 60, 16, data::getValue, this.font));
-        this.addRenderableOnly(new BalanceWidget(this.leftPos + CONTENT_WIDTH - 62, this.topPos + CONTENT_HEIGHT - 87, 44, 16, () -> 2500, this.font));
+        multiWinBalanceWidget.setTextColor(0xFFFFFF00);
+        multiWinBalanceWidget.setDigits(6);
+        multiWinBalanceWidget.setTextCorrectionOffset(-16.75F, 0.25F);
+
+        // account balance
+        BalanceWidget accountBalanceWidget = this.addRenderableOnly(new BalanceWidget(this.leftPos + CONTENT_WIDTH - 70, this.topPos + CONTENT_HEIGHT - 69, 60, 16, data::getValue, this.font));
+        accountBalanceWidget.setDigits(9);
+        accountBalanceWidget.setTextCorrectionOffset(0.5F, 0.5F);
+
+        // risk balance?
+        BalanceWidget riskBalanceWidget = this.addRenderableOnly(new BalanceWidget(this.leftPos + CONTENT_WIDTH - 62, this.topPos + CONTENT_HEIGHT - 87, 44, 16, () -> 2500, this.font));
+        riskBalanceWidget.setDigits(6);
+        riskBalanceWidget.setTextCorrectionOffset(0.5F, 0.5F);
+
+        // risk
         this.addRenderableOnly(new RiskWidget(this.leftPos + CONTENT_WIDTH - 60, this.topPos + CONTENT_HEIGHT - 109, 40, 20));
 
     }
@@ -151,16 +172,54 @@ public class PhoenixSlotMachineScreen extends Screen {
         int buttonWidth = size + buttonOffset;
         int rowLeft = this.leftPos + (CONTENT_WIDTH - (count * buttonWidth - buttonOffset)) / 2;
         int rowTop = this.topPos + CONTENT_HEIGHT - 20;
-        this.addRenderableWidget(new IconButtonWithHighlightWidget(rowLeft, rowTop, size, size, Component.translatable("label.phoenix.ui.button_advanced"), BUTTON_ADVANCED));
-        this.addRenderableWidget(new IconButtonWithHighlightWidget(rowLeft + buttonWidth, rowTop, size, size, Component.translatable("label.phoenix.ui.button_bet"), BUTTON_BET));
+        this.addRenderableWidget(new IconButtonWithHighlightWidget(rowLeft, rowTop, size, size, Component.translatable("label.phoenix.ui.button_advanced"), BUTTON_ADVANCED, this::onAdvancedButtonClicked));
+        this.addRenderableWidget(new IconButtonWithHighlightWidget(rowLeft + buttonWidth, rowTop, size, size, Component.translatable("label.phoenix.ui.button_bet"), BUTTON_BET, this::onBetButtonClicked));
         for (int i = 0; i < SPIN_WHEELS; i++) {
             int posIndex = i + 2;
-            IconButtonWithHighlightWidget widget = this.addRenderableWidget(new IconButtonWithHighlightWidget(rowLeft + buttonWidth * posIndex, rowTop, size, size, Component.translatable("label.phoenix.ui.button_hold"), BUTTON_HOLD));
+            final int index = i;
+            IconButtonWithHighlightWidget widget = this.addRenderableWidget(new IconButtonWithHighlightWidget(rowLeft + buttonWidth * posIndex, rowTop, size, size, Component.translatable("label.phoenix.ui.button_hold"), BUTTON_HOLD, () -> this.onHoldButtonClicked(index)));
             this.holdButtons.add(widget);
         }
-        this.addRenderableWidget(new IconButtonWithHighlightWidget(rowLeft + buttonWidth * 5, rowTop, size, size, Component.translatable("label.phoenix.ui.button_risk_clubs"), BUTTON_RISK_CLUBS));
-        this.addRenderableWidget(new IconButtonWithHighlightWidget(rowLeft + buttonWidth * 6, rowTop, size, size, Component.translatable("label.phoenix.ui.button_risk_hearts"), BUTTON_RISK_HEARTS));
-        this.addRenderableWidget(new IconButtonWithHighlightWidget(rowLeft + buttonWidth * 7, rowTop, size, size, Component.translatable("label.phoenix.ui.button_start"), BUTTON_START));
+        this.addRenderableWidget(new IconButtonWithHighlightWidget(rowLeft + buttonWidth * 5, rowTop, size, size, Component.translatable("label.phoenix.ui.button_risk_clubs"), BUTTON_RISK_CLUBS, this::onRiskClubsButtonClicked));
+        this.addRenderableWidget(new IconButtonWithHighlightWidget(rowLeft + buttonWidth * 6, rowTop, size, size, Component.translatable("label.phoenix.ui.button_risk_hearts"), BUTTON_RISK_HEARTS, this::onRiskHeartsButtonClicked));
+        this.addRenderableWidget(new IconButtonWithHighlightWidget(rowLeft + buttonWidth * 7, rowTop, size, size, Component.translatable("label.phoenix.ui.button_start"), BUTTON_START, this::onStartButtonClicked));
     }
 
+    private void onMultiWinButtonClicked() {
+        this.sendServerRequest(C2S_SlotMachineRequest.RequestType.MULTIWIN);
+    }
+
+    private void onPayoutButtonClicked() {
+        this.sendServerRequest(C2S_SlotMachineRequest.RequestType.PAYOUT);
+    }
+
+    private void onAdvancedButtonClicked() {
+        this.sendServerRequest(C2S_SlotMachineRequest.RequestType.ADVANCED);
+    }
+
+    private void onBetButtonClicked() {
+        this.sendServerRequest(C2S_SlotMachineRequest.RequestType.BET);
+    }
+
+    private void onHoldButtonClicked(int index) {
+        C2S_SlotMachineRequest.RequestType holdRequest = C2S_SlotMachineRequest.RequestType.holdActionFromIndex(index);
+        this.sendServerRequest(holdRequest);
+    }
+
+    private void onRiskClubsButtonClicked() {
+        this.sendServerRequest(C2S_SlotMachineRequest.RequestType.RISK_CLUBS);
+    }
+
+    private void onRiskHeartsButtonClicked() {
+        this.sendServerRequest(C2S_SlotMachineRequest.RequestType.RISK_HEARTS);
+    }
+
+    private void onStartButtonClicked() {
+        this.sendServerRequest(C2S_SlotMachineRequest.RequestType.PLAY);
+    }
+
+    private void sendServerRequest(C2S_SlotMachineRequest.RequestType type) {
+        BlockPos position = this.blockEntity.getBlockPos();
+        PhoenixClient.PLATFORM.sendPacket(new C2S_SlotMachineRequest(position, type));
+    }
 }

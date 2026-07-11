@@ -6,7 +6,6 @@ import dev.tnt.phoenix.platform.Services;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FontDescription;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.util.Mth;
 
 public final class PhoenixClient {
 
@@ -18,7 +17,11 @@ public final class PhoenixClient {
     }
 
     public static MutableComponent getDigitalText(int value) {
-        return Component.literal(String.valueOf(Mth.abs(value)))
+        return getDigitalText(String.valueOf(value));
+    }
+
+    public static MutableComponent getDigitalText(String value) {
+        return Component.literal(value)
                 .withStyle(style -> style.withFont(DIGITAL_FONT));
     }
 }

@@ -29,6 +29,14 @@ public class DataInstanceHolder {
         return value;
     }
 
+    public boolean canPlay() {
+        return true; // TODO implement
+    }
+
+    public void play() {
+
+    }
+
     public DataInstanceHolder update(DataInstanceHolder holder) {
         this.value = holder.value;
         return this;

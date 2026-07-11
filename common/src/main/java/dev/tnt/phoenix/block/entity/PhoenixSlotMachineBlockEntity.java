@@ -33,6 +33,14 @@ public final class PhoenixSlotMachineBlockEntity extends BlockEntity {
         return this.data.getData(player);
     }
 
+    public void startGame(UUID player) {
+        DataInstanceHolder holder = this.getPlayerData(player);
+        if (!holder.canPlay())
+            return;
+        holder.play();
+        this.markUpdated();
+    }
+
     public boolean insertItem(UUID owner, ItemInstance instance, boolean insertAll) {
         int value = Phoenix.ITEM_VALUES.getItemValue(instance, insertAll);
         if (value > 0) {

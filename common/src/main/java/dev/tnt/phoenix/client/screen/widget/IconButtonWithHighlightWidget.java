@@ -15,11 +15,13 @@ public final class IconButtonWithHighlightWidget extends AbstractButton {
 
     private final Identifier icon;
     private final Identifier iconHighlight;
+    private final ClickHandler onClick;
 
-    public IconButtonWithHighlightWidget(int x, int y, int width, int height, Component tooltip, Identifier icon) {
+    public IconButtonWithHighlightWidget(int x, int y, int width, int height, Component tooltip, Identifier icon, ClickHandler onClick) {
         super(x, y, width, height, CommonComponents.EMPTY);
         this.icon = icon;
         this.iconHighlight = icon.withPath(path -> path.replace(".png", "_on.png"));
+        this.onClick = onClick;
         this.setTooltip(Tooltip.create(tooltip));
         this.setTooltipDelay(Duration.ofMillis(300L));
     }
@@ -40,5 +42,10 @@ public final class IconButtonWithHighlightWidget extends AbstractButton {
 
     @Override
     protected void updateWidgetNarration(NarrationElementOutput output) {
+    }
+
+    @FunctionalInterface
+    public interface ClickHandler {
+        void onClick();
     }
 }
