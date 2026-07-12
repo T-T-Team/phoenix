@@ -2,7 +2,8 @@ package dev.tnt.phoenix.block.entity;
 
 import com.mojang.serialization.Codec;
 import dev.tnt.phoenix.Phoenix;
-import dev.tnt.phoenix.data.DataInstanceHolder;
+import dev.tnt.phoenix.data.game.AccountBalance;
+import dev.tnt.phoenix.data.game.PlayerGameInstance;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.UUIDUtil;
@@ -29,12 +30,12 @@ public final class PhoenixSlotMachineBlockEntity extends BlockEntity {
         super(Phoenix.BLOCK_ENTITY_PHOENIX_SLOT_MACHINE.get(), worldPosition, blockState);
     }
 
-    public DataInstanceHolder getPlayerData(UUID player) {
+    public PlayerGameInstance getPlayerData(UUID player) {
         return this.data.getData(player);
     }
 
     public void startGame(UUID player) {
-        DataInstanceHolder holder = this.getPlayerData(player);
+        PlayerGameInstance holder = this.getPlayerData(player);
         if (!holder.canPlay())
             return;
         holder.play();
@@ -44,16 +45,13 @@ public final class PhoenixSlotMachineBlockEntity extends BlockEntity {
     public boolean insertItem(UUID owner, ItemInstance instance, boolean insertAll) {
         int value = Phoenix.ITEM_VALUES.getItemValue(instance, insertAll);
         if (value > 0) {
-            DataInstanceHolder holder = this.data.getData(owner);
-            holder.addValue(value);
+            PlayerGameInstance holder = this.data.getData(owner);
+            AccountBalance balance = holder.getAccountBalance();
+            balance.addBalance(value);
             this.markUpdated();
             return true;
         }
         return false;
-    }
-
-    public int getValue(UUID player) {
-        return this.data.getData(player).getValue();
     }
 
     @Override
@@ -83,12 +81,12 @@ public final class PhoenixSlotMachineBlockEntity extends BlockEntity {
         this.level.sendBlockUpdated(this.getBlockPos(), this.getBlockState(), this.getBlockState(), 3);
     }
 
-    private record DataHolder(Map<UUID, DataInstanceHolder> data) {
+    private record DataHolder(Map<UUID, PlayerGameInstance> data) {
 
-        public static final Codec<DataHolder> CODEC = Codec.unboundedMap(UUIDUtil.STRING_CODEC, DataInstanceHolder.CODEC)
+        public static final Codec<DataHolder> CODEC = Codec.unboundedMap(UUIDUtil.STRING_CODEC, PlayerGameInstance.CODEC)
                 .xmap(DataHolder::new, holder -> holder.data);
 
-        private DataHolder(Map<UUID, DataInstanceHolder> data) {
+        private DataHolder(Map<UUID, PlayerGameInstance> data) {
             this.data = new HashMap<>(data);
         }
 
@@ -96,13 +94,13 @@ public final class PhoenixSlotMachineBlockEntity extends BlockEntity {
             return new DataHolder(new HashMap<>());
         }
 
-        public DataInstanceHolder getData(UUID player) {
-            return this.data.computeIfAbsent(player, _ -> DataInstanceHolder.createDefault());
+        public PlayerGameInstance getData(UUID player) {
+            return this.data.computeIfAbsent(player, _ -> PlayerGameInstance.createDefault());
         }
 
         public void update(DataHolder source) {
             for (var entry : source.data.entrySet()) {
-                this.data.merge(entry.getKey(), entry.getValue(), DataInstanceHolder::update);
+                this.data.merge(entry.getKey(), entry.getValue(), PlayerGameInstance::update);
             }
         }
     }

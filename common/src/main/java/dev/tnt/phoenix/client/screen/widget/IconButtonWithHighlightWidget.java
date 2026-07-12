@@ -16,6 +16,7 @@ public final class IconButtonWithHighlightWidget extends AbstractButton {
     private final Identifier icon;
     private final Identifier iconHighlight;
     private final ClickHandler onClick;
+    private Long blinkInterval = 500L;
 
     public IconButtonWithHighlightWidget(int x, int y, int width, int height, Component tooltip, Identifier icon, ClickHandler onClick) {
         super(x, y, width, height, CommonComponents.EMPTY);
@@ -26,9 +27,14 @@ public final class IconButtonWithHighlightWidget extends AbstractButton {
         this.setTooltipDelay(Duration.ofMillis(300L));
     }
 
+    public void setBlinkInterval(Long blinkInterval) {
+        this.blinkInterval = blinkInterval;
+    }
+
     @Override
     protected void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
-        Identifier icon = this.active ? this.iconHighlight : this.icon;
+        boolean on = this.blinkInterval == null || (System.currentTimeMillis() % (this.blinkInterval * 2L)) <= this.blinkInterval;
+        Identifier icon = this.active && on ? this.iconHighlight : this.icon;
         graphics.blit(icon, this.getX(), this.getY(), this.getRight(), this.getBottom(), 0.0F, 1.0F, 0.0F, 1.0F);
         if (this.active && this.isHovered) {
             graphics.fill(this.getX(), this.getY(), this.getRight(), this.getBottom(), 0x44FFFFFF);
@@ -37,7 +43,7 @@ public final class IconButtonWithHighlightWidget extends AbstractButton {
 
     @Override
     public void onPress(InputWithModifiers input) {
-        // TODO implement
+        this.onClick.onClick();
     }
 
     @Override

@@ -21,6 +21,7 @@ public class WinCombinationsWidget extends AbstractWidget {
     private final Font font;
     private final SlotMachineConfig config;
     private final List<WinCombination> combinations;
+    private final int multiplier;
     private int rows;
     private int columns;
     private int maxColumnSize = 3;
@@ -33,11 +34,12 @@ public class WinCombinationsWidget extends AbstractWidget {
     private int textColor = 0xFFFFFFFF;
     private Identifier blankSprite;
 
-    public WinCombinationsWidget(int x, int y, int width, int height, Font font, SlotMachineConfig config, List<WinCombination> combinations) {
+    public WinCombinationsWidget(int x, int y, int width, int height, Font font, SlotMachineConfig config, List<WinCombination> combinations, boolean isDouble) {
         super(x, y, width, height, CommonComponents.EMPTY);
         this.font = font;
         this.config = config;
         this.combinations = combinations;
+        this.multiplier = isDouble ? 2 : 1;
     }
 
     public void setGrid(int rows, int columns, int maxColumnSize) {
@@ -92,7 +94,8 @@ public class WinCombinationsWidget extends AbstractWidget {
                     int left = px + i * this.iconOverlaySpacing;
                     graphics.blit(sprite, left, py, left + this.iconSize, py + this.iconSize, 0.0F, 1.0F, 0.0F, 1.0F);
                 }
-                Component amountLabel = Component.literal(String.valueOf(combination.amount()));
+                int amount = combination.amount() * this.multiplier;
+                Component amountLabel = Component.literal(String.valueOf(amount));
                 graphics.text(this.font, amountLabel, px + this.maxColumnSize * this.iconSize - 5, py + (this.iconSize - this.font.lineHeight) / 2, this.textColor, true);
             }
         }

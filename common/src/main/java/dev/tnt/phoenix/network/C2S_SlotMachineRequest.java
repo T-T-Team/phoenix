@@ -1,14 +1,19 @@
 package dev.tnt.phoenix.network;
 
 import dev.tnt.phoenix.Phoenix;
+import dev.tnt.phoenix.block.entity.PhoenixSlotMachineBlockEntity;
+import dev.tnt.phoenix.data.game.PlayerGameInstance;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.ByIdMap;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 import java.util.function.IntFunction;
 
@@ -24,6 +29,22 @@ public record C2S_SlotMachineRequest(BlockPos pos, RequestType requestType) impl
 
     public void handle(Player player) {
         // TODO validations
+        Level level = player.level();
+        if (!level.isLoaded(this.pos))
+            return;
+        BlockEntity blockEntity = level.getBlockEntity(this.pos);
+        if (!(blockEntity instanceof PhoenixSlotMachineBlockEntity slotMachineBlockEntity))
+            return;
+        PlayerGameInstance instance = slotMachineBlockEntity.getPlayerData(player.getUUID());
+        switch (this.requestType) {
+            case BET -> this.bet(instance, player);
+        }
+        slotMachineBlockEntity.markUpdated();
+        Phoenix.PLATFORM.sendPacket((ServerPlayer) player, new S2C_RefreshSlotMachine());
+    }
+
+    private void bet(PlayerGameInstance instance, Player player) {
+        instance.toggleDoubleWins();
     }
 
     @Override

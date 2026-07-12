@@ -10,17 +10,16 @@ import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
-import net.minecraft.util.StringUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.joml.Matrix3x2fStack;
-import org.jspecify.annotations.Nullable;
 
 import java.util.function.IntSupplier;
+import java.util.function.Supplier;
 
 public final class BalanceWidget extends AbstractWidget {
 
     private static final Identifier SPRITE = Phoenix.identifier("balance");
-    private final IntSupplier valueProvider;
+    private final Supplier<Integer> valueProvider;
     private final Font font;
     private int digits = 9;
     private int textColor = 0xFF00FFFF;
@@ -28,7 +27,7 @@ public final class BalanceWidget extends AbstractWidget {
     private float xTextCorrection = 0.0F;
     private float yTextCorrection = 0.0F;
 
-    public BalanceWidget(int x, int y, int width, int height, IntSupplier valueProvider, Font font) {
+    public BalanceWidget(int x, int y, int width, int height, Supplier<Integer> valueProvider, Font font) {
         super(x, y, width, height, CommonComponents.EMPTY);
         this.valueProvider = valueProvider;
         this.font = font;
@@ -56,8 +55,9 @@ public final class BalanceWidget extends AbstractWidget {
         // background
         graphics.blitSprite(RenderPipelines.GUI_TEXTURED, SPRITE, this.getX(), this.getY(), this.getWidth(), this.getHeight());
         // text
-        int value = this.valueProvider.getAsInt();
-        String formattedValue = StringUtils.leftPad(String.valueOf(value), this.digits, 'X').substring(0, this.digits);
+        Integer value = this.valueProvider.get();
+        String initialValue = value != null ? String.valueOf(value) : "";
+        String formattedValue = StringUtils.leftPad(initialValue, this.digits, 'X').substring(0, this.digits);
         Component text = PhoenixClient.getDigitalText(formattedValue);
         int textWidth = this.font.width(text);
         Matrix3x2fStack pose = graphics.pose();

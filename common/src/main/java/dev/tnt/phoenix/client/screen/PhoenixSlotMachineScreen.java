@@ -6,6 +6,8 @@ import dev.tnt.phoenix.block.entity.PhoenixSlotMachineBlockEntity;
 import dev.tnt.phoenix.client.PhoenixClient;
 import dev.tnt.phoenix.client.screen.widget.*;
 import dev.tnt.phoenix.data.*;
+import dev.tnt.phoenix.data.game.AccountBalance;
+import dev.tnt.phoenix.data.game.PlayerGameInstance;
 import dev.tnt.phoenix.network.C2S_SlotMachineRequest;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -18,6 +20,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.function.Supplier;
 
 public class PhoenixSlotMachineScreen extends Screen {
 
@@ -56,7 +59,9 @@ public class PhoenixSlotMachineScreen extends Screen {
             return;
         }
         this.blockEntity = phoenixSlotMachineBlockEntity;
-        DataInstanceHolder data = this.blockEntity.getPlayerData(this.minecraft.player.getUUID());
+        PlayerGameInstance data = this.blockEntity.getPlayerData(this.minecraft.player.getUUID());
+        AccountBalance balance = data.getAccountBalance();
+        boolean isPlaying = data.isPlaying();
         this.leftPos = (this.width - CONTENT_WIDTH) / 2;
         this.topPos = (this.height - CONTENT_HEIGHT) / 2;
         this.holdButtons.clear();
@@ -70,20 +75,24 @@ public class PhoenixSlotMachineScreen extends Screen {
         }
 
         // bottom buttons
-        this.addBottomButtonRow(8, 16);
+        this.addBottomButtonRow(data, 8, 16);
 
         // top right buttons
-        this.addRenderableWidget(new IconButtonWithHighlightWidget(this.leftPos + CONTENT_WIDTH - 46, this.topPos + 4, 16, 16, Component.translatable("label.phoenix.ui.button_multiwin"), BUTTON_MULTIWIN, this::onMultiWinButtonClicked));
-        this.addRenderableWidget(new IconButtonWithHighlightWidget(this.leftPos + CONTENT_WIDTH - 26, this.topPos + 4, 16, 16, Component.translatable("label.phoenix.ui.button_pay"), BUTTON_PAY, this::onPayoutButtonClicked));
+        IconButtonWithHighlightWidget multiWin = this.addRenderableWidget(new IconButtonWithHighlightWidget(this.leftPos + CONTENT_WIDTH - 46, this.topPos + 4, 16, 16, Component.translatable("label.phoenix.ui.button_multiwin"), BUTTON_MULTIWIN, this::onMultiWinButtonClicked));
+        multiWin.active = balance.getMultiWinBalance() > 0;
+
+        IconButtonWithHighlightWidget payout = this.addRenderableWidget(new IconButtonWithHighlightWidget(this.leftPos + CONTENT_WIDTH - 26, this.topPos + 4, 16, 16, Component.translatable("label.phoenix.ui.button_pay"), BUTTON_PAY, this::onPayoutButtonClicked));
+        payout.active = balance.getBalance() > 0;
 
         // wheels
         WinConfiguration lowConfiguration = config.getWinningConfiguration(GameType.LOW);
         WinConfiguration highConfiguration = config.getWinningConfiguration(GameType.HIGH);
-        this.addSpinWheels(config, lowConfiguration, highConfiguration);
+        this.addSpinWheels(data, config, lowConfiguration, highConfiguration);
 
         // win combinations - low
+        boolean isDouble = data.isDoubleWins();
         List<WinCombination> winCombinationsDisplay = lowConfiguration.getDisplayableCombinations(true);
-        WinCombinationsWidget lowWinsWidget = this.addRenderableOnly(new WinCombinationsWidget(this.leftPos + 10, this.topPos + CONTENT_HEIGHT - 51, CONTENT_WIDTH - 20, 30, this.font, config, winCombinationsDisplay));
+        WinCombinationsWidget lowWinsWidget = this.addRenderableOnly(new WinCombinationsWidget(this.leftPos + 10, this.topPos + CONTENT_HEIGHT - 51, CONTENT_WIDTH - 20, 30, this.font, config, winCombinationsDisplay, isDouble));
         lowWinsWidget.setGrid(3, 6, 3);
         lowWinsWidget.setLayout(8, 5, 1, 3);
         lowWinsWidget.setOffsets(2, 2);
@@ -93,7 +102,7 @@ public class PhoenixSlotMachineScreen extends Screen {
         // win combinations - special
         IconButtonWithHighlightWidget firstButton = this.holdButtons.getFirst();
         List<WinCombination> specialCombinationsDisplay = lowConfiguration.getDisplayableCombinations(false);
-        WinCombinationsWidget specialWinsWidget = this.addRenderableOnly(new WinCombinationsWidget(this.leftPos + 10, firstButton.getY() - 79, 41, 45, this.font, config, specialCombinationsDisplay));
+        WinCombinationsWidget specialWinsWidget = this.addRenderableOnly(new WinCombinationsWidget(this.leftPos + 10, firstButton.getY() - 79, 41, 45, this.font, config, specialCombinationsDisplay, isDouble));
         specialWinsWidget.setGrid(4, 1, 3);
         specialWinsWidget.setLayout(8, 5, 3, 3);
         specialWinsWidget.setTextColor(0xFFCCCC00);
@@ -101,32 +110,37 @@ public class PhoenixSlotMachineScreen extends Screen {
 
         // win combinations - high
         List<WinCombination> highCombinationsDisplay = highConfiguration.getDisplayableCombinations(true, Comparator.comparingInt(WinCombination::amount).reversed());
-        WinCombinationsWidget highWinsWidget = this.addRenderableOnly(new WinCombinationsWidget(this.leftPos + CONTENT_WIDTH - 65, this.topPos + 23, 55, 120, this.font, config, highCombinationsDisplay));
+        WinCombinationsWidget highWinsWidget = this.addRenderableOnly(new WinCombinationsWidget(this.leftPos + CONTENT_WIDTH - 65, this.topPos + 23, 55, 120, this.font, config, highCombinationsDisplay, isDouble));
         highWinsWidget.setGrid(10, 1, 3);
         highWinsWidget.setLayout(12, 7, 1, 3);
         highWinsWidget.setTextColor(0xFFCCCC00);
         highWinsWidget.setOffsets(2, 2);
 
         // multi win balance
-        BalanceWidget multiWinBalanceWidget = this.addRenderableOnly(new BalanceWidget(firstButton.getX() - 11, this.topPos + 95, 80, 24, () -> 301500, this.font));
+        BalanceWidget multiWinBalanceWidget = this.addRenderableOnly(new BalanceWidget(firstButton.getX() - 11, this.topPos + 95, 80, 24, balance::getMultiWinBalance, this.font));
         multiWinBalanceWidget.setTextScale(2.0F);
         multiWinBalanceWidget.setTextColor(0xFFFFFF00);
         multiWinBalanceWidget.setDigits(6);
         multiWinBalanceWidget.setTextCorrectionOffset(-16.75F, 0.25F);
 
         // account balance
-        BalanceWidget accountBalanceWidget = this.addRenderableOnly(new BalanceWidget(this.leftPos + CONTENT_WIDTH - 70, this.topPos + CONTENT_HEIGHT - 69, 60, 16, data::getValue, this.font));
+        BalanceWidget accountBalanceWidget = this.addRenderableOnly(new BalanceWidget(this.leftPos + CONTENT_WIDTH - 70, this.topPos + CONTENT_HEIGHT - 69, 60, 16, balance::getBalance, this.font));
         accountBalanceWidget.setDigits(9);
         accountBalanceWidget.setTextCorrectionOffset(0.5F, 0.5F);
 
-        // risk balance?
-        BalanceWidget riskBalanceWidget = this.addRenderableOnly(new BalanceWidget(this.leftPos + CONTENT_WIDTH - 62, this.topPos + CONTENT_HEIGHT - 87, 44, 16, () -> 2500, this.font));
-        riskBalanceWidget.setDigits(6);
-        riskBalanceWidget.setTextCorrectionOffset(0.5F, 0.5F);
+        // win balance
+        Supplier<Integer> provider = () -> balance.getWinBalance() > 0 ? balance.getMultiWinBalance() : null;
+        BalanceWidget winBalanceWidget = this.addRenderableOnly(new BalanceWidget(this.leftPos + CONTENT_WIDTH - 62, this.topPos + CONTENT_HEIGHT - 87, 44, 16, provider, this.font));
+        winBalanceWidget.setDigits(6);
+        winBalanceWidget.setTextCorrectionOffset(0.5F, 0.5F);
 
         // risk
-        this.addRenderableOnly(new RiskWidget(this.leftPos + CONTENT_WIDTH - 60, this.topPos + CONTENT_HEIGHT - 109, 40, 20));
+        RiskWidget riskWidget = this.addRenderableOnly(new RiskWidget(this.leftPos + CONTENT_WIDTH - 60, this.topPos + CONTENT_HEIGHT - 109, 40, 20));
+        riskWidget.active = isPlaying;
+    }
 
+    public void forceReload() {
+        this.init(this.width, this.height);
     }
 
     @Override
@@ -141,48 +155,52 @@ public class PhoenixSlotMachineScreen extends Screen {
         return false;
     }
 
-    private void addSpinWheels(SlotMachineConfig config, WinConfiguration low, WinConfiguration high) {
-        IconButtonWithHighlightWidget first = this.holdButtons.getFirst();
-        IconButtonWithHighlightWidget last = this.holdButtons.getLast();
-        int leftPositionX = first.getX() - 4;
-        int leftPositionY = first.getY() - 4;
-        int rightPositionX = last.getX() + last.getWidth() + 4;
-        int rightPositionY = last.getY() + last.getHeight() + 4;
-        List<WinConfiguration.WinPattern> patterns = low.patterns();
-        for (WinConfiguration.WinPattern pattern : patterns) {
-            float yLeft = pattern.getLeftHeight();
-            float yRight = pattern.getRightHeight();
-            // TODO - either lines or custom texture layer
-        }
+    private void addSpinWheels(PlayerGameInstance instance, SlotMachineConfig config, WinConfiguration low, WinConfiguration high) {
+        GameType activeGame = instance.getActiveGameType();
         // wheels
         for (int i = 0; i < this.holdButtons.size(); i++) {
             IconButtonWithHighlightWidget holdButton = this.holdButtons.get(i);
             int offset = (i - 1) * 5;
-            // TODO add renderable only
             List<Identifier> sequenceSprites = config.generateSequence(this.minecraft.player.getRandom(), GameType.LOW, i);
-            this.addRenderableWidget(new SpinWheelWidget(holdButton.getX() - 2 + offset, holdButton.getY() - 89, holdButton.getWidth() + 4, 55, sequenceSprites));
+            SpinWheelWidget lowWidget = this.addRenderableOnly(new SpinWheelWidget(holdButton.getX() - 2 + offset, holdButton.getY() - 89, holdButton.getWidth() + 4, 55, sequenceSprites));
+            lowWidget.active = activeGame == GameType.LOW;
 
             List<Identifier> highSequenceSprites = config.generateSequence(this.minecraft.player.getRandom(), GameType.HIGH, i);
-            this.addRenderableWidget(new SpinWheelWidget(holdButton.getX() - 2 + offset, holdButton.getY() - 200, holdButton.getWidth() + 4, 55, highSequenceSprites));
+            SpinWheelWidget highWidget = this.addRenderableOnly(new SpinWheelWidget(holdButton.getX() - 2 + offset, holdButton.getY() - 200, holdButton.getWidth() + 4, 55, highSequenceSprites));
+            highWidget.active = activeGame == GameType.HIGH;
         }
     }
 
-    private void addBottomButtonRow(int count, int size) {
+    private void addBottomButtonRow(PlayerGameInstance instance, int count, int size) {
+        AccountBalance account = instance.getAccountBalance();
+        boolean isPlaying = instance.isPlaying();
         int buttonOffset = 5;
         int buttonWidth = size + buttonOffset;
         int rowLeft = this.leftPos + (CONTENT_WIDTH - (count * buttonWidth - buttonOffset)) / 2;
         int rowTop = this.topPos + CONTENT_HEIGHT - 20;
-        this.addRenderableWidget(new IconButtonWithHighlightWidget(rowLeft, rowTop, size, size, Component.translatable("label.phoenix.ui.button_advanced"), BUTTON_ADVANCED, this::onAdvancedButtonClicked));
-        this.addRenderableWidget(new IconButtonWithHighlightWidget(rowLeft + buttonWidth, rowTop, size, size, Component.translatable("label.phoenix.ui.button_bet"), BUTTON_BET, this::onBetButtonClicked));
+
+        IconButtonWithHighlightWidget advancedButton = this.addRenderableWidget(new IconButtonWithHighlightWidget(rowLeft, rowTop, size, size, Component.translatable("label.phoenix.ui.button_advanced"), BUTTON_ADVANCED, this::onAdvancedButtonClicked));
+        advancedButton.active = isPlaying;
+
+        IconButtonWithHighlightWidget betButton = this.addRenderableWidget(new IconButtonWithHighlightWidget(rowLeft + buttonWidth, rowTop, size, size, Component.translatable("label.phoenix.ui.button_bet"), BUTTON_BET, this::onBetButtonClicked));
+        betButton.active = !isPlaying && account.getBalance() > 0;
+
         for (int i = 0; i < SPIN_WHEELS; i++) {
             int posIndex = i + 2;
             final int index = i;
             IconButtonWithHighlightWidget widget = this.addRenderableWidget(new IconButtonWithHighlightWidget(rowLeft + buttonWidth * posIndex, rowTop, size, size, Component.translatable("label.phoenix.ui.button_hold"), BUTTON_HOLD, () -> this.onHoldButtonClicked(index)));
+            widget.active = isPlaying;
             this.holdButtons.add(widget);
         }
-        this.addRenderableWidget(new IconButtonWithHighlightWidget(rowLeft + buttonWidth * 5, rowTop, size, size, Component.translatable("label.phoenix.ui.button_risk_clubs"), BUTTON_RISK_CLUBS, this::onRiskClubsButtonClicked));
-        this.addRenderableWidget(new IconButtonWithHighlightWidget(rowLeft + buttonWidth * 6, rowTop, size, size, Component.translatable("label.phoenix.ui.button_risk_hearts"), BUTTON_RISK_HEARTS, this::onRiskHeartsButtonClicked));
-        this.addRenderableWidget(new IconButtonWithHighlightWidget(rowLeft + buttonWidth * 7, rowTop, size, size, Component.translatable("label.phoenix.ui.button_start"), BUTTON_START, this::onStartButtonClicked));
+
+        IconButtonWithHighlightWidget riskClubs = this.addRenderableWidget(new IconButtonWithHighlightWidget(rowLeft + buttonWidth * 5, rowTop, size, size, Component.translatable("label.phoenix.ui.button_risk_clubs"), BUTTON_RISK_CLUBS, this::onRiskClubsButtonClicked));
+        riskClubs.active = isPlaying;
+
+        IconButtonWithHighlightWidget riskHearts = this.addRenderableWidget(new IconButtonWithHighlightWidget(rowLeft + buttonWidth * 6, rowTop, size, size, Component.translatable("label.phoenix.ui.button_risk_hearts"), BUTTON_RISK_HEARTS, this::onRiskHeartsButtonClicked));
+        riskHearts.active = isPlaying;
+
+        IconButtonWithHighlightWidget startButton = this.addRenderableWidget(new IconButtonWithHighlightWidget(rowLeft + buttonWidth * 7, rowTop, size, size, Component.translatable("label.phoenix.ui.button_start"), BUTTON_START, this::onStartButtonClicked));
+        startButton.active = !isPlaying && account.getBalance() > 0;
     }
 
     private void onMultiWinButtonClicked() {

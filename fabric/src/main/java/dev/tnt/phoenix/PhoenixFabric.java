@@ -2,7 +2,9 @@ package dev.tnt.phoenix;
 
 import dev.tnt.phoenix.data.ItemValueDefinitionManager;
 import dev.tnt.phoenix.data.SlotMachineDataManager;
+import dev.tnt.phoenix.network.C2S_SlotMachineRequest;
 import dev.tnt.phoenix.network.S2C_OpenPhoenixMachineScreen;
+import dev.tnt.phoenix.network.S2C_RefreshSlotMachine;
 import dev.tnt.phoenix.network.S2C_SyncSlotMachineConfigs;
 import dev.tnt.phoenix.platform.FabricPlatform;
 import net.fabricmc.api.ModInitializer;
@@ -29,6 +31,12 @@ public final class PhoenixFabric implements ModInitializer {
         PayloadTypeRegistry<RegistryFriendlyByteBuf> s2c = PayloadTypeRegistry.clientboundPlay();
         s2c.register(S2C_SyncSlotMachineConfigs.TYPE, S2C_SyncSlotMachineConfigs.STREAM_CODEC);
         s2c.register(S2C_OpenPhoenixMachineScreen.TYPE, S2C_OpenPhoenixMachineScreen.STREAM_CODEC);
+        s2c.register(S2C_RefreshSlotMachine.TYPE, S2C_RefreshSlotMachine.STREAM_CODEC);
+
+        PayloadTypeRegistry<RegistryFriendlyByteBuf> c2s = PayloadTypeRegistry.serverboundPlay();
+        c2s.register(C2S_SlotMachineRequest.TYPE, C2S_SlotMachineRequest.STREAM_CODEC);
+
+        ServerPlayNetworking.registerGlobalReceiver(C2S_SlotMachineRequest.TYPE, (payload, ctx) -> payload.handle(ctx.player()));
 
         ServerLifecycleEvents.SYNC_DATA_PACK_CONTENTS.register((player, _) -> {
             S2C_SyncSlotMachineConfigs payload = Phoenix.SLOT_MACHINES.getPayload();
