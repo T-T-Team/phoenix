@@ -34,6 +34,7 @@ public class PhoenixSlotMachineScreen extends Screen {
     private static final Identifier BUTTON_RISK_HEARTS = Phoenix.identifier("textures/gui/button_risk_hearts.png");
     private static final Identifier BUTTON_START = Phoenix.identifier("textures/gui/button_start.png");
     private static final Identifier BLANK = Phoenix.identifier("textures/spinwheel/blank.png");
+    private static final Identifier BACKGROUND = Phoenix.identifier("textures/gui/phoenix_screen.png");
     // layout
     private static final int CONTENT_WIDTH = 220;
     private static final int CONTENT_HEIGHT = 256;
@@ -117,7 +118,7 @@ public class PhoenixSlotMachineScreen extends Screen {
         highWinsWidget.setOffsets(2, 2);
 
         // multi win balance
-        BalanceWidget multiWinBalanceWidget = this.addRenderableOnly(new BalanceWidget(firstButton.getX() - 11, this.topPos + 95, 80, 24, balance::getMultiWinBalance, this.font));
+        BalanceWidget multiWinBalanceWidget = this.addRenderableOnly(new BalanceWidget(firstButton.getX() - 11, this.topPos + 113, 80, 24, balance::getMultiWinBalance, this.font));
         multiWinBalanceWidget.setTextScale(2.0F);
         multiWinBalanceWidget.setTextColor(0xFFFFFF00);
         multiWinBalanceWidget.setDigits(6);
@@ -147,7 +148,7 @@ public class PhoenixSlotMachineScreen extends Screen {
     public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
         super.extractBackground(graphics, mouseX, mouseY, a);
         // background
-        graphics.fill(this.leftPos, this.topPos, this.leftPos + CONTENT_WIDTH, this.topPos + CONTENT_HEIGHT, 0x66404040);
+        graphics.blit(BACKGROUND, this.leftPos, this.topPos, this.leftPos + CONTENT_WIDTH, this.topPos + CONTENT_HEIGHT, 0, 1, 0, 1);
     }
 
     @Override
@@ -166,7 +167,7 @@ public class PhoenixSlotMachineScreen extends Screen {
             lowWidget.active = activeGame == GameType.LOW;
 
             List<Identifier> highSequenceSprites = config.generateSequence(this.minecraft.player.getRandom(), GameType.HIGH, i);
-            SpinWheelWidget highWidget = this.addRenderableOnly(new SpinWheelWidget(holdButton.getX() - 2 + offset, holdButton.getY() - 200, holdButton.getWidth() + 4, 55, highSequenceSprites));
+            SpinWheelWidget highWidget = this.addRenderableOnly(new SpinWheelWidget(holdButton.getX() - 2 + offset, holdButton.getY() - 185, holdButton.getWidth() + 4, 55, highSequenceSprites));
             highWidget.active = activeGame == GameType.HIGH;
         }
     }
