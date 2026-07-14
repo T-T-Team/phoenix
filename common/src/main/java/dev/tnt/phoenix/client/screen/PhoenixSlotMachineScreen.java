@@ -7,6 +7,7 @@ import dev.tnt.phoenix.client.PhoenixClient;
 import dev.tnt.phoenix.client.screen.widget.*;
 import dev.tnt.phoenix.data.*;
 import dev.tnt.phoenix.data.game.AccountBalance;
+import dev.tnt.phoenix.data.game.Game;
 import dev.tnt.phoenix.data.game.PlayerGameInstance;
 import dev.tnt.phoenix.network.C2S_SlotMachineRequest;
 import net.minecraft.ChatFormatting;
@@ -62,7 +63,6 @@ public class PhoenixSlotMachineScreen extends Screen {
         this.blockEntity = phoenixSlotMachineBlockEntity;
         PlayerGameInstance data = this.blockEntity.getPlayerData(this.minecraft.player.getUUID());
         AccountBalance balance = data.getAccountBalance();
-        boolean isPlaying = data.isPlaying();
         this.leftPos = (this.width - CONTENT_WIDTH) / 2;
         this.topPos = (this.height - CONTENT_HEIGHT) / 2;
         this.holdButtons.clear();
@@ -140,7 +140,7 @@ public class PhoenixSlotMachineScreen extends Screen {
 
         // risk
         RiskWidget riskWidget = this.addRenderableOnly(new RiskWidget(this.leftPos + CONTENT_WIDTH - 60, this.topPos + CONTENT_HEIGHT - 109, 40, 20));
-        riskWidget.active = isPlaying;
+        riskWidget.active = data.getGame().isPlaying();
     }
 
     public void forceReload() {
@@ -160,7 +160,7 @@ public class PhoenixSlotMachineScreen extends Screen {
     }
 
     private void addSpinWheels(PlayerGameInstance instance, SlotMachineConfig config, WinConfiguration low, WinConfiguration high) {
-        GameType activeGame = instance.getActiveGameType();
+        GameType activeGame = instance.getGame().getSelectedGameType();
         // wheels
         for (int i = 0; i < this.holdButtons.size(); i++) {
             IconButtonWithHighlightWidget holdButton = this.holdButtons.get(i);
@@ -179,34 +179,34 @@ public class PhoenixSlotMachineScreen extends Screen {
 
     private void addBottomButtonRow(PlayerGameInstance instance, int count, int size) {
         AccountBalance account = instance.getAccountBalance();
-        boolean isPlaying = instance.isPlaying();
+        Game game = instance.getGame();
         int buttonOffset = 5;
         int buttonWidth = size + buttonOffset;
         int rowLeft = this.leftPos + (CONTENT_WIDTH - (count * buttonWidth - buttonOffset)) / 2;
         int rowTop = this.topPos + CONTENT_HEIGHT - 20;
 
         IconButtonWithHighlightWidget advancedButton = this.addRenderableWidget(new IconButtonWithHighlightWidget(rowLeft, rowTop, size, size, Component.translatable("label.phoenix.ui.button_advanced"), BUTTON_ADVANCED, this::onAdvancedButtonClicked));
-        advancedButton.active = isPlaying;
+        advancedButton.active = game.isPlaying();
 
         IconButtonWithHighlightWidget betButton = this.addRenderableWidget(new IconButtonWithHighlightWidget(rowLeft + buttonWidth, rowTop, size, size, Component.translatable("label.phoenix.ui.button_bet"), BUTTON_BET, this::onBetButtonClicked));
-        betButton.active = !isPlaying && account.getBalance() > 0;
+        betButton.active = !game.isPlaying() && account.getBalance() > 0;
 
         for (int i = 0; i < SPIN_WHEELS; i++) {
             int posIndex = i + 2;
             final int index = i;
             IconButtonWithHighlightWidget widget = this.addRenderableWidget(new IconButtonWithHighlightWidget(rowLeft + buttonWidth * posIndex, rowTop, size, size, Component.translatable("label.phoenix.ui.button_hold"), BUTTON_HOLD, () -> this.onHoldButtonClicked(index)));
-            widget.active = isPlaying;
+            widget.active = game.isPlaying();
             this.holdButtons.add(widget);
         }
 
         IconButtonWithHighlightWidget riskClubs = this.addRenderableWidget(new IconButtonWithHighlightWidget(rowLeft + buttonWidth * 5, rowTop, size, size, Component.translatable("label.phoenix.ui.button_risk_clubs"), BUTTON_RISK_CLUBS, this::onRiskClubsButtonClicked));
-        riskClubs.active = isPlaying;
+        riskClubs.active = game.isPlaying();
 
         IconButtonWithHighlightWidget riskHearts = this.addRenderableWidget(new IconButtonWithHighlightWidget(rowLeft + buttonWidth * 6, rowTop, size, size, Component.translatable("label.phoenix.ui.button_risk_hearts"), BUTTON_RISK_HEARTS, this::onRiskHeartsButtonClicked));
-        riskHearts.active = isPlaying;
+        riskHearts.active = game.isPlaying();
 
         IconButtonWithHighlightWidget startButton = this.addRenderableWidget(new IconButtonWithHighlightWidget(rowLeft + buttonWidth * 7, rowTop, size, size, Component.translatable("label.phoenix.ui.button_start"), BUTTON_START, this::onStartButtonClicked));
-        startButton.active = !isPlaying && account.getBalance() > 0;
+        startButton.active = !game.isPlaying() && account.getBalance() > 0;
     }
 
     private void onMultiWinButtonClicked() {

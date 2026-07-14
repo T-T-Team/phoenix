@@ -59,6 +59,7 @@ public class PhoenixSlotMachineBlock extends HorizontalDirectionalBlock implemen
         if (!level.isClientSide()) {
             ServerPlayer serverPlayer = (ServerPlayer) player;
             PhoenixSlotMachineBlockEntity blockEntity = (PhoenixSlotMachineBlockEntity) level.getBlockEntity(pos);
+            blockEntity.onPlayerInteracted(serverPlayer);
             Phoenix.PLATFORM.sendPacket(serverPlayer, new S2C_OpenPhoenixMachineScreen(blockEntity.getBlockPos()));
         }
         return InteractionResult.SUCCESS;

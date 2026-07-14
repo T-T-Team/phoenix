@@ -11,6 +11,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemInstance;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -32,14 +33,6 @@ public final class PhoenixSlotMachineBlockEntity extends BlockEntity {
 
     public PlayerGameInstance getPlayerData(UUID player) {
         return this.data.getData(player);
-    }
-
-    public void startGame(UUID player) {
-        PlayerGameInstance holder = this.getPlayerData(player);
-        if (!holder.canPlay())
-            return;
-        holder.play();
-        this.markUpdated();
     }
 
     public boolean insertItem(UUID owner, ItemInstance instance, boolean insertAll) {
@@ -81,6 +74,13 @@ public final class PhoenixSlotMachineBlockEntity extends BlockEntity {
         this.level.sendBlockUpdated(this.getBlockPos(), this.getBlockState(), this.getBlockState(), 3);
     }
 
+    public void onPlayerInteracted(ServerPlayer serverPlayer) {
+        if (!this.data.data.containsKey(serverPlayer.getUUID())) {
+            PlayerGameInstance instance = PlayerGameInstance.createForPlayer(serverPlayer);
+            this.data.data.put(serverPlayer.getUUID(), instance);
+        }
+    }
+
     private record DataHolder(Map<UUID, PlayerGameInstance> data) {
 
         public static final Codec<DataHolder> CODEC = Codec.unboundedMap(UUIDUtil.STRING_CODEC, PlayerGameInstance.CODEC)
@@ -95,7 +95,7 @@ public final class PhoenixSlotMachineBlockEntity extends BlockEntity {
         }
 
         public PlayerGameInstance getData(UUID player) {
-            return this.data.computeIfAbsent(player, _ -> PlayerGameInstance.createDefault());
+            return this.data.get(player);
         }
 
         public void update(DataHolder source) {
