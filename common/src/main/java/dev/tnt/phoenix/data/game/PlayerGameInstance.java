@@ -2,6 +2,7 @@ package dev.tnt.phoenix.data.game;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.tnt.phoenix.data.GameType;
 import net.minecraft.server.level.ServerPlayer;
 
 public class PlayerGameInstance {
@@ -44,6 +45,15 @@ public class PlayerGameInstance {
 
     public boolean isDoubleWins() {
         return this.doubleWins;
+    }
+
+    public int getCost(GameType type) {
+        int multiplier = this.isDoubleWins() ? 2 : 1;
+        int baseCost = switch (type) {
+            case LOW -> 1;
+            case HIGH -> 4;
+        };
+        return baseCost * multiplier;
     }
 
     public PlayerGameInstance update(PlayerGameInstance holder) {

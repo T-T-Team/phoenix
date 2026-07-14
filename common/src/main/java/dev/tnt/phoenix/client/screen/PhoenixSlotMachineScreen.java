@@ -2,6 +2,7 @@ package dev.tnt.phoenix.client.screen;
 
 import dev.tnt.phoenix.Phoenix;
 import dev.tnt.phoenix.block.PhoenixSlotMachineBlock;
+import dev.tnt.phoenix.block.entity.ActionType;
 import dev.tnt.phoenix.block.entity.PhoenixSlotMachineBlockEntity;
 import dev.tnt.phoenix.client.PhoenixClient;
 import dev.tnt.phoenix.client.screen.widget.*;
@@ -210,39 +211,41 @@ public class PhoenixSlotMachineScreen extends Screen {
     }
 
     private void onMultiWinButtonClicked() {
-        this.sendServerRequest(C2S_SlotMachineRequest.RequestType.MULTIWIN);
+        this.sendServerRequest(ActionType.MULTIWIN);
     }
 
     private void onPayoutButtonClicked() {
-        this.sendServerRequest(C2S_SlotMachineRequest.RequestType.PAYOUT);
+        this.sendServerRequest(ActionType.PAYOUT);
     }
 
     private void onAdvancedButtonClicked() {
-        this.sendServerRequest(C2S_SlotMachineRequest.RequestType.ADVANCED);
+        this.sendServerRequest(ActionType.ADVANCED);
     }
 
     private void onBetButtonClicked() {
-        this.sendServerRequest(C2S_SlotMachineRequest.RequestType.BET);
+        this.blockEntity.performAction(this.minecraft.player, ActionType.BET);
+        this.sendServerRequest(ActionType.BET);
     }
 
     private void onHoldButtonClicked(int index) {
-        C2S_SlotMachineRequest.RequestType holdRequest = C2S_SlotMachineRequest.RequestType.holdActionFromIndex(index);
+        ActionType holdRequest = ActionType.holdActionFromIndex(index);
         this.sendServerRequest(holdRequest);
     }
 
     private void onRiskClubsButtonClicked() {
-        this.sendServerRequest(C2S_SlotMachineRequest.RequestType.RISK_CLUBS);
+        this.sendServerRequest(ActionType.RISK_CLUBS);
     }
 
     private void onRiskHeartsButtonClicked() {
-        this.sendServerRequest(C2S_SlotMachineRequest.RequestType.RISK_HEARTS);
+        this.sendServerRequest(ActionType.RISK_HEARTS);
     }
 
     private void onStartButtonClicked() {
-        this.sendServerRequest(C2S_SlotMachineRequest.RequestType.PLAY);
+        this.blockEntity.performAction(this.minecraft.player, ActionType.PLAY);
+        this.sendServerRequest(ActionType.PLAY);
     }
 
-    private void sendServerRequest(C2S_SlotMachineRequest.RequestType type) {
+    private void sendServerRequest(ActionType type) {
         BlockPos position = this.blockEntity.getBlockPos();
         PhoenixClient.PLATFORM.sendPacket(new C2S_SlotMachineRequest(position, type));
     }

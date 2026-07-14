@@ -35,6 +35,10 @@ public final class AccountBalance {
         return this.balance;
     }
 
+    public void subtractBalance(int amount) {
+        this.balance -= amount;
+    }
+
     public void addBalance(int amount) {
         this.balance += amount;
     }
@@ -43,7 +47,15 @@ public final class AccountBalance {
         return winBalance;
     }
 
+    public void subtractWinBalance(int amount) {
+        this.winBalance -= amount;
+    }
+
     public int getMultiWinBalance() {
         return multiWinBalance;
+    }
+
+    public void subtractMultiWinBalance(int amount) {
+        this.multiWinBalance -= amount;
     }
 }
