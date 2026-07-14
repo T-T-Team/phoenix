@@ -7,6 +7,8 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
 
+import java.util.EnumMap;
+
 public final class SpinWheelEntry {
 
     public static final Codec<SpinWheelEntry> CODEC = RecordCodecBuilder.create(instance -> instance.group(
@@ -24,21 +26,20 @@ public final class SpinWheelEntry {
     private final String id;
     private final Identifier path;
     private final boolean hidden;
-    private final Identifier sprite;
+    private final EnumMap<SpriteType, Identifier> sprites = new EnumMap<>(SpriteType.class);
 
     public SpinWheelEntry(String id, Identifier sprite, boolean hidden) {
         this.id = id;
         this.path = sprite;
         this.hidden = hidden;
-        this.sprite = sprite.withPath(path -> "textures/" + path + ".png");
     }
 
     public String id() {
         return this.id;
     }
 
-    public Identifier texturePath() {
-        return this.sprite;
+    public Identifier getSpriteForType(SpriteType type) {
+        return this.sprites.computeIfAbsent(type, t -> t.getPath(this.path));
     }
 
     public boolean hidden() {

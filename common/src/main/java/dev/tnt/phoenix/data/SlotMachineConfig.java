@@ -32,9 +32,9 @@ public final class SlotMachineConfig {
         this.winConfiguration = winConfiguration;
     }
 
-    public Identifier getSprite(String symbol) {
+    public Identifier getSprite(String symbol, SpriteType spriteType) {
         SpinWheelEntry entry = Objects.requireNonNull(this.entries.get(symbol), "No sprite defined for symbol: " + symbol);
-        return entry.texturePath();
+        return entry.getSpriteForType(spriteType);
     }
 
     public SequenceGenerator getSequenceGenerator(GameType type, int index) {
@@ -46,22 +46,15 @@ public final class SlotMachineConfig {
         return generators.get(index);
     }
 
-    public List<Identifier> generateSequence(RandomSource random, GameType gameType, int sequenceIndex) {
+    public List<String> generateSequence(RandomSource random, GameType gameType, int sequenceIndex) {
         SequenceGenerator generator = this.getSequenceGenerator(gameType, sequenceIndex);
-        List<Identifier> output = new ArrayList<>();
-        generator.generateSymbolSequence(random, symbol -> {
-            Identifier sprite = this.getSprite(symbol);
-            output.add(sprite);
-        });
+        List<String> output = new ArrayList<>();
+        generator.generateSymbolSequence(random, output::add);
         return output;
     }
 
-    @Deprecated
-    public List<Identifier> getSprites() {
-        return this.entries.values().stream()
-                .filter(SpinWheelEntry::visible)
-                .map(SpinWheelEntry::texturePath)
-                .toList();
+    public List<Identifier> getSprites(SpriteType type, List<String> symbols) {
+        return symbols.stream().map(symbol -> this.getSprite(symbol, type)).toList();
     }
 
     public WinConfiguration getWinningConfiguration(GameType gameType) {

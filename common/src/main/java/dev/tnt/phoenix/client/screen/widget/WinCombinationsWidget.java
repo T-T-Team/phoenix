@@ -2,6 +2,7 @@ package dev.tnt.phoenix.client.screen.widget;
 
 import dev.tnt.phoenix.Phoenix;
 import dev.tnt.phoenix.data.SlotMachineConfig;
+import dev.tnt.phoenix.data.SpriteType;
 import dev.tnt.phoenix.data.WinCombination;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -32,6 +33,7 @@ public class WinCombinationsWidget extends AbstractWidget {
     private int horizontalOffset;
     private int verticalOffset;
     private int textColor = 0xFFFFFFFF;
+    private int textColorDisabled = 0xFF808080;
     private Identifier blankSprite;
 
     public WinCombinationsWidget(int x, int y, int width, int height, Font font, SlotMachineConfig config, List<WinCombination> combinations, boolean isDouble) {
@@ -68,6 +70,10 @@ public class WinCombinationsWidget extends AbstractWidget {
         this.textColor = textColor;
     }
 
+    public void setDisabledTextColor(int textColor) {
+        this.textColorDisabled = textColor;
+    }
+
     public void setBlankSprite(Identifier sprite) {
         this.blankSprite = sprite;
     }
@@ -85,7 +91,7 @@ public class WinCombinationsWidget extends AbstractWidget {
                     break;
                 }
                 WinCombination combination = this.combinations.get(index);
-                Identifier icon = combination.getSprite(this.config);
+                Identifier icon = combination.getSprite(this.config, this.active ? SpriteType.DEFAULT : SpriteType.DISABLED); // TODO logic
                 for (int i = 0; i < this.maxColumnSize; i++) {
                     Identifier sprite = i >= combination.count() ? this.blankSprite : icon;
                     if (sprite == null) {
@@ -96,7 +102,7 @@ public class WinCombinationsWidget extends AbstractWidget {
                 }
                 int amount = combination.amount() * this.multiplier;
                 Component amountLabel = Component.literal(String.valueOf(amount));
-                graphics.text(this.font, amountLabel, px + this.maxColumnSize * this.iconSize - 5, py + (this.iconSize - this.font.lineHeight) / 2, this.textColor, true);
+                graphics.text(this.font, amountLabel, px + this.maxColumnSize * this.iconSize - 5, py + (this.iconSize - this.font.lineHeight) / 2, this.active ? this.textColor : this.textColorDisabled, true);
             }
         }
         graphics.disableScissor();

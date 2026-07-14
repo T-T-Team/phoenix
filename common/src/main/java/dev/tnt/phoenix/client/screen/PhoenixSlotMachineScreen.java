@@ -83,7 +83,7 @@ public class PhoenixSlotMachineScreen extends Screen {
         multiWin.active = balance.getMultiWinBalance() > 0;
 
         IconButtonWithHighlightWidget payout = this.addRenderableWidget(new IconButtonWithHighlightWidget(this.leftPos + CONTENT_WIDTH - 26, this.topPos + 4, 16, 16, Component.translatable("label.phoenix.ui.button_pay"), BUTTON_PAY, this::onPayoutButtonClicked));
-        payout.active = balance.getBalance() > 0;
+        payout.active = balance.getMultiWinBalance() > 0;
 
         // wheels
         WinConfiguration lowConfiguration = config.getWinningConfiguration(GameType.LOW);
@@ -107,6 +107,7 @@ public class PhoenixSlotMachineScreen extends Screen {
         specialWinsWidget.setGrid(4, 1, 3);
         specialWinsWidget.setLayout(8, 5, 3, 3);
         specialWinsWidget.setTextColor(0xFFCCCC00);
+        specialWinsWidget.setDisabledTextColor(0xFFAAAA00);
         specialWinsWidget.setOffsets(2);
 
         // win combinations - high
@@ -115,7 +116,9 @@ public class PhoenixSlotMachineScreen extends Screen {
         highWinsWidget.setGrid(10, 1, 3);
         highWinsWidget.setLayout(12, 7, 1, 3);
         highWinsWidget.setTextColor(0xFFCCCC00);
+        highWinsWidget.setDisabledTextColor(0xFFAAAA00);
         highWinsWidget.setOffsets(2, 2);
+        highWinsWidget.active = false;
 
         // multi win balance
         BalanceWidget multiWinBalanceWidget = this.addRenderableOnly(new BalanceWidget(firstButton.getX() - 11, this.topPos + 113, 80, 24, balance::getMultiWinBalance, this.font));
@@ -162,12 +165,14 @@ public class PhoenixSlotMachineScreen extends Screen {
         for (int i = 0; i < this.holdButtons.size(); i++) {
             IconButtonWithHighlightWidget holdButton = this.holdButtons.get(i);
             int offset = (i - 1) * 5;
-            List<Identifier> sequenceSprites = config.generateSequence(this.minecraft.player.getRandom(), GameType.LOW, i);
-            SpinWheelWidget lowWidget = this.addRenderableOnly(new SpinWheelWidget(holdButton.getX() - 2 + offset, holdButton.getY() - 89, holdButton.getWidth() + 4, 55, sequenceSprites));
+            List<String> sequence = config.generateSequence(this.minecraft.player.getRandom(), GameType.LOW, i);
+            List<Identifier> sprites = config.getSprites(SpriteType.DEFAULT, sequence);
+            SpinWheelWidget lowWidget = this.addRenderableOnly(new SpinWheelWidget(holdButton.getX() - 2 + offset, holdButton.getY() - 89, holdButton.getWidth() + 4, 55, sprites));
             lowWidget.active = activeGame == GameType.LOW;
 
-            List<Identifier> highSequenceSprites = config.generateSequence(this.minecraft.player.getRandom(), GameType.HIGH, i);
-            SpinWheelWidget highWidget = this.addRenderableOnly(new SpinWheelWidget(holdButton.getX() - 2 + offset, holdButton.getY() - 185, holdButton.getWidth() + 4, 55, highSequenceSprites));
+            List<String> highSequenceSprites = config.generateSequence(this.minecraft.player.getRandom(), GameType.HIGH, i);
+            List<Identifier> highSprites = config.getSprites(SpriteType.DISABLED, highSequenceSprites);
+            SpinWheelWidget highWidget = this.addRenderableOnly(new SpinWheelWidget(holdButton.getX() - 2 + offset, holdButton.getY() - 185, holdButton.getWidth() + 4, 55, highSprites));
             highWidget.active = activeGame == GameType.HIGH;
         }
     }

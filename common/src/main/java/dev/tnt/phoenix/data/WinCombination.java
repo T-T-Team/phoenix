@@ -33,9 +33,9 @@ public record WinCombination(List<String> symbols, int count, int amount, boolea
                 .map(symbol -> new WinCombination(Collections.singletonList(symbol), this.count, this.amount, this.render));
     }
 
-    public Identifier getSprite(SlotMachineConfig config) {
+    public Identifier getSprite(SlotMachineConfig config, SpriteType type) {
         String symbol = this.symbols.getFirst();
-        return config.getSprite(symbol);
+        return config.getSprite(symbol, type);
     }
 
     public boolean shouldRender(boolean mode) {
