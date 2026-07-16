@@ -2,6 +2,9 @@ package dev.tnt.phoenix.client.screen.widget;
 
 import dev.tnt.phoenix.Phoenix;
 import dev.tnt.phoenix.client.screen.PhoenixSlotMachineScreen;
+import dev.tnt.phoenix.data.SlotMachineConfig;
+import dev.tnt.phoenix.data.SpriteType;
+import dev.tnt.phoenix.data.game.SpinWheel;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -19,14 +22,26 @@ public final class SpinWheelWidget extends AbstractWidget {
     private static final Identifier SPRITE_SLOT = Phoenix.identifier("slot");
     private static final Identifier SPRITE_SLOT_ON = Phoenix.identifier("slot_on");
     private static final int ICON_SIZE = 16;
-    private final List<Identifier> sprites;
+    private final SlotMachineConfig config;
+    private final SpinWheel spinWheel;
     private final int displayedIcons;
     private int scroll;
+    private List<Identifier> sprites;
 
-    public SpinWheelWidget(int x, int y, int width, int height, List<Identifier> sprites) {
+    public SpinWheelWidget(int x, int y, int width, int height, SlotMachineConfig config, SpinWheel spinWheel) {
+        this(x, y, width, height, config, spinWheel, SpriteType.DEFAULT);
+    }
+
+    public SpinWheelWidget(int x, int y, int width, int height, SlotMachineConfig config, SpinWheel spinWheel, SpriteType spriteType) {
         super(x, y, width, height, CommonComponents.EMPTY);
-        this.sprites = sprites;
+        this.config = config;
+        this.spinWheel = spinWheel;
         this.displayedIcons = height / (ICON_SIZE + 2) + 1;
+        this.setSpriteType(spriteType);
+    }
+
+    public void setSpriteType(SpriteType spriteType) {
+        this.sprites = this.config.getSprites(spriteType, this.spinWheel.getSequence());
     }
 
     @Override

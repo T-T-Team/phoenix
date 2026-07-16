@@ -10,6 +10,7 @@ import dev.tnt.phoenix.data.*;
 import dev.tnt.phoenix.data.game.AccountBalance;
 import dev.tnt.phoenix.data.game.Game;
 import dev.tnt.phoenix.data.game.PlayerGameInstance;
+import dev.tnt.phoenix.data.game.SpinWheel;
 import dev.tnt.phoenix.network.C2S_SlotMachineRequest;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -47,6 +48,7 @@ public class PhoenixSlotMachineScreen extends Screen {
     private PhoenixSlotMachineBlockEntity blockEntity;
     private int leftPos;
     private int topPos;
+    private boolean isLoading;
 
     public PhoenixSlotMachineScreen(BlockPos pos) {
         super(PhoenixSlotMachineBlock.NAME);
@@ -63,6 +65,11 @@ public class PhoenixSlotMachineScreen extends Screen {
         }
         this.blockEntity = phoenixSlotMachineBlockEntity;
         PlayerGameInstance data = this.blockEntity.getPlayerData(this.minecraft.player.getUUID());
+        this.isLoading = false;
+        if (data == null) {
+            this.isLoading = true;
+            return;
+        }
         AccountBalance balance = data.getAccountBalance();
         this.leftPos = (this.width - CONTENT_WIDTH) / 2;
         this.topPos = (this.height - CONTENT_HEIGHT) / 2;
@@ -151,6 +158,11 @@ public class PhoenixSlotMachineScreen extends Screen {
     @Override
     public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
         super.extractBackground(graphics, mouseX, mouseY, a);
+        if (this.isLoading) {
+            Component text = Component.literal("Loading data...");
+            graphics.text(this.font, text, (this.width - this.font.width(text)) / 2, (this.height - this.font.lineHeight) / 2, 0xFFFFFFFF);
+            return;
+        }
         // background
         graphics.blit(BACKGROUND, this.leftPos, this.topPos, this.leftPos + CONTENT_WIDTH, this.topPos + CONTENT_HEIGHT, 0, 1, 0, 1);
     }
@@ -166,15 +178,15 @@ public class PhoenixSlotMachineScreen extends Screen {
         for (int i = 0; i < this.holdButtons.size(); i++) {
             IconButtonWithHighlightWidget holdButton = this.holdButtons.get(i);
             int offset = (i - 1) * 5;
-            List<String> sequence = config.generateSequence(this.minecraft.player.getRandom(), GameType.LOW, i);
-            List<Identifier> sprites = config.getSprites(SpriteType.DEFAULT, sequence);
-            SpinWheelWidget lowWidget = this.addRenderableOnly(new SpinWheelWidget(holdButton.getX() - 2 + offset, holdButton.getY() - 89, holdButton.getWidth() + 4, 55, sprites));
+            SpinWheel lowSpinWheel = instance.getSpinWheel(GameType.LOW, i);
+            SpinWheelWidget lowWidget = this.addRenderableOnly(new SpinWheelWidget(holdButton.getX() - 2 + offset, holdButton.getY() - 89, holdButton.getWidth() + 4, 55, config, lowSpinWheel));
             lowWidget.active = activeGame == GameType.LOW;
+            lowWidget.setSpriteType(lowWidget.active ? SpriteType.DEFAULT : SpriteType.DISABLED);
 
-            List<String> highSequenceSprites = config.generateSequence(this.minecraft.player.getRandom(), GameType.HIGH, i);
-            List<Identifier> highSprites = config.getSprites(SpriteType.DISABLED, highSequenceSprites);
-            SpinWheelWidget highWidget = this.addRenderableOnly(new SpinWheelWidget(holdButton.getX() - 2 + offset, holdButton.getY() - 185, holdButton.getWidth() + 4, 55, highSprites));
+            SpinWheel highSpinWheel = instance.getSpinWheel(GameType.HIGH, i);
+            SpinWheelWidget highWidget = this.addRenderableOnly(new SpinWheelWidget(holdButton.getX() - 2 + offset, holdButton.getY() - 185, holdButton.getWidth() + 4, 55, config, highSpinWheel));
             highWidget.active = activeGame == GameType.HIGH;
+            highWidget.setSpriteType(highWidget.active ? SpriteType.DEFAULT : SpriteType.DISABLED);
         }
     }
 

@@ -3,6 +3,7 @@ package dev.tnt.phoenix.block.entity;
 import com.mojang.serialization.Codec;
 import dev.tnt.phoenix.Phoenix;
 import dev.tnt.phoenix.data.GameType;
+import dev.tnt.phoenix.data.SlotMachineConfig;
 import dev.tnt.phoenix.data.game.AccountBalance;
 import dev.tnt.phoenix.data.game.Game;
 import dev.tnt.phoenix.data.game.PlayerGameInstance;
@@ -88,8 +89,10 @@ public final class PhoenixSlotMachineBlockEntity extends BlockEntity {
 
     public void onPlayerInteracted(ServerPlayer serverPlayer) {
         if (!this.data.data.containsKey(serverPlayer.getUUID())) {
-            PlayerGameInstance instance = PlayerGameInstance.createForPlayer(serverPlayer);
+            SlotMachineConfig config = Phoenix.SLOT_MACHINES.getSlotMachineOrThrow(Phoenix.SLOT_MACHINE_CONFIG_PHOENIX);
+            PlayerGameInstance instance = PlayerGameInstance.createForPlayer(serverPlayer, config);
             this.data.data.put(serverPlayer.getUUID(), instance);
+            this.markUpdated();
         }
     }
 

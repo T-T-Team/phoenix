@@ -32,6 +32,11 @@ public final class SlotMachineDataManager extends SimpleJsonResourceReloadListen
         return optional.map(SlotMachineConfigWithId::config);
     }
 
+    public SlotMachineConfig getSlotMachineOrThrow(Identifier id) {
+        return this.getSlotMachine(id)
+                .orElseThrow(() -> new IllegalStateException("Slot machine with id " + id + " not found"));
+    }
+
     public S2C_SyncSlotMachineConfigs getPayload() {
         return new S2C_SyncSlotMachineConfigs(new ArrayList<>(this.slotMachines.values()));
     }
