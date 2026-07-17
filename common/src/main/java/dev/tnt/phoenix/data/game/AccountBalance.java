@@ -58,4 +58,8 @@ public final class AccountBalance {
     public void subtractMultiWinBalance(int amount) {
         this.multiWinBalance -= amount;
     }
+
+    public boolean isZero() {
+        return this.balance == 0 && this.winBalance == 0 && this.multiWinBalance == 0;
+    }
 }

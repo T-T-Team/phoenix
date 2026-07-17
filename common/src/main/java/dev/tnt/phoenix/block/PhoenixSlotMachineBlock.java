@@ -22,6 +22,8 @@ import net.minecraft.world.level.block.DirectionalBlock;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.phys.BlockHitResult;
@@ -60,7 +62,7 @@ public class PhoenixSlotMachineBlock extends HorizontalDirectionalBlock implemen
             ServerPlayer serverPlayer = (ServerPlayer) player;
             PhoenixSlotMachineBlockEntity blockEntity = (PhoenixSlotMachineBlockEntity) level.getBlockEntity(pos);
             blockEntity.onPlayerInteracted(serverPlayer);
-            Phoenix.PLATFORM.sendPacket(serverPlayer, new S2C_OpenPhoenixMachineScreen(blockEntity.getBlockPos()));
+            Phoenix.PLATFORM.sendPacket(serverPlayer, new S2C_OpenPhoenixMachineScreen(blockEntity.getBlockPos(), blockEntity.getUpdateTag(serverPlayer.registryAccess())));
         }
         return InteractionResult.SUCCESS;
     }
@@ -70,7 +72,6 @@ public class PhoenixSlotMachineBlock extends HorizontalDirectionalBlock implemen
         if (itemStack.isEmpty()) {
             return InteractionResult.TRY_WITH_EMPTY_HAND;
         }
-        // TODO could be improved if we synchronize item values to client
         if (!level.isClientSide()) {
             ItemCooldowns cooldowns = player.getCooldowns();
             if (cooldowns.isOnCooldown(itemStack))
@@ -92,6 +93,13 @@ public class PhoenixSlotMachineBlock extends HorizontalDirectionalBlock implemen
     @Override
     public @Nullable BlockEntity newBlockEntity(BlockPos worldPosition, BlockState blockState) {
         return Phoenix.BLOCK_ENTITY_PHOENIX_SLOT_MACHINE.get().create(worldPosition, blockState);
+    }
+
+    @Override
+    public @Nullable <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState blockState, BlockEntityType<T> type) {
+        return type == Phoenix.BLOCK_ENTITY_PHOENIX_SLOT_MACHINE.get()
+                ? (innerLevel, pos, state, slotMachine) -> ((PhoenixSlotMachineBlockEntity) slotMachine).tick(innerLevel, state)
+                : null;
     }
 
     public @Nullable BlockState getStateForPlacement(final BlockPlaceContext context) {

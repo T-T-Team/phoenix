@@ -1,5 +1,6 @@
 package dev.tnt.phoenix;
 
+import com.mojang.logging.LogUtils;
 import dev.tnt.phoenix.block.PhoenixSlotMachineBlock;
 import dev.tnt.phoenix.block.entity.PhoenixSlotMachineBlockEntity;
 import dev.tnt.phoenix.data.ItemValueDefinitionManager;
@@ -18,6 +19,8 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Set;
 import java.util.function.Function;
@@ -25,6 +28,8 @@ import java.util.function.Function;
 public class Phoenix {
 
     public static final String MOD_ID = "phoenix";
+    public static final Logger LOGGER = LogManager.getLogger(Phoenix.class);
+    public static final org.slf4j.Logger LOGGER_SLF4J = LogUtils.getLogger();
     public static final Platform PLATFORM = Services.load(Platform.class);
 
     // Data managers

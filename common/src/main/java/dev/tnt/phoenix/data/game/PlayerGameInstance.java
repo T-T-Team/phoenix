@@ -16,19 +16,19 @@ public class PlayerGameInstance {
             AccountBalance.CODEC.fieldOf("account_balance").forGetter(PlayerGameInstance::getAccountBalance),
             Game.CODEC.fieldOf("active_spin").forGetter(t -> t.game),
             SpinWheel.CODEC.listOf().fieldOf("spin_wheels").forGetter(t -> t.spinWheels),
-            Codec.BOOL.optionalFieldOf("double_win", false).forGetter(PlayerGameInstance::isDoubleWins)
+            BetMultiplier.CODEC.optionalFieldOf("bet_multiplier", BetMultiplier.X1).forGetter(t -> t.betMultiplier)
     ).apply(instance, PlayerGameInstance::new));
 
     private final AccountBalance accountBalance;
     private final Game game;
     private final List<SpinWheel> spinWheels;
-    private boolean doubleWins;
+    private BetMultiplier betMultiplier;
 
-    private PlayerGameInstance(AccountBalance accountBalance, Game game, List<SpinWheel> spinWheels, boolean doubleWins) {
+    private PlayerGameInstance(AccountBalance accountBalance, Game game, List<SpinWheel> spinWheels, BetMultiplier betMultiplier) {
         this.accountBalance = accountBalance;
         this.game = game;
         this.spinWheels = spinWheels;
-        this.doubleWins = doubleWins;
+        this.betMultiplier = betMultiplier;
     }
 
     public static PlayerGameInstance createForPlayer(ServerPlayer player, SlotMachineConfig config) {
@@ -38,15 +38,23 @@ public class PlayerGameInstance {
             GameType type = i < 3 ? GameType.LOW : GameType.HIGH;
             int generatorIdx = i % 3;
             List<String> sequence = config.generateSequence(random, type, generatorIdx);
-            SpinWheel spinWheel = new SpinWheel(sequence, 0.0F);
+            SpinWheel spinWheel = new SpinWheel(sequence, 0.0F, 0);
             spinWheelList.add(spinWheel);
         }
         return new PlayerGameInstance(
                 AccountBalance.createDefault(),
                 Game.create(),
                 spinWheelList,
-                false
+                BetMultiplier.X1
         );
+    }
+
+    public void tick() {
+        int index = this.game.getSelectedGameType() == GameType.LOW ? 0 : 3;
+        for (int i = index; i < index + 3; i++) {
+            SpinWheel wheel = this.spinWheels.get(i);
+            wheel.update();
+        }
     }
 
     public AccountBalance getAccountBalance() {
@@ -62,27 +70,41 @@ public class PlayerGameInstance {
         return this.spinWheels.get(listIndex);
     }
 
-    public void toggleDoubleWins() {
-        this.doubleWins = !this.doubleWins;
+    public List<SpinWheel> getSpinWheelsForGame(GameType type) {
+        return this.spinWheels.subList(type.ordinal() * 3, (type.ordinal() + 1) * 3);
     }
 
-    public boolean isDoubleWins() {
-        return this.doubleWins;
+    public void toggleBetMultiplier() {
+        this.betMultiplier = this.betMultiplier.next();
+    }
+
+    public void setBetMultiplier(BetMultiplier betMultiplier) {
+        this.betMultiplier = betMultiplier;
+    }
+
+    public int getBetMultiplierValue() {
+        return this.betMultiplier.getMultiplier();
+    }
+
+    public BetMultiplier getBetMultiplier() {
+        return betMultiplier;
     }
 
     public int getCost(GameType type) {
-        int multiplier = this.isDoubleWins() ? 2 : 1;
         int baseCost = switch (type) {
             case LOW -> 1;
             case HIGH -> 4;
         };
-        return baseCost * multiplier;
+        return this.betMultiplier.getValue(baseCost);
     }
 
     public PlayerGameInstance update(PlayerGameInstance holder) {
         this.accountBalance.updateFrom(holder.accountBalance);
         this.game.updateFrom(holder.game);
-        this.doubleWins = holder.doubleWins;
+        this.betMultiplier = holder.betMultiplier;
+        for (int i = 0; i < Math.min(this.spinWheels.size(), holder.spinWheels.size()); i++) {
+            this.spinWheels.get(i).updateFrom(holder.spinWheels.get(i));
+        }
         return this;
     }
 }

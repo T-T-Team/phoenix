@@ -3,13 +3,11 @@ package dev.tnt.phoenix.network;
 import dev.tnt.phoenix.Phoenix;
 import dev.tnt.phoenix.block.entity.ActionType;
 import dev.tnt.phoenix.block.entity.PhoenixSlotMachineBlockEntity;
-import dev.tnt.phoenix.data.game.PlayerGameInstance;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.Identifier;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -33,11 +31,7 @@ public record C2S_SlotMachineRequest(BlockPos pos, ActionType actionType) implem
         if (!(blockEntity instanceof PhoenixSlotMachineBlockEntity slotMachineBlockEntity))
             return;
         slotMachineBlockEntity.performAction(player, this.actionType);
-        Phoenix.PLATFORM.sendPacket((ServerPlayer) player, new S2C_RefreshSlotMachine());
-    }
-
-    private void bet(PlayerGameInstance instance, Player player) {
-        instance.toggleDoubleWins();
+        slotMachineBlockEntity.updatePlayerView(player);
     }
 
     @Override

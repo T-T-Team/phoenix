@@ -40,7 +40,6 @@ public final class PhoenixNeoForge {
 
         registrar.configurationToClient(S2C_SyncSlotMachineConfigs.TYPE, S2C_SyncSlotMachineConfigs.STREAM_CODEC, (payload, _) -> payload.handle());
         registrar.playToClient(S2C_OpenPhoenixMachineScreen.TYPE, S2C_OpenPhoenixMachineScreen.STREAM_CODEC, (payload, _) -> payload.handle());
-        registrar.playToClient(S2C_RefreshSlotMachine.TYPE, S2C_RefreshSlotMachine.STREAM_CODEC, (payload, _) -> payload.handle());
         registrar.playToServer(C2S_SlotMachineRequest.TYPE, C2S_SlotMachineRequest.STREAM_CODEC, (payload, ctx) -> payload.handle(ctx.player()));
     }
 

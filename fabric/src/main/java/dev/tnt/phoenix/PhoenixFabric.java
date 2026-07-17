@@ -4,7 +4,6 @@ import dev.tnt.phoenix.data.ItemValueDefinitionManager;
 import dev.tnt.phoenix.data.SlotMachineDataManager;
 import dev.tnt.phoenix.network.C2S_SlotMachineRequest;
 import dev.tnt.phoenix.network.S2C_OpenPhoenixMachineScreen;
-import dev.tnt.phoenix.network.S2C_RefreshSlotMachine;
 import dev.tnt.phoenix.network.S2C_SyncSlotMachineConfigs;
 import dev.tnt.phoenix.platform.FabricPlatform;
 import net.fabricmc.api.ModInitializer;
