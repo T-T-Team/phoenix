@@ -3,9 +3,10 @@ package dev.tnt.phoenix.data;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.tnt.phoenix.data.game.SpinWheel;
-import org.jspecify.annotations.Nullable;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 public record WinConfigurationConfig(List<String> wildcards, Map<GameType, WinConfiguration> gameConfiguration) {
 
@@ -18,13 +19,8 @@ public record WinConfigurationConfig(List<String> wildcards, Map<GameType, WinCo
         return this.gameConfiguration.get(gameType);
     }
 
-    public Optional<WinCombination> resolveWin(GameType gameType, List<SpinWheel> spinWheels) {
+    public List<WinCombination> resolveWins(GameType gameType, List<SpinWheel> spinWheels) {
         WinConfiguration configuration = this.getConfigForGame(gameType);
-        List<WinCombination> wins = configuration.resolveWins(this.wildcards, spinWheels);
-        return wins.stream()
-                .max(
-                        Comparator.comparingInt(WinCombination::count)
-                                .thenComparingInt(WinCombination::amount)
-                );
+        return configuration.resolveWins(this.wildcards, spinWheels);
     }
 }

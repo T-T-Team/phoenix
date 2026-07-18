@@ -8,10 +8,7 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.ExtraCodecs;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public record WinConfiguration(List<WinPattern> patterns, List<WinCombination> combinations) {
 
@@ -28,11 +25,15 @@ public record WinConfiguration(List<WinPattern> patterns, List<WinCombination> c
     public List<WinCombination> resolveWins(List<String> wildcardSymbols, List<SpinWheel> spinWheels) {
         List<WinCombination> wins = new ArrayList<>();
         for (WinPattern pattern : this.patterns) {
+            List<WinCombination> patternWins = new ArrayList<>();
             for (WinCombination combination : this.combinations) {
                 if (pattern.matches(combination, spinWheels, wildcardSymbols)) {
-                    wins.add(combination);
+                    patternWins.add(combination);
                 }
             }
+            Optional<WinCombination> patternWin = patternWins.stream()
+                    .max(Comparator.comparingInt(WinCombination::count).thenComparingInt(WinCombination::amount));
+            patternWin.ifPresent(wins::add);
         }
         return wins;
     }

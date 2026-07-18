@@ -6,6 +6,7 @@ import dev.tnt.phoenix.Phoenix;
 import dev.tnt.phoenix.block.entity.PhoenixSlotMachineBlockEntity;
 import dev.tnt.phoenix.data.GameType;
 import dev.tnt.phoenix.data.SlotMachineConfig;
+import dev.tnt.phoenix.data.WinCombination;
 import dev.tnt.phoenix.data.WinConfigurationConfig;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.server.level.ServerPlayer;
@@ -194,10 +195,11 @@ public class PlayerGameInstance {
             GameType gameType = this.game.getSelectedGameType();
             WinConfigurationConfig winConfiguration = config.getWinningConfiguration();
             List<SpinWheel> spinWheels = this.getSpinWheelsForGame(gameType);
-            winConfiguration.resolveWin(gameType, spinWheels).ifPresent(winningCombination -> {
+            List<WinCombination> wins = winConfiguration.resolveWins(gameType, spinWheels);
+            for (WinCombination winningCombination : wins) {
                 Phoenix.LOGGER.debug("Winning combination match found: {}", winningCombination);
                 this.accountBalance.addBalance(BalanceType.WIN, this.betMultiplier.getValue(winningCombination.amount()));
-            });
+            }
             this.unlock(Lock.SPIN);
         }
         this.updateSlotMachineAndView(slotMachine);
