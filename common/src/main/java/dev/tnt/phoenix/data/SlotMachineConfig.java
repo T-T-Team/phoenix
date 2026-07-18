@@ -18,15 +18,15 @@ public final class SlotMachineConfig {
     public static final Codec<SlotMachineConfig> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             SpinWheelEntry.CODEC.listOf().fieldOf("entries").forGetter(c -> new ArrayList<>(c.entries.values())),
             Codec.unboundedMap(GameType.CODEC, SequenceGenerator.CODEC.listOf()).fieldOf("sequence_generators").forGetter(c -> c.sequenceGenerators),
-            Codec.unboundedMap(GameType.CODEC, WinConfiguration.CODEC).fieldOf("win_configuration").forGetter(c -> c.winConfiguration)
+            WinConfigurationConfig.CODEC.fieldOf("win_configuration").forGetter(c -> c.winConfiguration)
     ).apply(instance, SlotMachineConfig::new));
     public static final StreamCodec<ByteBuf, SlotMachineConfig> STREAM_CODEC = ByteBufCodecs.fromCodec(CODEC);
 
     private final Map<String, SpinWheelEntry> entries;
     private final Map<GameType, List<SequenceGenerator>> sequenceGenerators;
-    private final Map<GameType, WinConfiguration> winConfiguration;
+    private final WinConfigurationConfig winConfiguration;
 
-    private SlotMachineConfig(List<SpinWheelEntry> entries, Map<GameType, List<SequenceGenerator>> sequenceGenerators, Map<GameType, WinConfiguration> winConfiguration) {
+    private SlotMachineConfig(List<SpinWheelEntry> entries, Map<GameType, List<SequenceGenerator>> sequenceGenerators, WinConfigurationConfig winConfiguration) {
         this.entries = Util.make(new HashMap<>(), map -> entries.forEach(entry -> map.put(entry.id(), entry)));
         this.sequenceGenerators = sequenceGenerators;
         this.winConfiguration = winConfiguration;
@@ -57,7 +57,7 @@ public final class SlotMachineConfig {
         return symbols.stream().map(symbol -> this.getSprite(symbol, type)).toList();
     }
 
-    public WinConfiguration getWinningConfiguration(GameType gameType) {
-        return this.winConfiguration.get(gameType);
+    public WinConfigurationConfig getWinningConfiguration() {
+        return this.winConfiguration;
     }
 }

@@ -38,6 +38,10 @@ public record WinCombination(List<String> symbols, int count, int amount, boolea
         return config.getSprite(symbol, type);
     }
 
+    public boolean testInput(String symbol) {
+        return this.symbols.contains(symbol);
+    }
+
     public boolean shouldRender(boolean mode) {
         return this.render == mode;
     }

@@ -2,9 +2,9 @@ package dev.tnt.phoenix.block.entity;
 
 import com.mojang.serialization.Codec;
 import dev.tnt.phoenix.Phoenix;
-import dev.tnt.phoenix.data.GameType;
 import dev.tnt.phoenix.data.SlotMachineConfig;
-import dev.tnt.phoenix.data.game.*;
+import dev.tnt.phoenix.data.game.AccountBalance;
+import dev.tnt.phoenix.data.game.PlayerGameInstance;
 import dev.tnt.phoenix.network.S2C_OpenPhoenixMachineScreen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -14,7 +14,6 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemInstance;
 import net.minecraft.world.level.Level;
@@ -25,7 +24,6 @@ import net.minecraft.world.level.storage.ValueOutput;
 import org.jspecify.annotations.Nullable;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -38,12 +36,16 @@ public final class PhoenixSlotMachineBlockEntity extends BlockEntity {
         super(Phoenix.BLOCK_ENTITY_PHOENIX_SLOT_MACHINE.get(), worldPosition, blockState);
     }
 
+    public static SlotMachineConfig getConfig() {
+        return Phoenix.SLOT_MACHINES.getSlotMachineOrThrow(Phoenix.SLOT_MACHINE_CONFIG_PHOENIX);
+    }
+
     public PlayerGameInstance getPlayerData(UUID player) {
         return this.data.getData(player);
     }
 
     public void tick(Level level, BlockState blockState) {
-        this.data.forEach(PlayerGameInstance::tick);
+        this.data.forEach(instance -> instance.tick(this));
     }
 
     public void performAction(Player player, ActionType actionType) {
@@ -111,21 +113,7 @@ public final class PhoenixSlotMachineBlockEntity extends BlockEntity {
     }
 
     private void play(PlayerGameInstance instance, Player player) {
-        Game game = instance.getGame();
-        AccountBalance balance = instance.getAccountBalance();
-        int balanceCost = instance.getCost(GameType.LOW);
-        balance.subtractBalance(balanceCost);
-        if (game.getSelectedGameType() == GameType.HIGH) {
-            int balanceCostMultiWin = instance.getCost(GameType.HIGH);
-            balance.subtractMultiWinBalance(balanceCostMultiWin);
-        }
-        List<SpinWheel> spinWheels = instance.getSpinWheelsForGame(game.getSelectedGameType());
-        RandomSource random = player.getRandom();
-        int currentSpinDuration = 30;
-        for (SpinWheel spinWheel : spinWheels) {
-            currentSpinDuration += (5 + random.nextInt(15));
-            spinWheel.startSpinning(currentSpinDuration);
-        }
+        instance.startPlaying(this, player);
     }
 
     private void bet(PlayerGameInstance instance, Player player) {

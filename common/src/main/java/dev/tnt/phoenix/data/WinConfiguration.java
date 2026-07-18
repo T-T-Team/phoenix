@@ -2,13 +2,16 @@ package dev.tnt.phoenix.data;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.tnt.phoenix.data.game.SpinWheel;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.ExtraCodecs;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 
 public record WinConfiguration(List<WinPattern> patterns, List<WinCombination> combinations) {
 
@@ -21,6 +24,18 @@ public record WinConfiguration(List<WinPattern> patterns, List<WinCombination> c
             WinCombination.STREAM_CODEC.apply(ByteBufCodecs.list()), WinConfiguration::combinations,
             WinConfiguration::new
     );
+
+    public List<WinCombination> resolveWins(List<String> wildcardSymbols, List<SpinWheel> spinWheels) {
+        List<WinCombination> wins = new ArrayList<>();
+        for (WinPattern pattern : this.patterns) {
+            for (WinCombination combination : this.combinations) {
+                if (pattern.matches(combination, spinWheels, wildcardSymbols)) {
+                    wins.add(combination);
+                }
+            }
+        }
+        return wins;
+    }
 
     public List<WinCombination> getDisplayableCombinations(boolean special) {
         return this.getDisplayableCombinations(special, Comparator.comparingInt(WinCombination::amount));
@@ -43,14 +58,24 @@ public record WinConfiguration(List<WinPattern> patterns, List<WinCombination> c
                 WinPattern::new
         );
 
-        public float getLeftHeight() {
-            int left = this.indexes.getFirst();
-            return left / 2.0F;
-        }
-
-        public float getRightHeight() {
-            int right = this.indexes.getLast();
-            return right / 2.0F;
+        public boolean matches(WinCombination combination, List<SpinWheel> spinWheels, List<String> wildcardSymbols) {
+            String usedSymbol = null;
+            for (int i = 0; i < combination.count(); i++) {
+                int patternIndex = this.indexes.get(i);
+                SpinWheel wheel = spinWheels.get(i);
+                String wheelSymbol = wheel.getSymbolAt(patternIndex);
+                if (wildcardSymbols.contains(wheelSymbol))
+                    continue;
+                boolean validInput = combination.testInput(wheelSymbol);
+                if (!validInput) {
+                    return false;
+                }
+                if (usedSymbol != null && !usedSymbol.equals(wheelSymbol)) {
+                    return false;
+                }
+                usedSymbol = wheelSymbol;
+            }
+            return true;
         }
     }
 }
