@@ -4,12 +4,15 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.tnt.phoenix.Phoenix;
 import dev.tnt.phoenix.block.entity.PhoenixSlotMachineBlockEntity;
-import dev.tnt.phoenix.data.*;
+import dev.tnt.phoenix.data.GameType;
+import dev.tnt.phoenix.data.SlotMachineConfig;
+import dev.tnt.phoenix.data.WinConfigurationConfig;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +26,8 @@ public class PlayerGameInstance {
             Game.CODEC.fieldOf("active_spin").forGetter(t -> t.game),
             SpinWheel.CODEC.listOf().fieldOf("spin_wheels").forGetter(t -> t.spinWheels),
             BetMultiplier.CODEC.optionalFieldOf("bet_multiplier", BetMultiplier.X1).forGetter(t -> t.betMultiplier),
-            Codec.INT.optionalFieldOf("spins", 0).forGetter(t -> t.pendingSpins)
+            Codec.INT.optionalFieldOf("spins", 0).forGetter(t -> t.pendingSpins),
+            Lock.CODEC.optionalFieldOf("lock", Lock.EMPTY).forGetter(t -> t.lock)
     ).apply(instance, PlayerGameInstance::new));
 
     private final UUID owner;
@@ -32,14 +36,16 @@ public class PlayerGameInstance {
     private final List<SpinWheel> spinWheels;
     private BetMultiplier betMultiplier;
     private int pendingSpins;
+    private Lock lock;
 
-    private PlayerGameInstance(UUID owner, AccountBalance accountBalance, Game game, List<SpinWheel> spinWheels, BetMultiplier betMultiplier, int pendingSpins) {
+    private PlayerGameInstance(UUID owner, AccountBalance accountBalance, Game game, List<SpinWheel> spinWheels, BetMultiplier betMultiplier, int pendingSpins, Lock lock) {
         this.owner = owner;
         this.accountBalance = accountBalance;
         this.game = game;
         this.spinWheels = spinWheels;
         this.betMultiplier = betMultiplier;
         this.pendingSpins = pendingSpins;
+        this.lock = lock;
 
         for (int i = 0; i < this.spinWheels.size(); i++) {
             final int index = i;
@@ -66,7 +72,8 @@ public class PlayerGameInstance {
                 Game.create(),
                 spinWheelList,
                 BetMultiplier.X1,
-                0
+                0,
+                Lock.EMPTY
         );
     }
 
@@ -89,6 +96,7 @@ public class PlayerGameInstance {
         List<SpinWheel> spinWheels = this.getSpinWheelsForGame(this.game.getSelectedGameType());
         reloadSequences(spinWheels, this.game.getSelectedGameType(), PhoenixSlotMachineBlockEntity.getConfig(), player.getRandom());
         this.pendingSpins = spinWheels.size(); // TODO subtract held amount
+        this.lock(Lock.SPIN);
         RandomSource random = player.getRandom();
         int currentSpinDuration = 30;
         for (SpinWheel spinWheel : spinWheels) {
@@ -102,8 +110,26 @@ public class PlayerGameInstance {
         return accountBalance;
     }
 
-    public boolean isSpinning() {
-        return this.pendingSpins > 0;
+    public void lock(Lock lock) {
+        this.lock = lock;
+    }
+
+    public void unlock() {
+        this.unlock(null);
+    }
+
+    public void unlock(@Nullable Lock lock) {
+        if (lock == null || this.lock.equals(lock)) {
+            this.lock(Lock.EMPTY);
+        }
+    }
+
+    public boolean isLocked() {
+        return this.lock.locked();
+    }
+
+    public LockReason getLockReason() {
+        return this.lock.reason();
     }
 
     public Game getGame() {
@@ -148,6 +174,7 @@ public class PlayerGameInstance {
         this.game.updateFrom(holder.game);
         this.betMultiplier = holder.betMultiplier;
         this.pendingSpins = holder.pendingSpins;
+        this.lock = holder.lock;
         for (int i = 0; i < Math.min(this.spinWheels.size(), holder.spinWheels.size()); i++) {
             this.spinWheels.get(i).updateFrom(holder.spinWheels.get(i));
         }
@@ -164,7 +191,9 @@ public class PlayerGameInstance {
                 Phoenix.LOGGER.debug("Winning combination match found: {}", winningCombination);
                 this.accountBalance.addBalance(BalanceType.WIN, this.betMultiplier.getValue(winningCombination.amount()));
             });
+            this.unlock(Lock.SPIN);
         }
+        slotMachine.markUpdated();
         Level level = slotMachine.getLevel();
         Player player = level.getPlayerByUUID(this.owner);
         if (player != null) {

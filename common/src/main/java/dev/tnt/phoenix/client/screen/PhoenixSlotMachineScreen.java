@@ -201,28 +201,29 @@ public class PhoenixSlotMachineScreen extends Screen {
         int rowTop = this.topPos + CONTENT_HEIGHT - 20;
 
         IconButtonWithHighlightWidget advancedButton = this.addRenderableWidget(new IconButtonWithHighlightWidget(rowLeft, rowTop, 16, 16, Component.translatable("label.phoenix.ui.button_advanced"), BUTTON_ADVANCED, this::onAdvancedButtonClicked));
-        advancedButton.active = !instance.isSpinning(); // TODO better logic
+        advancedButton.active = !instance.isLocked(); // TODO better logic
 
         IconButtonWithHighlightWidget betButton = this.addRenderableWidget(new IconButtonWithHighlightWidget(rowLeft + buttonWidth, rowTop, 16, 16, Component.translatable("label.phoenix.ui.button_bet"), BUTTON_BET, this::onBetButtonClicked));
-        betButton.active = !instance.isSpinning(); // TODO and no wheel held
+        betButton.active = !instance.isLocked(); // TODO and no wheel held
 
         for (int i = 0; i < SPIN_WHEELS; i++) {
             int posIndex = i + 2;
             final int index = i;
             IconButtonWithHighlightWidget widget = this.addRenderableWidget(new IconButtonWithHighlightWidget(rowLeft + buttonWidth * posIndex, rowTop, 16, 16, Component.translatable("label.phoenix.ui.button_hold"), BUTTON_HOLD, () -> this.onHoldButtonClicked(index)));
-            widget.active = !instance.isSpinning(); // TODO better logic
+            widget.active = !instance.isLocked(); // TODO better logic
             this.holdButtons.add(widget);
         }
 
         IconButtonWithHighlightWidget riskClubs = this.addRenderableWidget(new IconButtonWithHighlightWidget(rowLeft + buttonWidth * 5, rowTop, 16, 16, Component.translatable("label.phoenix.ui.button_risk_clubs"), BUTTON_RISK_CLUBS, this::onRiskClubsButtonClicked));
-        riskClubs.active = !instance.isSpinning(); // TODO better logic
+        riskClubs.active = !instance.isLocked() && account.getWinBalance() > 0;
 
         IconButtonWithHighlightWidget riskHearts = this.addRenderableWidget(new IconButtonWithHighlightWidget(rowLeft + buttonWidth * 6, rowTop, 16, 16, Component.translatable("label.phoenix.ui.button_risk_hearts"), BUTTON_RISK_HEARTS, this::onRiskHeartsButtonClicked));
-        riskHearts.active = !instance.isSpinning(); // TODO better logic
+        riskHearts.active = !instance.isLocked() && account.getWinBalance() > 0;
 
         IconButtonWithHighlightWidget startButton = this.addRenderableWidget(new IconButtonWithHighlightWidget(rowLeft + buttonWidth * 7, rowTop, 16, 16, Component.translatable("label.phoenix.ui.button_start"), BUTTON_START, this::onStartButtonClicked));
         int currentSpinPrice = instance.getCost(game.getSelectedGameType());
-        startButton.active = !instance.isSpinning() && account.getInputBalance() >= currentSpinPrice;
+        int balance = game.getSelectedGameType() == GameType.LOW ? account.getInputBalance() : account.getMultiWinBalance();
+        startButton.active = !instance.isLocked() && balance >= currentSpinPrice;
     }
 
     private void onMultiWinButtonClicked() {
