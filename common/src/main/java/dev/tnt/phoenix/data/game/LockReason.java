@@ -6,7 +6,8 @@ import net.minecraft.util.StringRepresentable;
 public enum LockReason implements StringRepresentable {
 
     NONE("none"),
-    SPIN("spin");
+    SPIN("spin"),
+    RISK("risk");
 
     public static final Codec<LockReason> CODEC = StringRepresentable.fromEnum(LockReason::values);
     private final String serializedName;

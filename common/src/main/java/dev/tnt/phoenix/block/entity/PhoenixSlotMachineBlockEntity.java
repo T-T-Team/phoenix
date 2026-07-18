@@ -54,6 +54,8 @@ public final class PhoenixSlotMachineBlockEntity extends BlockEntity {
         switch (actionType) {
             case PLAY -> this.play(instance, player);
             case BET -> this.bet(instance, player);
+            case RISK_CLUBS -> this.risk(instance, player, false);
+            case RISK_HEARTS -> this.risk(instance, player, true);
         }
         this.markUpdated();
     }
@@ -119,6 +121,10 @@ public final class PhoenixSlotMachineBlockEntity extends BlockEntity {
 
     private void bet(PlayerGameInstance instance, Player player) {
         instance.toggleBetMultiplier();
+    }
+
+    private void risk(PlayerGameInstance instance, Player player, boolean riskHearts) {
+        instance.startRisk(player, riskHearts);
     }
 
     private record DataHolder(Map<UUID, PlayerGameInstance> data) {

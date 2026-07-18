@@ -1,7 +1,6 @@
 package dev.tnt.phoenix.data.game;
 
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Collections;
@@ -39,6 +38,10 @@ public final class AccountBalance {
         this.setBalance(type, this.getBalance(type) + amount);
     }
 
+    public void multiplyBalance(BalanceType type, int amount) {
+        this.setBalance(type, this.getBalance(type) * amount);
+    }
+
     public void subtractBalance(BalanceType type, int amount) {
         this.setBalance(type, this.getBalance(type) - amount);
     }
@@ -54,11 +57,13 @@ public final class AccountBalance {
     }
 
     public void clearBalance(BalanceType type) {
-        this.balances.remove(type);
+        this.setBalance(type, 0);
     }
 
     public void clearAllBalances() {
-        this.balances.clear();
+        for (BalanceType type : BalanceType.values()) {
+            this.setBalance(type, 0);
+        }
     }
 
     public int getInputBalance() {

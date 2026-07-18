@@ -12,6 +12,7 @@ public record Lock(boolean locked, LockReason reason) {
 
     public static final Lock EMPTY = new Lock(false, LockReason.NONE);
     public static final Lock SPIN = new Lock(LockReason.SPIN);
+    public static final Lock RISK = new Lock(LockReason.RISK);
 
     public Lock(LockReason reason) {
         this(true, reason);

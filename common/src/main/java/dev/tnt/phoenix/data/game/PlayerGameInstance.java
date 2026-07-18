@@ -47,11 +47,10 @@ public class PlayerGameInstance {
         this.pendingSpins = pendingSpins;
         this.lock = lock;
 
-        for (int i = 0; i < this.spinWheels.size(); i++) {
-            final int index = i;
-            SpinWheel spinWheel = this.spinWheels.get(index);
-            spinWheel.addSpinCompleteListener((slotMachine, amount) -> this.onSpinComplete(slotMachine, amount, index));
+        for (SpinWheel spinWheel : this.spinWheels) {
+            spinWheel.addSpinCompleteListener(this::onSpinComplete);
         }
+        this.game.addRiskCompleteListener(this::onRiskFinished);
     }
 
     public static PlayerGameInstance createForPlayer(ServerPlayer player, SlotMachineConfig config) {
@@ -83,6 +82,7 @@ public class PlayerGameInstance {
             SpinWheel wheel = this.spinWheels.get(i);
             wheel.update(slotMachine);
         }
+        this.game.update(slotMachine);
     }
 
     public void startPlaying(PhoenixSlotMachineBlockEntity slotMachine, Player player) {
@@ -104,6 +104,13 @@ public class PlayerGameInstance {
             // TODO skip if held
             spinWheel.startSpinning(currentSpinDuration);
         }
+    }
+
+    public void startRisk(Player player, boolean riskHearts) {
+        RandomSource random = player.getRandom();
+        int duration = 35 + random.nextInt(65);
+        this.game.startRisk(duration, riskHearts);
+        this.lock(Lock.RISK);
     }
 
     public AccountBalance getAccountBalance() {
@@ -181,7 +188,7 @@ public class PlayerGameInstance {
         return this;
     }
 
-    private void onSpinComplete(PhoenixSlotMachineBlockEntity slotMachine, float amount, int index) {
+    private void onSpinComplete(PhoenixSlotMachineBlockEntity slotMachine, float amount) {
         if (--this.pendingSpins <= 0) {
             SlotMachineConfig config = PhoenixSlotMachineBlockEntity.getConfig();
             GameType gameType = this.game.getSelectedGameType();
@@ -193,12 +200,17 @@ public class PlayerGameInstance {
             });
             this.unlock(Lock.SPIN);
         }
-        slotMachine.markUpdated();
-        Level level = slotMachine.getLevel();
-        Player player = level.getPlayerByUUID(this.owner);
-        if (player != null) {
-            slotMachine.updatePlayerView(player);
+        this.updateSlotMachineAndView(slotMachine);
+    }
+
+    private void onRiskFinished(PhoenixSlotMachineBlockEntity slotMachine, boolean won) {
+        this.unlock(Lock.RISK);
+        if (won) {
+            this.accountBalance.multiplyBalance(BalanceType.WIN, 2);
+        } else {
+            this.accountBalance.clearBalance(BalanceType.WIN);
         }
+        this.updateSlotMachineAndView(slotMachine);
     }
 
     private static void reloadSequences(List<SpinWheel> wheels, GameType gameType, SlotMachineConfig config, RandomSource random) {
@@ -206,6 +218,15 @@ public class PlayerGameInstance {
             SpinWheel wheel = wheels.get(i);
             List<String> sequence = config.generateSequence(random, gameType, i);
             wheel.setSequence(sequence);
+        }
+    }
+
+    private void updateSlotMachineAndView(PhoenixSlotMachineBlockEntity slotMachine) {
+        slotMachine.markUpdated();
+        Level level = slotMachine.getLevel();
+        Player player = level.getPlayerByUUID(this.owner);
+        if (player != null) {
+            slotMachine.updatePlayerView(player);
         }
     }
 }

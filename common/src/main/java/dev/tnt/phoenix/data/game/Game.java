@@ -2,47 +2,76 @@ package dev.tnt.phoenix.data.game;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.tnt.phoenix.Phoenix;
+import dev.tnt.phoenix.block.entity.PhoenixSlotMachineBlockEntity;
 import dev.tnt.phoenix.data.GameType;
 
-import java.util.Collections;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public final class Game {
 
     public static final Codec<Game> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.unboundedMap(GameType.CODEC, Codec.STRING.listOf().listOf()).optionalFieldOf("sequences", Collections.emptyMap()).forGetter(t -> t.sequences),
-            GameType.CODEC.optionalFieldOf("selected_game", GameType.LOW).forGetter(t -> t.selectedGameType)
+            GameType.CODEC.optionalFieldOf("selected_game", GameType.LOW).forGetter(t -> t.selectedGameType),
+            Codec.BOOL.optionalFieldOf("risk_hearts", false).forGetter(t -> t.riskHearts),
+            Codec.INT.optionalFieldOf("risk_duration", 0).forGetter(t -> t.riskPlayDuration),
+            Codec.INT.optionalFieldOf("current_risk", 0).forGetter(t -> t.currentRiskValue)
     ).apply(instance, Game::new));
 
-    private final Map<GameType, List<List<String>>> sequences;
     private GameType selectedGameType;
-    private int spinCount = 0;
+    private boolean riskHearts;
+    private int riskPlayDuration;
+    private int currentRiskValue;
+
+    private final List<RiskCompleteCallback> completeCallbacks = new ArrayList<>();
 
     public static Game create() {
-        return new Game(Collections.emptyMap(), GameType.LOW);
+        return new Game(GameType.LOW, false, 0, 0);
     }
 
-    private Game(Map<GameType, List<List<String>>> sequences, GameType selectedGameType) {
-        this.sequences = new HashMap<>(sequences);
+    private Game(GameType selectedGameType, boolean riskHearts, int riskPlayDuration, int currentRiskValue) {
         this.selectedGameType = selectedGameType;
+        this.riskHearts = riskHearts;
+        this.riskPlayDuration = riskPlayDuration;
+        this.currentRiskValue = currentRiskValue;
     }
 
-    public Map<GameType, List<List<String>>> getSequences() {
-        return sequences;
+    public void addRiskCompleteListener(RiskCompleteCallback callback) {
+        this.completeCallbacks.add(callback);
+    }
+
+    public void startRisk(int duration, boolean riskHearts) {
+        this.riskHearts = riskHearts;
+        this.riskPlayDuration = duration;
+    }
+
+    public void update(PhoenixSlotMachineBlockEntity slotMachine) {
+        if (this.riskPlayDuration > 0) {
+            ++this.currentRiskValue;
+            if (--this.riskPlayDuration <= 0) {
+                boolean won = this.riskHearts == this.isHearts();
+                Phoenix.LOGGER.debug("Risk game finished with result: {}", won);
+                this.completeCallbacks.forEach(callback -> callback.onRiskComplete(slotMachine, won));
+            }
+        }
+    }
+
+    public boolean isHearts() {
+        return this.currentRiskValue % 10 < 5;
     }
 
     public GameType getSelectedGameType() {
         return selectedGameType;
     }
 
-    public boolean isPlaying() {
-        return spinCount > 0;
+    public void updateFrom(Game other) {
+        this.selectedGameType = other.selectedGameType;
+        this.riskHearts = other.riskHearts;
+        this.riskPlayDuration = other.riskPlayDuration;
+        this.currentRiskValue = other.currentRiskValue;
     }
 
-    public void updateFrom(Game other) {
-        this.sequences.putAll(other.sequences);
-        this.selectedGameType = other.selectedGameType;
+    public interface RiskCompleteCallback {
+        void onRiskComplete(PhoenixSlotMachineBlockEntity slotMachine, boolean won);
     }
 }

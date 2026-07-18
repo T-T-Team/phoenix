@@ -7,10 +7,7 @@ import dev.tnt.phoenix.block.entity.PhoenixSlotMachineBlockEntity;
 import dev.tnt.phoenix.client.PhoenixClient;
 import dev.tnt.phoenix.client.screen.widget.*;
 import dev.tnt.phoenix.data.*;
-import dev.tnt.phoenix.data.game.AccountBalance;
-import dev.tnt.phoenix.data.game.Game;
-import dev.tnt.phoenix.data.game.PlayerGameInstance;
-import dev.tnt.phoenix.data.game.SpinWheel;
+import dev.tnt.phoenix.data.game.*;
 import dev.tnt.phoenix.network.C2S_SlotMachineRequest;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -154,7 +151,7 @@ public class PhoenixSlotMachineScreen extends Screen {
 
         // risk
         RiskWidget riskWidget = this.addRenderableOnly(new RiskWidget(this.leftPos + CONTENT_WIDTH - 60, this.topPos + CONTENT_HEIGHT - 109, 40, 20));
-        riskWidget.active = data.getGame().isPlaying(); // TODO
+        riskWidget.active = data.getLockReason() == LockReason.RISK; // TODO
     }
 
     @Override
