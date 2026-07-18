@@ -8,6 +8,7 @@ import dev.tnt.phoenix.data.GameType;
 import dev.tnt.phoenix.data.SlotMachineConfig;
 import dev.tnt.phoenix.data.WinCombination;
 import dev.tnt.phoenix.data.WinConfigurationConfig;
+import dev.tnt.phoenix.util.EnumHelper;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
@@ -154,7 +155,7 @@ public class PlayerGameInstance {
     }
 
     public void toggleBetMultiplier() {
-        this.betMultiplier = this.betMultiplier.next();
+        this.betMultiplier = EnumHelper.next(this.betMultiplier);
     }
 
     public void setBetMultiplier(BetMultiplier betMultiplier) {

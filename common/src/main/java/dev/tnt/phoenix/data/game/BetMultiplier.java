@@ -34,8 +34,4 @@ public enum BetMultiplier implements StringRepresentable {
     int getMultiplier() {
         return multiplier;
     }
-
-    public BetMultiplier next() {
-        return values()[(ordinal() + 1) % values().length];
-    }
 }

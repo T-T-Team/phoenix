@@ -5,6 +5,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.tnt.phoenix.Phoenix;
 import dev.tnt.phoenix.block.entity.PhoenixSlotMachineBlockEntity;
 import dev.tnt.phoenix.data.GameType;
+import dev.tnt.phoenix.util.EnumHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,6 +39,10 @@ public final class Game {
 
     public void addRiskCompleteListener(RiskCompleteCallback callback) {
         this.completeCallbacks.add(callback);
+    }
+
+    public void changeGameType() {
+        this.selectedGameType = EnumHelper.next(this.selectedGameType);
     }
 
     public void startRisk(int duration, boolean riskHearts) {

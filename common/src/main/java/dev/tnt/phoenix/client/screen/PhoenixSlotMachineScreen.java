@@ -97,13 +97,16 @@ public class PhoenixSlotMachineScreen extends Screen {
         this.addSpinWheels(data, config, lowConfiguration, highConfiguration);
 
         // win combinations - low
+        GameType activeGameType = data.getGame().getSelectedGameType();
         List<WinCombination> winCombinationsDisplay = lowConfiguration.getDisplayableCombinations(true);
         WinCombinationsWidget lowWinsWidget = this.addRenderableOnly(new WinCombinationsWidget(this.leftPos + 10, this.topPos + CONTENT_HEIGHT - 51, CONTENT_WIDTH - 20, 30, this.font, config, winCombinationsDisplay));
         lowWinsWidget.setGrid(3, 6, 3);
         lowWinsWidget.setLayout(8, 5, 1, 3);
         lowWinsWidget.setOffsets(2, 2);
-        lowWinsWidget.setTextColor(0xFFCCCC00);
+        lowWinsWidget.setTextColor(0xFFDDDD00);
+        lowWinsWidget.setDisabledTextColor(0xFFAAAA00);
         lowWinsWidget.setBlankSprite(BLANK);
+        lowWinsWidget.active = activeGameType == GameType.LOW;
 
         // win combinations - special
         IconButtonWithHighlightWidget firstButton = this.holdButtons.getFirst();
@@ -111,9 +114,10 @@ public class PhoenixSlotMachineScreen extends Screen {
         WinCombinationsWidget specialWinsWidget = this.addRenderableOnly(new WinCombinationsWidget(this.leftPos + 10, firstButton.getY() - 79, 41, 45, this.font, config, specialCombinationsDisplay));
         specialWinsWidget.setGrid(4, 1, 3);
         specialWinsWidget.setLayout(8, 5, 3, 3);
-        specialWinsWidget.setTextColor(0xFFCCCC00);
+        specialWinsWidget.setTextColor(0xFFDDDD00);
         specialWinsWidget.setDisabledTextColor(0xFFAAAA00);
         specialWinsWidget.setOffsets(2);
+        specialWinsWidget.active = activeGameType == GameType.LOW;
 
         // bet multiplier
         BalanceWidget betAmount = this.addRenderableOnly(new BalanceWidget(this.leftPos + 10, firstButton.getY() - 100, 41, 16, data::getBetMultiplierValue, this.font));
@@ -126,10 +130,10 @@ public class PhoenixSlotMachineScreen extends Screen {
         WinCombinationsWidget highWinsWidget = this.addRenderableOnly(new WinCombinationsWidget(this.leftPos + CONTENT_WIDTH - 65, this.topPos + 23, 55, 120, this.font, config, highCombinationsDisplay));
         highWinsWidget.setGrid(10, 1, 3);
         highWinsWidget.setLayout(12, 7, 1, 3);
-        highWinsWidget.setTextColor(0xFFCCCC00);
+        highWinsWidget.setTextColor(0xFFDDDD00);
         highWinsWidget.setDisabledTextColor(0xFFAAAA00);
         highWinsWidget.setOffsets(2, 2);
-        highWinsWidget.active = false; // TODO
+        highWinsWidget.active = activeGameType == GameType.HIGH;
 
         // multi win balance
         BalanceWidget multiWinBalanceWidget = this.addRenderableOnly(new BalanceWidget(firstButton.getX() - 11, this.topPos + 113, 80, 24, balance::getMultiWinBalance, this.font));

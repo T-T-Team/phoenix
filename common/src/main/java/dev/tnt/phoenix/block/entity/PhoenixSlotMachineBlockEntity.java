@@ -5,6 +5,7 @@ import dev.tnt.phoenix.Phoenix;
 import dev.tnt.phoenix.data.SlotMachineConfig;
 import dev.tnt.phoenix.data.game.AccountBalance;
 import dev.tnt.phoenix.data.game.BalanceType;
+import dev.tnt.phoenix.data.game.Game;
 import dev.tnt.phoenix.data.game.PlayerGameInstance;
 import dev.tnt.phoenix.network.S2C_OpenPhoenixMachineScreen;
 import net.minecraft.core.BlockPos;
@@ -56,6 +57,7 @@ public final class PhoenixSlotMachineBlockEntity extends BlockEntity {
             case BET -> this.bet(instance, player);
             case RISK_CLUBS -> this.risk(instance, player, false);
             case RISK_HEARTS -> this.risk(instance, player, true);
+            case ADVANCED -> this.advancedPlay(instance, player);
         }
         this.markUpdated();
     }
@@ -115,6 +117,7 @@ public final class PhoenixSlotMachineBlockEntity extends BlockEntity {
         }
     }
 
+    // TODO validations everywhere
     private void play(PlayerGameInstance instance, Player player) {
         instance.startPlaying(this, player);
     }
@@ -125,6 +128,11 @@ public final class PhoenixSlotMachineBlockEntity extends BlockEntity {
 
     private void risk(PlayerGameInstance instance, Player player, boolean riskHearts) {
         instance.startRisk(player, riskHearts);
+    }
+
+    private void advancedPlay(PlayerGameInstance instance, Player player) {
+        Game game = instance.getGame();
+        game.changeGameType();
     }
 
     private record DataHolder(Map<UUID, PlayerGameInstance> data) {
