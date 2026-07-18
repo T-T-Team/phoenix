@@ -2,64 +2,79 @@ package dev.tnt.phoenix.data.game;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import org.jspecify.annotations.Nullable;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 public final class AccountBalance {
 
-    public static final Codec<AccountBalance> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.INT.fieldOf("balance").forGetter(AccountBalance::getBalance),
-            Codec.INT.fieldOf("win_balance").forGetter(AccountBalance::getWinBalance),
-            Codec.INT.fieldOf("multiwin_balance").forGetter(AccountBalance::getMultiWinBalance)
-    ).apply(instance, AccountBalance::new));
+    public static final Codec<AccountBalance> CODEC = Codec.unboundedMap(BalanceType.CODEC, Codec.INT)
+            .xmap(AccountBalance::new, holder -> holder.balances);
 
-    private int balance;
-    private int winBalance;
-    private int multiWinBalance;
+    private final Map<BalanceType, Integer> balances;
 
-    public AccountBalance(int balance, int winBalance, int multiWinBalance) {
-        this.balance = balance;
-        this.winBalance = winBalance;
-        this.multiWinBalance = multiWinBalance;
+    public AccountBalance(Map<BalanceType, Integer> balances) {
+        this.balances = new HashMap<>(balances);
     }
 
     public static AccountBalance createDefault() {
-        return new AccountBalance(0, 0, 0);
+        return new AccountBalance(Collections.emptyMap());
     }
 
     public void updateFrom(AccountBalance holder) {
-        this.balance = holder.balance;
-        this.winBalance = holder.winBalance;
-        this.multiWinBalance = holder.multiWinBalance;
+        this.balances.putAll(holder.balances);
     }
 
-    public int getBalance() {
-        return this.balance;
+    public int getBalance(BalanceType type) {
+        return this.balances.getOrDefault(type, 0);
     }
 
-    public void subtractBalance(int amount) {
-        this.balance -= amount;
+    public void setBalance(BalanceType type, int amount) {
+        this.balances.put(type, Math.max(0, amount));
     }
 
-    public void addBalance(int amount) {
-        this.balance += amount;
+    public void addBalance(BalanceType type, int amount) {
+        this.setBalance(type, this.getBalance(type) + amount);
+    }
+
+    public void subtractBalance(BalanceType type, int amount) {
+        this.setBalance(type, this.getBalance(type) - amount);
+    }
+
+    public void transferBalance(BalanceType from, BalanceType to) {
+        this.transferBalance(from, to, Integer.MAX_VALUE);
+    }
+
+    public void transferBalance(BalanceType from, BalanceType to, int limit) {
+        int available = Math.min(limit, this.getBalance(from));
+        this.subtractBalance(from, available);
+        this.addBalance(to, available);
+    }
+
+    public void clearBalance(BalanceType type) {
+        this.balances.remove(type);
+    }
+
+    public void clearAllBalances() {
+        this.balances.clear();
+    }
+
+    public int getInputBalance() {
+        return this.getBalance(BalanceType.INPUT);
     }
 
     public int getWinBalance() {
-        return winBalance;
+        return this.getBalance(BalanceType.WIN);
     }
 
-    public void subtractWinBalance(int amount) {
-        this.winBalance -= amount;
+    public @Nullable Integer getWinBalanceForDisplay() {
+        int balance = this.getWinBalance();
+        return balance != 0 ? balance : null;
     }
 
     public int getMultiWinBalance() {
-        return multiWinBalance;
-    }
-
-    public void subtractMultiWinBalance(int amount) {
-        this.multiWinBalance -= amount;
-    }
-
-    public boolean isZero() {
-        return this.balance == 0 && this.winBalance == 0 && this.multiWinBalance == 0;
+        return this.getBalance(BalanceType.MULTIWIN);
     }
 }

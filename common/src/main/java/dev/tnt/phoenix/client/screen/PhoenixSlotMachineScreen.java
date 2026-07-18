@@ -142,12 +142,12 @@ public class PhoenixSlotMachineScreen extends Screen {
         multiWinBalanceWidget.setTextCorrectionOffset(-16.75F, 0.25F);
 
         // account balance
-        BalanceWidget accountBalanceWidget = this.addRenderableOnly(new BalanceWidget(this.leftPos + CONTENT_WIDTH - 70, this.topPos + CONTENT_HEIGHT - 69, 60, 16, balance::getBalance, this.font));
+        BalanceWidget accountBalanceWidget = this.addRenderableOnly(new BalanceWidget(this.leftPos + CONTENT_WIDTH - 70, this.topPos + CONTENT_HEIGHT - 69, 60, 16, balance::getInputBalance, this.font));
         accountBalanceWidget.setDigits(9);
         accountBalanceWidget.setTextCorrectionOffset(0.5F, 0.5F);
 
         // win balance
-        Supplier<Integer> provider = () -> balance.getWinBalance() > 0 ? balance.getMultiWinBalance() : null;
+        Supplier<Integer> provider = balance::getWinBalanceForDisplay;
         BalanceWidget winBalanceWidget = this.addRenderableOnly(new BalanceWidget(this.leftPos + CONTENT_WIDTH - 62, this.topPos + CONTENT_HEIGHT - 87, 44, 16, provider, this.font));
         winBalanceWidget.setDigits(6);
         winBalanceWidget.setTextCorrectionOffset(0.5F, 0.5F);
@@ -222,7 +222,7 @@ public class PhoenixSlotMachineScreen extends Screen {
 
         IconButtonWithHighlightWidget startButton = this.addRenderableWidget(new IconButtonWithHighlightWidget(rowLeft + buttonWidth * 7, rowTop, 16, 16, Component.translatable("label.phoenix.ui.button_start"), BUTTON_START, this::onStartButtonClicked));
         int currentSpinPrice = instance.getCost(game.getSelectedGameType());
-        startButton.active = !instance.isSpinning() && account.getBalance() >= currentSpinPrice;
+        startButton.active = !instance.isSpinning() && account.getInputBalance() >= currentSpinPrice;
     }
 
     private void onMultiWinButtonClicked() {

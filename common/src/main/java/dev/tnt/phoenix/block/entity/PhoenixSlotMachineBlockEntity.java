@@ -4,6 +4,7 @@ import com.mojang.serialization.Codec;
 import dev.tnt.phoenix.Phoenix;
 import dev.tnt.phoenix.data.SlotMachineConfig;
 import dev.tnt.phoenix.data.game.AccountBalance;
+import dev.tnt.phoenix.data.game.BalanceType;
 import dev.tnt.phoenix.data.game.PlayerGameInstance;
 import dev.tnt.phoenix.network.S2C_OpenPhoenixMachineScreen;
 import net.minecraft.core.BlockPos;
@@ -62,7 +63,7 @@ public final class PhoenixSlotMachineBlockEntity extends BlockEntity {
         if (value > 0) {
             PlayerGameInstance holder = this.data.getData(owner);
             AccountBalance balance = holder.getAccountBalance();
-            balance.addBalance(value);
+            balance.addBalance(BalanceType.INPUT, value);
             this.markUpdated();
             return true;
         }

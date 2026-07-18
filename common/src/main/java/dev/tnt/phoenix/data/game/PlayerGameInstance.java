@@ -80,18 +80,20 @@ public class PlayerGameInstance {
 
     public void startPlaying(PhoenixSlotMachineBlockEntity slotMachine, Player player) {
         int balanceCost = this.getCost(GameType.LOW);
-        this.accountBalance.subtractBalance(balanceCost);
+        this.accountBalance.subtractBalance(BalanceType.INPUT, balanceCost);
+        this.accountBalance.transferBalance(BalanceType.WIN, BalanceType.MULTIWIN);
         if (game.getSelectedGameType() == GameType.HIGH) {
             int balanceCostMultiWin = this.getCost(GameType.HIGH);
-            this.accountBalance.subtractMultiWinBalance(balanceCostMultiWin);
+            this.accountBalance.subtractBalance(BalanceType.MULTIWIN, balanceCostMultiWin);
         }
         List<SpinWheel> spinWheels = this.getSpinWheelsForGame(this.game.getSelectedGameType());
         reloadSequences(spinWheels, this.game.getSelectedGameType(), PhoenixSlotMachineBlockEntity.getConfig(), player.getRandom());
-        this.pendingSpins = spinWheels.size();
+        this.pendingSpins = spinWheels.size(); // TODO subtract held amount
         RandomSource random = player.getRandom();
         int currentSpinDuration = 30;
         for (SpinWheel spinWheel : spinWheels) {
             currentSpinDuration += (5 + random.nextInt(15));
+            // TODO skip if held
             spinWheel.startSpinning(currentSpinDuration);
         }
     }
@@ -159,9 +161,8 @@ public class PlayerGameInstance {
             WinConfigurationConfig winConfiguration = config.getWinningConfiguration();
             List<SpinWheel> spinWheels = this.getSpinWheelsForGame(gameType);
             winConfiguration.resolveWin(gameType, spinWheels).ifPresent(winningCombination -> {
-                Phoenix.LOGGER.info("Winning combination match found: {}", winningCombination);
-                // TODO resolve correct balance output
-                this.accountBalance.addBalance(this.betMultiplier.getValue(winningCombination.amount()));
+                Phoenix.LOGGER.debug("Winning combination match found: {}", winningCombination);
+                this.accountBalance.addBalance(BalanceType.WIN, this.betMultiplier.getValue(winningCombination.amount()));
             });
         }
         Level level = slotMachine.getLevel();
