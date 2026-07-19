@@ -212,7 +212,9 @@ public class PhoenixSlotMachineScreen extends Screen {
             int posIndex = i + 2;
             final int index = i;
             IconButtonWithHighlightWidget widget = this.addRenderableWidget(new IconButtonWithHighlightWidget(rowLeft + buttonWidth * posIndex, rowTop, 16, 16, Component.translatable("label.phoenix.ui.button_hold"), BUTTON_HOLD, () -> this.onHoldButtonClicked(index)));
+            boolean isHeld = game.getSelectedGameType() == GameType.LOW && game.isHeld(i);
             widget.active = !instance.isLocked() && game.getSelectedGameType() == GameType.LOW && !game.isHeld(i) && game.getHeldCount() < 2 && game.hasPlayed();
+            widget.setLightOnDisabled(isHeld);
             this.holdButtons.add(widget);
         }
 
