@@ -4,6 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.tnt.phoenix.Phoenix;
 import dev.tnt.phoenix.block.entity.PhoenixSlotMachineBlockEntity;
+import dev.tnt.phoenix.config.PhoenixConfig;
 import dev.tnt.phoenix.data.GameType;
 import dev.tnt.phoenix.data.SlotMachineConfig;
 import dev.tnt.phoenix.data.WinCombination;
@@ -104,10 +105,12 @@ public class PlayerGameInstance {
             this.lock(Lock.SPIN);
             this.game.setPlayed(this.game.getHeldCount() <= 0);
             RandomSource random = player.getRandom();
-            int currentSpinDuration = 30;
+            PhoenixConfig config = Phoenix.CONFIG;
+            PhoenixConfig.SpinConfiguration spinConfiguration = this.game.getSelectedGameType().isLow() ? config.lowSpinConfig : config.highSpinConfig;
+            int currentSpinDuration = spinConfiguration.minSpinDuration;
             for (int i = 0; i < spinWheels.size(); i++) {
                 SpinWheel spinWheel = spinWheels.get(i);
-                currentSpinDuration += (5 + random.nextInt(15));
+                currentSpinDuration += (spinConfiguration.minAdditionalSpinDuration + random.nextInt(spinConfiguration.additionalSpinDuration));
                 if (this.game.getSelectedGameType() == GameType.LOW && this.game.isHeld(i)) {
                     continue;
                 }
@@ -119,7 +122,8 @@ public class PlayerGameInstance {
 
     public void startRisk(Player player, boolean riskHearts) {
         RandomSource random = player.getRandom();
-        int duration = 5 + random.nextInt(40);
+        PhoenixConfig config = Phoenix.CONFIG;
+        int duration = config.minRiskDuration + random.nextInt(config.additionalRiskDuration);
         this.game.startRisk(duration, riskHearts);
         this.lock(Lock.RISK);
     }
@@ -184,11 +188,10 @@ public class PlayerGameInstance {
     }
 
     public int getCost(GameType type) {
-        int baseCost = switch (type) {
-            case LOW -> 1;
-            case HIGH -> 4;
-        };
-        return this.betMultiplier.getValue(baseCost);
+        int cost = 1;
+        if (type.isHigh())
+            cost *= Phoenix.CONFIG.multiWinSpinPriceMultiplier;
+        return this.betMultiplier.getValue(cost);
     }
 
     public PlayerGameInstance update(PlayerGameInstance holder) {
@@ -212,7 +215,8 @@ public class PlayerGameInstance {
             List<WinCombination> wins = winConfiguration.resolveWins(gameType, spinWheels);
             for (WinCombination winningCombination : wins) {
                 Phoenix.LOGGER.debug("Winning combination match found: {}", winningCombination);
-                this.accountBalance.addBalance(BalanceType.WIN, this.betMultiplier.getValue(winningCombination.amount()));
+                BalanceType targetAccount = gameType.isHigh() ? Phoenix.CONFIG.highGameTargetAccount : Phoenix.CONFIG.lowGameTargetAccount;
+                this.accountBalance.addBalance(targetAccount, this.betMultiplier.getValue(winningCombination.amount()));
             }
             if (!wins.isEmpty()) {
                 this.game.setPlayed(false);
@@ -228,10 +232,10 @@ public class PlayerGameInstance {
 
     private void onRiskFinished(PhoenixSlotMachineBlockEntity slotMachine, boolean won) {
         this.unlock(Lock.RISK);
-        if (won) {
-            this.accountBalance.multiplyBalance(BalanceType.WIN, 2);
-        } else {
-            this.accountBalance.clearBalance(BalanceType.WIN);
+        int wonBalance = won ? this.accountBalance.getWinBalance() * Phoenix.CONFIG.riskGameWinMultiplier : 0;
+        this.accountBalance.clearBalance(BalanceType.WIN);
+        if (wonBalance > 0) {
+            this.accountBalance.addBalance(Phoenix.CONFIG.riskGameTargetAccount, wonBalance);
         }
         this.updateSlotMachineAndView(slotMachine);
     }

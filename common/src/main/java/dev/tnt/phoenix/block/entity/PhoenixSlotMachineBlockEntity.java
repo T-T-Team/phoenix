@@ -147,7 +147,7 @@ public final class PhoenixSlotMachineBlockEntity extends BlockEntity {
 
     private void transferMultiWin(PlayerGameInstance instance, Player player) {
         AccountBalance accountBalance = instance.getAccountBalance();
-        int transferAmount = instance.getBetMultiplier().getValue(4);
+        int transferAmount = instance.getBetMultiplier().getValue(Phoenix.CONFIG.multiWinSpinPriceMultiplier);
         accountBalance.transferBalance(BalanceType.MULTIWIN, BalanceType.INPUT, transferAmount);
     }
 

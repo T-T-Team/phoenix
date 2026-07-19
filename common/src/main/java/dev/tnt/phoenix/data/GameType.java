@@ -27,4 +27,12 @@ public enum GameType implements StringRepresentable {
     public String getSerializedName() {
         return this.serializedName;
     }
+
+    public boolean isLow() {
+        return this == LOW;
+    }
+
+    public boolean isHigh() {
+        return this == HIGH;
+    }
 }

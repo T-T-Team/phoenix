@@ -107,7 +107,8 @@ public final class Game {
     }
 
     public boolean isHearts() {
-        return this.currentRiskValue % 6 < 3;
+        int cycle = Phoenix.CONFIG.riskCycleDuration;
+        return this.currentRiskValue % (2 * cycle) < cycle;
     }
 
     public GameType getSelectedGameType() {

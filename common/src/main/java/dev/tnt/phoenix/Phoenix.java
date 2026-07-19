@@ -3,12 +3,14 @@ package dev.tnt.phoenix;
 import com.mojang.logging.LogUtils;
 import dev.tnt.phoenix.block.PhoenixSlotMachineBlock;
 import dev.tnt.phoenix.block.entity.PhoenixSlotMachineBlockEntity;
+import dev.tnt.phoenix.config.PhoenixConfig;
 import dev.tnt.phoenix.data.ItemValueDefinitionManager;
 import dev.tnt.phoenix.data.SlotMachineDataManager;
 import dev.tnt.phoenix.platform.Platform;
 import dev.tnt.phoenix.platform.Services;
 import dev.tnt.phoenix.platform.init.Reference;
 import dev.tnt.phoenix.platform.init.RegistrationManager;
+import dev.toma.configuration.Configuration;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
@@ -31,6 +33,7 @@ public class Phoenix {
     public static final Logger LOGGER = LogManager.getLogger(Phoenix.class);
     public static final org.slf4j.Logger LOGGER_SLF4J = LogUtils.getLogger();
     public static final Platform PLATFORM = Services.load(Platform.class);
+    public static final PhoenixConfig CONFIG = Configuration.registerSimpleJsonConfig(PhoenixConfig.class);
 
     // Data managers
     public static final SlotMachineDataManager SLOT_MACHINES = new SlotMachineDataManager();
