@@ -3,6 +3,7 @@ package dev.tnt.phoenix.block;
 import com.mojang.serialization.MapCodec;
 import dev.tnt.phoenix.Phoenix;
 import dev.tnt.phoenix.block.entity.PhoenixSlotMachineBlockEntity;
+import dev.tnt.phoenix.data.game.BalanceType;
 import dev.tnt.phoenix.network.S2C_OpenPhoenixMachineScreen;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -12,13 +13,11 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemCooldowns;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.DirectionalBlock;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -75,7 +74,12 @@ public class PhoenixSlotMachineBlock extends HorizontalDirectionalBlock implemen
         if (!level.isClientSide()) {
             UUID uid = player.getUUID();
             PhoenixSlotMachineBlockEntity blockEntity = (PhoenixSlotMachineBlockEntity) level.getBlockEntity(pos);
-            if (blockEntity.insertItem(uid, itemStack, player.isCrouching())) {
+            boolean inserted = blockEntity.insertItem(uid, itemStack, player.isCrouching(), (change, balance) -> {
+                Component changeLabel = Component.literal(String.valueOf(change)).withStyle(ChatFormatting.YELLOW);
+                Component balanceLabel = Component.literal(String.valueOf(balance.getBalance(BalanceType.INPUT))).withStyle(ChatFormatting.YELLOW);
+                player.sendOverlayMessage(Component.translatable("message.phoenix.item_inserted", changeLabel, balanceLabel).withStyle(ChatFormatting.GREEN));
+            });
+            if (inserted) {
                 if (!player.isCreative()) {
                     itemStack.shrink(player.isCrouching() ? itemStack.count() : 1);
                 }

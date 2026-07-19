@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Consumer;
+import java.util.function.IntConsumer;
 
 public final class PhoenixSlotMachineBlockEntity extends BlockEntity {
 
@@ -66,12 +67,13 @@ public final class PhoenixSlotMachineBlockEntity extends BlockEntity {
         this.markUpdated();
     }
 
-    public boolean insertItem(UUID owner, ItemInstance instance, boolean insertAll) {
+    public boolean insertItem(UUID owner, ItemInstance instance, boolean insertAll, ItemInsertionCallback insertionCallback) {
         int value = Phoenix.ITEM_VALUES.getItemValue(instance, insertAll);
         if (value > 0) {
             PlayerGameInstance holder = this.data.getData(owner);
             AccountBalance balance = holder.getAccountBalance();
             balance.addBalance(BalanceType.INPUT, value);
+            insertionCallback.onInsertion(value, balance);
             this.markUpdated();
             return true;
         }
@@ -175,5 +177,10 @@ public final class PhoenixSlotMachineBlockEntity extends BlockEntity {
         public void forEach(Consumer<PlayerGameInstance> consumer) {
             this.data.values().forEach(consumer);
         }
+    }
+
+    @FunctionalInterface
+    public interface ItemInsertionCallback {
+        void onInsertion(int balanceChange, AccountBalance balance);
     }
 }

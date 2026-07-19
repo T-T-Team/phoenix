@@ -3,7 +3,8 @@
 
   "itemGroup.phoenix.phoenix": "Phoenix",
 
-  "container.phoenix.phoenix_slot_machine": "Phoenix Slot Machine",
+  "message.phoenix.item_inserted": "Added %s to your account balance. Current balance: %s",
+  "message.phoenix.item_not_insertable": "This item cannot be inserted into the machine.",
 
   "label.phoenix.ui.button_multiwin": "Transfer Multiwin",
   "label.phoenix.ui.button_pay": "Payout",
