@@ -29,3 +29,10 @@ ${mod_description}
     versionRange = "${minecraft_version_range}"
     ordering = "NONE"
     side = "BOTH"
+
+[[dependencies.phoenix]]
+    modId = "configuration"
+    type = "required"
+    versionRange = "[${configuration_min_version},)"
+    ordering = "BEFORE"
+    side = "BOTH"

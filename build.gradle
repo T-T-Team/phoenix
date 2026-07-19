@@ -36,6 +36,10 @@ subprojects {
             name = "Sponge / Mixin"
             url  = "https://repo.spongepowered.org/repository/maven-public/"
         }
+        maven {
+            name = "Toma"
+            url = "https://repo.repsy.io/mvn/toma/public/"
+        }
     }
 
     processResources {
@@ -70,7 +74,10 @@ subprojects {
                 "fabric_version_range": "${fabric_version_range}",
                 "fabric_loader_version": "${fabric_loader_version}",
                 "fabric_loader_version_range": "${fabric_loader_version_range}",
-                "fabric_mc_version_range": "${fabric_mc_version_range}"
+                "fabric_mc_version_range": "${fabric_mc_version_range}",
+
+                "configuration_version": "${configuration_version}",
+                "configuration_min_version": "${configuration_min_version}"
         ]
 
         filesMatching(["pack.mcmeta", "fabric.mod.json", "META-INF/*.toml", "*.mixins.json"]) {
