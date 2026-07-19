@@ -68,6 +68,7 @@ public class PhoenixSlotMachineScreen extends Screen {
             return;
         }
         AccountBalance balance = data.getAccountBalance();
+        Game game = data.getGame();
         this.leftPos = (this.width - CONTENT_WIDTH) / 2;
         this.topPos = (this.height - CONTENT_HEIGHT) / 2;
         this.holdButtons.clear();
@@ -85,10 +86,10 @@ public class PhoenixSlotMachineScreen extends Screen {
 
         // top right buttons
         IconButtonWithHighlightWidget multiWin = this.addRenderableWidget(new IconButtonWithHighlightWidget(this.leftPos + CONTENT_WIDTH - 46, this.topPos + 4, 16, 16, Component.translatable("label.phoenix.ui.button_multiwin"), BUTTON_MULTIWIN, this::onMultiWinButtonClicked));
-        multiWin.active = balance.getMultiWinBalance() > 0;
+        multiWin.active = !data.isLocked() && balance.getMultiWinBalance() > 0;
 
         IconButtonWithHighlightWidget payout = this.addRenderableWidget(new IconButtonWithHighlightWidget(this.leftPos + CONTENT_WIDTH - 26, this.topPos + 4, 16, 16, Component.translatable("label.phoenix.ui.button_pay"), BUTTON_PAY, this::onPayoutButtonClicked));
-        payout.active = balance.getMultiWinBalance() > 0;
+        payout.active = !data.isLocked() && balance.getMultiWinBalance() > 0;
 
         // wheels
         WinConfigurationConfig winConfigurationConfig = config.getWinningConfiguration();
@@ -211,7 +212,7 @@ public class PhoenixSlotMachineScreen extends Screen {
             int posIndex = i + 2;
             final int index = i;
             IconButtonWithHighlightWidget widget = this.addRenderableWidget(new IconButtonWithHighlightWidget(rowLeft + buttonWidth * posIndex, rowTop, 16, 16, Component.translatable("label.phoenix.ui.button_hold"), BUTTON_HOLD, () -> this.onHoldButtonClicked(index)));
-            widget.active = !instance.isLocked() && !game.isHeld(i) && game.getHeldCount() < 2 && game.hasPlayed();
+            widget.active = !instance.isLocked() && game.getSelectedGameType() == GameType.LOW && !game.isHeld(i) && game.getHeldCount() < 2 && game.hasPlayed();
             this.holdButtons.add(widget);
         }
 
