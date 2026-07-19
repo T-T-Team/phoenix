@@ -53,7 +53,7 @@ public final class SpinWheelWidget extends AbstractWidget {
         int startSpinIndex = Mth.floor(spin);
         int spinOffset = Mth.floor((spin - startSpinIndex) * ICON_SIZE);
         for (int i = startSpinIndex; i < startSpinIndex + this.displayedIcons; i++) {
-            int spriteIndex = i % this.sprites.size();
+            int spriteIndex = Math.floorMod(i, this.sprites.size());
             Identifier sprite = this.sprites.get(spriteIndex);
             int y = this.getY() + 2 + (i - startSpinIndex) * (ICON_SIZE + 2);
             graphics.blit(sprite, this.getX() + 2, y - spinOffset, this.getX() + 2 + ICON_SIZE, y + ICON_SIZE - spinOffset, 0.0F, 1.0F, 0.0F, 1.0F);

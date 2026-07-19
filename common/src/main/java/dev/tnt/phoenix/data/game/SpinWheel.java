@@ -32,7 +32,7 @@ public final class SpinWheel {
     public void update(PhoenixSlotMachineBlockEntity slotMachine) {
         this.lastSpinAmount = this.spinAmount;
         if (this.spinTime > 0) {
-            this.spinAmount += 0.6F;
+            this.spinAmount -= 0.6F;
             if (--this.spinTime <= 0) {
                 this.normalizeSpinAmount();
                 this.completeCallbacks.forEach(callback -> callback.onSpinComplete(slotMachine, this.spinAmount));
@@ -42,7 +42,7 @@ public final class SpinWheel {
 
     public String getSymbolAt(int position) {
         int startIndex = Mth.floor(this.spinAmount);
-        int index = (startIndex + position) % this.sequence.size();
+        int index = Math.floorMod(startIndex + position, this.sequence.size());
         return this.sequence.get(index);
     }
 
@@ -73,7 +73,7 @@ public final class SpinWheel {
     }
 
     private void normalizeSpinAmount() {
-        this.spinAmount = Mth.floor(this.spinAmount) % this.sequence.size();
+        this.spinAmount = Math.floorMod(Mth.floor(this.spinAmount), this.sequence.size());
         this.lastSpinAmount = this.spinAmount;
     }
 
