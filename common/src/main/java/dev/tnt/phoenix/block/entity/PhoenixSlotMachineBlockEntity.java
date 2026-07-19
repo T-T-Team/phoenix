@@ -110,7 +110,7 @@ public final class PhoenixSlotMachineBlockEntity extends BlockEntity {
     public void updatePlayerView(Player player) {
         if (player.level().isClientSide())
             return;
-        S2C_OpenPhoenixMachineScreen packet = new S2C_OpenPhoenixMachineScreen(this.getBlockPos(), this.getUpdateTag(player.registryAccess()));
+        S2C_OpenPhoenixMachineScreen packet = new S2C_OpenPhoenixMachineScreen(this.getBlockPos(), this.getUpdateTag(player.registryAccess()), true);
         Phoenix.PLATFORM.sendPacket((ServerPlayer) player, packet);
     }
 
