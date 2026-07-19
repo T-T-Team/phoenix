@@ -6,6 +6,7 @@ import dev.tnt.phoenix.data.SlotMachineConfig;
 import dev.tnt.phoenix.data.SpriteType;
 import dev.tnt.phoenix.data.game.SpinWheel;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -48,7 +49,10 @@ public final class SpinWheelWidget extends AbstractWidget {
     protected void extractWidgetRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
         graphics.blitSprite(RenderPipelines.GUI_TEXTURED, this.active ? SPRITE_SLOT_ON : SPRITE_SLOT, this.getX(), this.getY(), this.getWidth(), this.getHeight());
         graphics.enableScissor(this.getX(), this.getY(), this.getRight(), this.getBottom());
-        float spin = this.spinWheel.getSpinAmount(a);
+        Minecraft instance = Minecraft.getInstance();
+        DeltaTracker tracker = instance.getDeltaTracker();
+        float delta = tracker.getGameTimeDeltaPartialTick(true);
+        float spin = this.spinWheel.getSpinAmount(delta);
         int startSpinIndex = Mth.floor(spin);
         int spinOffset = Mth.floor((spin - startSpinIndex) * ICON_SIZE);
         for (int i = startSpinIndex; i < startSpinIndex + this.displayedIcons; i++) {

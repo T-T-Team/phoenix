@@ -6,8 +6,11 @@ import dev.tnt.phoenix.Phoenix;
 import dev.tnt.phoenix.block.entity.PhoenixSlotMachineBlockEntity;
 import dev.tnt.phoenix.data.GameType;
 import dev.tnt.phoenix.util.EnumHelper;
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
+import it.unimi.dsi.fastutil.ints.IntSet;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public final class Game {
@@ -16,25 +19,55 @@ public final class Game {
             GameType.CODEC.optionalFieldOf("selected_game", GameType.LOW).forGetter(t -> t.selectedGameType),
             Codec.BOOL.optionalFieldOf("risk_hearts", false).forGetter(t -> t.riskHearts),
             Codec.INT.optionalFieldOf("risk_duration", 0).forGetter(t -> t.riskPlayDuration),
-            Codec.INT.optionalFieldOf("current_risk", 0).forGetter(t -> t.currentRiskValue)
+            Codec.INT.optionalFieldOf("current_risk", 0).forGetter(t -> t.currentRiskValue),
+            Codec.BOOL.optionalFieldOf("played", false).forGetter(t -> t.played),
+            Codec.INT.listOf().optionalFieldOf("held_slots", Collections.emptyList()).forGetter(t -> new ArrayList<>(t.hold))
     ).apply(instance, Game::new));
 
     private GameType selectedGameType;
     private boolean riskHearts;
     private int riskPlayDuration;
     private int currentRiskValue;
+    private boolean played;
+    private IntSet hold;
 
     private final List<RiskCompleteCallback> completeCallbacks = new ArrayList<>();
 
     public static Game create() {
-        return new Game(GameType.LOW, false, 0, 0);
+        return new Game(GameType.LOW, false, 0, 0, false, Collections.emptyList());
     }
 
-    private Game(GameType selectedGameType, boolean riskHearts, int riskPlayDuration, int currentRiskValue) {
+    private Game(GameType selectedGameType, boolean riskHearts, int riskPlayDuration, int currentRiskValue, boolean played, List<Integer> hold) {
         this.selectedGameType = selectedGameType;
         this.riskHearts = riskHearts;
         this.riskPlayDuration = riskPlayDuration;
         this.currentRiskValue = currentRiskValue;
+        this.played = played;
+        this.hold = new IntOpenHashSet(hold);
+    }
+
+    public void setPlayed(boolean played) {
+        this.played = played;
+    }
+
+    public boolean hasPlayed() {
+        return this.played;
+    }
+
+    public void hold(int slot) {
+        this.hold.add(slot);
+    }
+
+    public boolean isHeld(int slot) {
+        return this.hold.contains(slot);
+    }
+
+    public int getHeldCount() {
+        return this.hold.size();
+    }
+
+    public void clearHold() {
+        this.hold.clear();
     }
 
     public void addRiskCompleteListener(RiskCompleteCallback callback) {
@@ -74,6 +107,9 @@ public final class Game {
         this.riskHearts = other.riskHearts;
         this.riskPlayDuration = other.riskPlayDuration;
         this.currentRiskValue = other.currentRiskValue;
+        this.played = other.played;
+        this.hold.clear();
+        this.hold.addAll(other.hold);
     }
 
     public interface RiskCompleteCallback {

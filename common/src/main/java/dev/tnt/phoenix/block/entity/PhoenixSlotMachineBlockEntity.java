@@ -58,6 +58,10 @@ public final class PhoenixSlotMachineBlockEntity extends BlockEntity {
             case RISK_CLUBS -> this.risk(instance, player, false);
             case RISK_HEARTS -> this.risk(instance, player, true);
             case ADVANCED -> this.advancedPlay(instance, player);
+            case MULTIWIN -> this.transferMultiWin(instance, player);
+            case HOLD_1 -> this.hold(instance, 0);
+            case HOLD_2 -> this.hold(instance, 1);
+            case HOLD_3 -> this.hold(instance, 2);
         }
         this.markUpdated();
     }
@@ -133,6 +137,16 @@ public final class PhoenixSlotMachineBlockEntity extends BlockEntity {
     private void advancedPlay(PlayerGameInstance instance, Player player) {
         Game game = instance.getGame();
         game.changeGameType();
+    }
+
+    private void transferMultiWin(PlayerGameInstance instance, Player player) {
+        AccountBalance accountBalance = instance.getAccountBalance();
+        int transferAmount = instance.getBetMultiplier().getValue(4);
+        accountBalance.transferBalance(BalanceType.MULTIWIN, BalanceType.INPUT, transferAmount);
+    }
+
+    private void hold(PlayerGameInstance instance, int index) {
+        instance.hold(index);
     }
 
     private record DataHolder(Map<UUID, PlayerGameInstance> data) {

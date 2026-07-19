@@ -211,7 +211,7 @@ public class PhoenixSlotMachineScreen extends Screen {
             int posIndex = i + 2;
             final int index = i;
             IconButtonWithHighlightWidget widget = this.addRenderableWidget(new IconButtonWithHighlightWidget(rowLeft + buttonWidth * posIndex, rowTop, 16, 16, Component.translatable("label.phoenix.ui.button_hold"), BUTTON_HOLD, () -> this.onHoldButtonClicked(index)));
-            widget.active = !instance.isLocked(); // TODO better logic
+            widget.active = !instance.isLocked() && !game.isHeld(i) && game.getHeldCount() < 2 && game.hasPlayed();
             this.holdButtons.add(widget);
         }
 
@@ -222,9 +222,12 @@ public class PhoenixSlotMachineScreen extends Screen {
         riskHearts.active = !instance.isLocked() && account.getWinBalance() > 0;
 
         IconButtonWithHighlightWidget startButton = this.addRenderableWidget(new IconButtonWithHighlightWidget(rowLeft + buttonWidth * 7, rowTop, 16, 16, Component.translatable("label.phoenix.ui.button_start"), BUTTON_START, this::onStartButtonClicked));
-        int currentSpinPrice = instance.getCost(game.getSelectedGameType());
-        int balance = game.getSelectedGameType() == GameType.LOW ? account.getInputBalance() : account.getMultiWinBalance();
-        startButton.active = !instance.isLocked() && balance >= currentSpinPrice;
+        boolean waitingForTransfer = account.getWinBalance() > 0;
+        boolean canStart = !instance.isLocked() && (waitingForTransfer || account.getInputBalance() >= instance.getCost(GameType.LOW));
+        if (!waitingForTransfer && game.getSelectedGameType() == GameType.HIGH) {
+            canStart = canStart && account.getMultiWinBalance() >= instance.getCost(GameType.HIGH);
+        }
+        startButton.active = canStart;
     }
 
     private void onMultiWinButtonClicked() {

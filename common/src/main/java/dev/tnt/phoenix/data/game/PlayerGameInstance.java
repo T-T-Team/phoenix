@@ -65,12 +65,13 @@ public class PlayerGameInstance {
             SpinWheel spinWheel = new SpinWheel(sequence, 0.0F, 0);
             spinWheelList.add(spinWheel);
         }
-        reloadSequences(spinWheelList.subList(0, 3), GameType.LOW, config, random);
-        reloadSequences(spinWheelList.subList(3, 6), GameType.HIGH, config, random);
+        Game game = Game.create();
+        reloadSequences(spinWheelList.subList(0, 3), GameType.LOW, config, random, game);
+        reloadSequences(spinWheelList.subList(3, 6), GameType.HIGH, config, random, game);
         return new PlayerGameInstance(
                 player.getUUID(),
                 AccountBalance.createDefault(),
-                Game.create(),
+                game,
                 spinWheelList,
                 BetMultiplier.X1,
                 0,
@@ -88,23 +89,30 @@ public class PlayerGameInstance {
     }
 
     public void startPlaying(PhoenixSlotMachineBlockEntity slotMachine, Player player) {
-        int balanceCost = this.getCost(GameType.LOW);
-        this.accountBalance.subtractBalance(BalanceType.INPUT, balanceCost);
-        this.accountBalance.transferBalance(BalanceType.WIN, BalanceType.MULTIWIN);
-        if (game.getSelectedGameType() == GameType.HIGH) {
-            int balanceCostMultiWin = this.getCost(GameType.HIGH);
-            this.accountBalance.subtractBalance(BalanceType.MULTIWIN, balanceCostMultiWin);
-        }
-        List<SpinWheel> spinWheels = this.getSpinWheelsForGame(this.game.getSelectedGameType());
-        reloadSequences(spinWheels, this.game.getSelectedGameType(), PhoenixSlotMachineBlockEntity.getConfig(), player.getRandom());
-        this.pendingSpins = spinWheels.size(); // TODO subtract held amount
-        this.lock(Lock.SPIN);
-        RandomSource random = player.getRandom();
-        int currentSpinDuration = 30;
-        for (SpinWheel spinWheel : spinWheels) {
-            currentSpinDuration += (5 + random.nextInt(15));
-            // TODO skip if held
-            spinWheel.startSpinning(currentSpinDuration);
+        if (this.accountBalance.getWinBalance() > 0) {
+            this.accountBalance.transferBalance(BalanceType.WIN, BalanceType.MULTIWIN);
+        } else {
+            int balanceCost = this.getCost(GameType.LOW);
+            this.accountBalance.subtractBalance(BalanceType.INPUT, balanceCost);
+            if (game.getSelectedGameType() == GameType.HIGH) {
+                int balanceCostMultiWin = this.getCost(GameType.HIGH);
+                this.accountBalance.subtractBalance(BalanceType.MULTIWIN, balanceCostMultiWin);
+            }
+            List<SpinWheel> spinWheels = this.getSpinWheelsForGame(this.game.getSelectedGameType());
+            reloadSequences(spinWheels, this.game.getSelectedGameType(), PhoenixSlotMachineBlockEntity.getConfig(), player.getRandom(), this.game);
+            this.pendingSpins = spinWheels.size() - this.game.getHeldCount();
+            this.lock(Lock.SPIN);
+            this.game.setPlayed(this.game.getHeldCount() <= 0);
+            RandomSource random = player.getRandom();
+            int currentSpinDuration = 30;
+            for (int i = 0; i < spinWheels.size(); i++) {
+                SpinWheel spinWheel = spinWheels.get(i);
+                currentSpinDuration += (5 + random.nextInt(15));
+                if (this.game.getSelectedGameType() == GameType.LOW && this.game.isHeld(i)) {
+                    continue;
+                }
+                spinWheel.startSpinning(currentSpinDuration);
+            }
         }
     }
 
@@ -113,6 +121,10 @@ public class PlayerGameInstance {
         int duration = 35 + random.nextInt(65);
         this.game.startRisk(duration, riskHearts);
         this.lock(Lock.RISK);
+    }
+
+    public void hold(int slot) {
+        this.game.hold(slot);
     }
 
     public AccountBalance getAccountBalance() {
@@ -201,7 +213,14 @@ public class PlayerGameInstance {
                 Phoenix.LOGGER.debug("Winning combination match found: {}", winningCombination);
                 this.accountBalance.addBalance(BalanceType.WIN, this.betMultiplier.getValue(winningCombination.amount()));
             }
+            if (!wins.isEmpty()) {
+                this.game.setPlayed(false);
+            }
             this.unlock(Lock.SPIN);
+            this.game.clearHold();
+            if (this.accountBalance.getInputBalance() <= 0) {
+                this.game.setPlayed(false);
+            }
         }
         this.updateSlotMachineAndView(slotMachine);
     }
@@ -216,8 +235,11 @@ public class PlayerGameInstance {
         this.updateSlotMachineAndView(slotMachine);
     }
 
-    private static void reloadSequences(List<SpinWheel> wheels, GameType gameType, SlotMachineConfig config, RandomSource random) {
+    private static void reloadSequences(List<SpinWheel> wheels, GameType gameType, SlotMachineConfig config, RandomSource random, Game game) {
         for (int i = 0; i < wheels.size(); i++) {
+            boolean isHeld = gameType == GameType.LOW && game.isHeld(i);
+            if (isHeld)
+                continue;
             SpinWheel wheel = wheels.get(i);
             List<String> sequence = config.generateSequence(random, gameType, i);
             wheel.setSequence(sequence);
