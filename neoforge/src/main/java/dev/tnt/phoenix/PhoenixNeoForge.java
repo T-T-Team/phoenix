@@ -1,6 +1,7 @@
 package dev.tnt.phoenix;
 
 import dev.tnt.phoenix.data.ItemValueDefinitionManager;
+import dev.tnt.phoenix.data.NeoForgeItemValueDefinitionManager;
 import dev.tnt.phoenix.data.SlotMachineDataManager;
 import dev.tnt.phoenix.network.*;
 import dev.tnt.phoenix.platform.NeoForgePlatform;
@@ -30,6 +31,7 @@ public final class PhoenixNeoForge {
     }
 
     private void registerDataPacks(AddServerReloadListenersEvent event) {
+        Phoenix.ITEM_VALUES = new NeoForgeItemValueDefinitionManager();
         event.addListener(SlotMachineDataManager.DATA_MANAGER_IDENTIFIER, Phoenix.SLOT_MACHINES);
         event.addListener(ItemValueDefinitionManager.DATA_MANAGER_IDENTIFIER, Phoenix.ITEM_VALUES);
     }

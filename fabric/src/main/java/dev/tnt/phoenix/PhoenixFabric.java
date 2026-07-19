@@ -1,5 +1,6 @@
 package dev.tnt.phoenix;
 
+import dev.tnt.phoenix.data.FabricItemValueDefinitionManager;
 import dev.tnt.phoenix.data.ItemValueDefinitionManager;
 import dev.tnt.phoenix.data.SlotMachineDataManager;
 import dev.tnt.phoenix.network.C2S_SlotMachineRequest;
@@ -10,6 +11,7 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.fabricmc.fabric.api.resource.v1.DataResourceLoader;
 import net.fabricmc.fabric.api.resource.v1.ResourceLoader;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.server.packs.PackType;
@@ -22,9 +24,12 @@ public final class PhoenixFabric implements ModInitializer {
         FabricPlatform.bindRegistries();
 
         // data managers
-        ResourceLoader resourceLoader = ResourceLoader.get(PackType.SERVER_DATA);
+        DataResourceLoader resourceLoader = (DataResourceLoader) ResourceLoader.get(PackType.SERVER_DATA);
         resourceLoader.registerReloadListener(SlotMachineDataManager.DATA_MANAGER_IDENTIFIER, Phoenix.SLOT_MACHINES);
-        resourceLoader.registerReloadListener(ItemValueDefinitionManager.DATA_MANAGER_IDENTIFIER, Phoenix.ITEM_VALUES);
+        resourceLoader.registerReloadListener(ItemValueDefinitionManager.DATA_MANAGER_IDENTIFIER, provider -> {
+            Phoenix.ITEM_VALUES = new FabricItemValueDefinitionManager(provider);
+            return Phoenix.ITEM_VALUES;
+        });
 
         // packets
         PayloadTypeRegistry<RegistryFriendlyByteBuf> s2c = PayloadTypeRegistry.clientboundPlay();

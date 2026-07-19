@@ -1,31 +1,46 @@
 package dev.tnt.phoenix.data;
 
+import com.google.common.base.Suppliers;
+import com.google.gson.JsonElement;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.DynamicOps;
+import com.mojang.serialization.JsonOps;
 import dev.tnt.phoenix.Phoenix;
 import it.unimi.dsi.fastutil.objects.Reference2IntMap;
 import it.unimi.dsi.fastutil.objects.Reference2IntOpenHashMap;
 import net.minecraft.core.Holder;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.resources.FileToIdConverter;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
+import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemInstance;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.function.Supplier;
 
-public final class ItemValueDefinitionManager extends SimpleJsonResourceReloadListener<List<ItemValueDefinition>> {
+public abstract class ItemValueDefinitionManager extends SimplePreparableReloadListener<Map<Identifier, List<ItemValueDefinition>>> {
 
     public static final Identifier DATA_MANAGER_IDENTIFIER = Phoenix.identifier("item_value_manager");
+    private final Codec<List<ItemValueDefinition>> codec;
+    private final Supplier<DynamicOps<JsonElement>> ops;
+    private final FileToIdConverter lister;
     private final List<ItemValueDefinition> values = new ArrayList<>();
     private final Reference2IntMap<Item> cache = new Reference2IntOpenHashMap<>();
 
     public ItemValueDefinitionManager() {
-        super(ItemValueDefinition.CODEC.listOf(), FileToIdConverter.json("slot_machine_values"));
+        this.codec = ItemValueDefinition.CODEC.listOf();
+        this.lister = FileToIdConverter.json("slot_machine_values");
+        this.ops = Suppliers.memoize(() -> {
+            HolderLookup.Provider provider = this.getRegistryProvider();
+            return provider.createSerializationContext(JsonOps.INSTANCE);
+        });
     }
+
+    protected abstract HolderLookup.Provider getRegistryProvider();
 
     public int getItemValue(Item item) {
         return this.cache.computeIfAbsent(item, this::lookupValue);
@@ -41,6 +56,13 @@ public final class ItemValueDefinitionManager extends SimpleJsonResourceReloadLi
         if (useCount)
             value *= instance.count();
         return value;
+    }
+
+    @Override
+    protected Map<Identifier, List<ItemValueDefinition>> prepare(ResourceManager manager, ProfilerFiller profiler) {
+        Map<Identifier, List<ItemValueDefinition>> result = new HashMap<>();
+        SimpleJsonResourceReloadListener.scanDirectory(manager, this.lister, this.ops.get(), this.codec, result);
+        return result;
     }
 
     @Override

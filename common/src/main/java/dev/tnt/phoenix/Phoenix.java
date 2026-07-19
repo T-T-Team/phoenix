@@ -34,7 +34,7 @@ public class Phoenix {
 
     // Data managers
     public static final SlotMachineDataManager SLOT_MACHINES = new SlotMachineDataManager();
-    public static final ItemValueDefinitionManager ITEM_VALUES = new ItemValueDefinitionManager();
+    public static ItemValueDefinitionManager ITEM_VALUES;
 
     // Slot machine configs
     public static final Identifier SLOT_MACHINE_CONFIG_PHOENIX = identifier("phoenix");
