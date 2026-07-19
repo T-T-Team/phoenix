@@ -25,15 +25,20 @@ public record WinConfiguration(List<WinPattern> patterns, List<WinCombination> c
     public List<WinCombination> resolveWins(List<String> wildcardSymbols, List<SpinWheel> spinWheels) {
         List<WinCombination> wins = new ArrayList<>();
         for (WinPattern pattern : this.patterns) {
-            List<WinCombination> patternWins = new ArrayList<>();
+            List<MatchedWinCombination> patternWins = new ArrayList<>();
             for (WinCombination combination : this.combinations) {
-                if (pattern.matches(combination, spinWheels, wildcardSymbols)) {
-                    patternWins.add(combination);
+                MatchType result = pattern.test(combination, spinWheels, wildcardSymbols);
+                if (result.isWinningMatch()) {
+                    patternWins.add(MatchedWinCombination.of(result, combination));
                 }
             }
-            Optional<WinCombination> patternWin = patternWins.stream()
-                    .max(Comparator.comparingInt(WinCombination::count).thenComparingInt(WinCombination::amount));
-            patternWin.ifPresent(wins::add);
+            Optional<MatchedWinCombination> patternWin = patternWins.stream()
+                    .max(
+                            Comparator.comparingInt(MatchedWinCombination::matchTypeBonus)
+                                    .thenComparingInt(MatchedWinCombination::count)
+                                    .thenComparingInt(MatchedWinCombination::amount)
+                    );
+            patternWin.ifPresent(matchedCombination -> wins.add(matchedCombination.combination()));
         }
         return wins;
     }
@@ -59,24 +64,57 @@ public record WinConfiguration(List<WinPattern> patterns, List<WinCombination> c
                 WinPattern::new
         );
 
-        public boolean matches(WinCombination combination, List<SpinWheel> spinWheels, List<String> wildcardSymbols) {
+        public MatchType test(WinCombination combination, List<SpinWheel> spinWheels, List<String> wildcardSymbols) {
             String usedSymbol = null;
+            boolean isExactMatch = true;
             for (int i = 0; i < combination.count(); i++) {
                 int patternIndex = this.indexes.get(i);
                 SpinWheel wheel = spinWheels.get(i);
                 String wheelSymbol = wheel.getSymbolAt(patternIndex);
-                if (wildcardSymbols.contains(wheelSymbol))
+                if (wildcardSymbols.contains(wheelSymbol)) {
+                    // check if winning combination is made for wildcards
+                    if (!combination.testInput(wheelSymbol)) {
+                        // if not, mark as wildcard match only
+                        isExactMatch = false;
+                    }
                     continue;
+                }
                 boolean validInput = combination.testInput(wheelSymbol);
                 if (!validInput) {
-                    return false;
+                    return MatchType.MISMATCH;
                 }
                 if (usedSymbol != null && !usedSymbol.equals(wheelSymbol)) {
-                    return false;
+                    return MatchType.MISMATCH;
                 }
                 usedSymbol = wheelSymbol;
             }
-            return true;
+            return isExactMatch ? MatchType.EXACT : MatchType.WILDCARD;
+        }
+    }
+
+    public enum MatchType {
+
+        MISMATCH,
+        WILDCARD,
+        EXACT;
+
+        public boolean isWinningMatch() {
+            return this != MISMATCH;
+        }
+    }
+
+    private record MatchedWinCombination(int matchTypeBonus, WinCombination combination) {
+
+        static MatchedWinCombination of(MatchType type, WinCombination combination) {
+            return new MatchedWinCombination(type.ordinal() - 1, combination);
+        }
+
+        public int count() {
+            return this.combination.count();
+        }
+
+        public int amount() {
+            return this.combination.amount();
         }
     }
 }
