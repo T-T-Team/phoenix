@@ -30,7 +30,6 @@ public final class PhoenixFabric implements ModInitializer {
         PayloadTypeRegistry<RegistryFriendlyByteBuf> s2c = PayloadTypeRegistry.clientboundPlay();
         s2c.register(S2C_SyncSlotMachineConfigs.TYPE, S2C_SyncSlotMachineConfigs.STREAM_CODEC);
         s2c.register(S2C_OpenPhoenixMachineScreen.TYPE, S2C_OpenPhoenixMachineScreen.STREAM_CODEC);
-        s2c.register(S2C_RefreshSlotMachine.TYPE, S2C_RefreshSlotMachine.STREAM_CODEC);
 
         PayloadTypeRegistry<RegistryFriendlyByteBuf> c2s = PayloadTypeRegistry.serverboundPlay();
         c2s.register(C2S_SlotMachineRequest.TYPE, C2S_SlotMachineRequest.STREAM_CODEC);

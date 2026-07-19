@@ -20,7 +20,6 @@ public final class PhoenixFabricClient implements ClientModInitializer {
 
         ClientPlayNetworking.registerGlobalReceiver(S2C_SyncSlotMachineConfigs.TYPE, (payload, _) -> payload.handle());
         ClientPlayNetworking.registerGlobalReceiver(S2C_OpenPhoenixMachineScreen.TYPE, (payload, _) -> payload.handle());
-        ClientPlayNetworking.registerGlobalReceiver(S2C_RefreshSlotMachine.TYPE, (payload, _) -> payload.handle());
     }
 
     private <M extends AbstractContainerMenu, S extends Screen & MenuAccess<M>> void registerMenuScreen(MenuType<M> menuType, PlatformScreenManager.ScreenConstructor<M, S> constructor) {
