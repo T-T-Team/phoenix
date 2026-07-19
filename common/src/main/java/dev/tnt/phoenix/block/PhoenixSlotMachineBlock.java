@@ -73,16 +73,12 @@ public class PhoenixSlotMachineBlock extends HorizontalDirectionalBlock implemen
             return InteractionResult.TRY_WITH_EMPTY_HAND;
         }
         if (!level.isClientSide()) {
-            ItemCooldowns cooldowns = player.getCooldowns();
-            if (cooldowns.isOnCooldown(itemStack))
-                return InteractionResult.CONSUME;
             UUID uid = player.getUUID();
             PhoenixSlotMachineBlockEntity blockEntity = (PhoenixSlotMachineBlockEntity) level.getBlockEntity(pos);
             if (blockEntity.insertItem(uid, itemStack, player.isCrouching())) {
                 if (!player.isCreative()) {
                     itemStack.shrink(player.isCrouching() ? itemStack.count() : 1);
                 }
-                cooldowns.addCooldown(itemStack, 20);
             } else {
                 player.sendOverlayMessage(MESSAGE_ITEM_NOT_INSERTABLE);
             }
