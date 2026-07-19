@@ -1,6 +1,7 @@
 package dev.tnt.phoenix.data;
 
 import com.google.common.base.Suppliers;
+import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonElement;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DynamicOps;
@@ -56,6 +57,11 @@ public abstract class ItemValueDefinitionManager extends SimplePreparableReloadL
         if (useCount)
             value *= instance.count();
         return value;
+    }
+
+
+    public List<ItemValueDefinition> getEntries() {
+        return ImmutableList.copyOf(this.values);
     }
 
     @Override

@@ -42,11 +42,12 @@ public final class PhoenixNeoForge {
 
         registrar.configurationToClient(S2C_SyncSlotMachineConfigs.TYPE, S2C_SyncSlotMachineConfigs.STREAM_CODEC, (payload, _) -> payload.handle());
         registrar.playToClient(S2C_OpenPhoenixMachineScreen.TYPE, S2C_OpenPhoenixMachineScreen.STREAM_CODEC, (payload, _) -> payload.handle());
+        registrar.playToClient(S2C_OpenPayoutScreen.TYPE, S2C_OpenPayoutScreen.STREAM_CODEC, (payload, _) -> payload.handle());
         registrar.playToServer(C2S_SlotMachineRequest.TYPE, C2S_SlotMachineRequest.STREAM_CODEC, (payload, ctx) -> payload.handle(ctx.player()));
+        registrar.playToServer(C2S_SlotMachinePayoutRequest.TYPE, C2S_SlotMachinePayoutRequest.STREAM_CODEC, (payload, ctx) -> payload.handle(ctx.player()));
     }
 
     private void registerConfigurationTasks(RegisterConfigurationTasksEvent event) {
-        // TODO also sync on datapack reload?
         event.register(new SyncSlotMachineConfigsTask(event.getListener()));
     }
 

@@ -2,11 +2,13 @@ package dev.tnt.phoenix.block.entity;
 
 import com.mojang.serialization.Codec;
 import dev.tnt.phoenix.Phoenix;
+import dev.tnt.phoenix.data.ItemValueDefinition;
 import dev.tnt.phoenix.data.SlotMachineConfig;
 import dev.tnt.phoenix.data.game.AccountBalance;
 import dev.tnt.phoenix.data.game.BalanceType;
 import dev.tnt.phoenix.data.game.Game;
 import dev.tnt.phoenix.data.game.PlayerGameInstance;
+import dev.tnt.phoenix.network.S2C_OpenPayoutScreen;
 import dev.tnt.phoenix.network.S2C_OpenPhoenixMachineScreen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -26,6 +28,7 @@ import net.minecraft.world.level.storage.ValueOutput;
 import org.jspecify.annotations.Nullable;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -63,6 +66,7 @@ public final class PhoenixSlotMachineBlockEntity extends BlockEntity {
             case HOLD_1 -> this.hold(instance, 0);
             case HOLD_2 -> this.hold(instance, 1);
             case HOLD_3 -> this.hold(instance, 2);
+            case PAYOUT -> this.payoutSelection(instance, player);
         }
         this.markUpdated();
     }
@@ -149,6 +153,14 @@ public final class PhoenixSlotMachineBlockEntity extends BlockEntity {
 
     private void hold(PlayerGameInstance instance, int index) {
         instance.hold(index);
+    }
+
+    private void payoutSelection(PlayerGameInstance instance, Player player) {
+        if (player instanceof ServerPlayer serverPlayer) {
+            int payoutBalance = instance.getAccountBalance().getBalance(BalanceType.MULTIWIN);
+            List<ItemValueDefinition> availableItemValueDefinitions = Phoenix.ITEM_VALUES.getEntries();
+            Phoenix.PLATFORM.sendPacket(serverPlayer, new S2C_OpenPayoutScreen(this.getBlockPos(), availableItemValueDefinitions, payoutBalance));
+        }
     }
 
     private record DataHolder(Map<UUID, PlayerGameInstance> data) {
