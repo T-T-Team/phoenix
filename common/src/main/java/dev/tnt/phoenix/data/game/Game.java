@@ -21,7 +21,8 @@ public final class Game {
             Codec.INT.optionalFieldOf("risk_duration", 0).forGetter(t -> t.riskPlayDuration),
             Codec.INT.optionalFieldOf("current_risk", 0).forGetter(t -> t.currentRiskValue),
             Codec.BOOL.optionalFieldOf("played", false).forGetter(t -> t.played),
-            Codec.INT.listOf().optionalFieldOf("held_slots", Collections.emptyList()).forGetter(t -> new ArrayList<>(t.hold))
+            Codec.INT.listOf().optionalFieldOf("held_slots", Collections.emptyList()).forGetter(t -> new ArrayList<>(t.hold)),
+            Codec.BOOL.optionalFieldOf("risk_active", false).forGetter(t -> t.riskActive)
     ).apply(instance, Game::new));
 
     private GameType selectedGameType;
@@ -30,20 +31,22 @@ public final class Game {
     private int currentRiskValue;
     private boolean played;
     private IntSet hold;
+    private boolean riskActive;
 
     private final List<RiskCompleteCallback> completeCallbacks = new ArrayList<>();
 
     public static Game create() {
-        return new Game(GameType.LOW, false, 0, 0, false, Collections.emptyList());
+        return new Game(GameType.LOW, false, 0, 0, false, Collections.emptyList(), false);
     }
 
-    private Game(GameType selectedGameType, boolean riskHearts, int riskPlayDuration, int currentRiskValue, boolean played, List<Integer> hold) {
+    private Game(GameType selectedGameType, boolean riskHearts, int riskPlayDuration, int currentRiskValue, boolean played, List<Integer> hold, boolean riskActive) {
         this.selectedGameType = selectedGameType;
         this.riskHearts = riskHearts;
         this.riskPlayDuration = riskPlayDuration;
         this.currentRiskValue = currentRiskValue;
         this.played = played;
         this.hold = new IntOpenHashSet(hold);
+        this.riskActive = riskActive;
     }
 
     public void setPlayed(boolean played) {
@@ -81,6 +84,15 @@ public final class Game {
     public void startRisk(int duration, boolean riskHearts) {
         this.riskHearts = riskHearts;
         this.riskPlayDuration = duration;
+        this.riskActive = true;
+    }
+
+    public boolean isRiskActive() {
+        return riskActive;
+    }
+
+    public void cancelRisk() {
+        this.riskActive = false;
     }
 
     public void update(PhoenixSlotMachineBlockEntity slotMachine) {
@@ -95,7 +107,7 @@ public final class Game {
     }
 
     public boolean isHearts() {
-        return this.currentRiskValue % 10 < 5;
+        return this.currentRiskValue % 6 < 3;
     }
 
     public GameType getSelectedGameType() {
@@ -110,6 +122,7 @@ public final class Game {
         this.played = other.played;
         this.hold.clear();
         this.hold.addAll(other.hold);
+        this.riskActive = other.riskActive;
     }
 
     public interface RiskCompleteCallback {

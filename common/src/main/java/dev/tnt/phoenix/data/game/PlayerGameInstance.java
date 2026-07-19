@@ -114,11 +114,12 @@ public class PlayerGameInstance {
                 spinWheel.startSpinning(currentSpinDuration);
             }
         }
+        this.game.cancelRisk();
     }
 
     public void startRisk(Player player, boolean riskHearts) {
         RandomSource random = player.getRandom();
-        int duration = 35 + random.nextInt(65);
+        int duration = 5 + random.nextInt(40);
         this.game.startRisk(duration, riskHearts);
         this.lock(Lock.RISK);
     }

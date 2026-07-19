@@ -39,7 +39,7 @@ public final class SpinWheelEntry {
     }
 
     public Identifier getSpriteForType(SpriteType type) {
-        return this.sprites.computeIfAbsent(type, t -> t.getPath(this.path));
+        return this.sprites.computeIfAbsent(type, t -> t.createTexturePath(this.path));
     }
 
     public boolean hidden() {

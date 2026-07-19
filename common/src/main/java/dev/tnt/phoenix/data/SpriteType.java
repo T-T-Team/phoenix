@@ -14,7 +14,11 @@ public enum SpriteType {
         this.pathSuffix = pathSuffix;
     }
 
-    public Identifier getPath(Identifier basePath) {
+    public Identifier createTexturePath(Identifier basePath) {
         return basePath.withPath(path -> "textures/" + path + this.pathSuffix + ".png");
+    }
+
+    public Identifier getPath(Identifier path) {
+        return path.withPath(pth -> pth.replace(".png", this.pathSuffix + ".png"));
     }
 }
