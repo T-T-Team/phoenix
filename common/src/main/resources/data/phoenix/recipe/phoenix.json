@@ -1,11 +1,11 @@
 {
   "type": "minecraft:crafting_shaped",
   "key": {
-    "#": "minecraft:iron_block",
-    "R": "minecraft:iron_ingot",
+    "#": "#c:storage_blocks/iron",
+    "R": "#c:ingots/iron",
     "T": "minecraft:stone_button",
-    "X": "minecraft:glowstone",
-    "Y": "minecraft:glass_pane"
+    "X": "#c:dusts/glowstone",
+    "Y": "#c:glass_panes"
   },
   "pattern": [
     "RRR",
