@@ -37,6 +37,7 @@ public final class PayoutScreen extends Screen {
         this.pos = pos;
         this.definitions = definitions;
         this.availableBalance = availableBalance;
+        this.definitions.sort(null);
     }
 
     @Override

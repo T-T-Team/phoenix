@@ -9,10 +9,11 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
+import org.jspecify.annotations.NonNull;
 
 import java.util.Objects;
 
-public record SlotMachinePayout(Identifier payoutId, ItemStackTemplate template, int price) {
+public record SlotMachinePayout(Identifier payoutId, ItemStackTemplate template, int price) implements Comparable<SlotMachinePayout> {
 
     public static final Codec<SlotMachinePayout> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Identifier.CODEC.fieldOf("payout_id").forGetter(SlotMachinePayout::payoutId),
@@ -39,5 +40,10 @@ public record SlotMachinePayout(Identifier payoutId, ItemStackTemplate template,
     @Override
     public int hashCode() {
         return Objects.hashCode(payoutId);
+    }
+
+    @Override
+    public int compareTo(@NonNull SlotMachinePayout o) {
+        return Integer.compare(this.price, o.price);
     }
 }
