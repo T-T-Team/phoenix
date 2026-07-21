@@ -137,7 +137,7 @@ public class PhoenixSlotMachineScreen extends Screen {
         highWinsWidget.active = activeGameType == GameType.HIGH;
 
         // multi win balance
-        BalanceWidget multiWinBalanceWidget = this.addRenderableOnly(new BalanceWidget(firstButton.getX() - 11, this.topPos + 113, 80, 24, balance::getMultiWinBalance, this.font));
+        BalanceWidget multiWinBalanceWidget = this.addRenderableOnly(new BalanceWidget(firstButton.getX() - 11, this.topPos + 115, 80, 24, balance::getMultiWinBalance, this.font));
         multiWinBalanceWidget.setTextScale(2.0F);
         multiWinBalanceWidget.setTextColor(0xFFFFFF00);
         multiWinBalanceWidget.setDigits(6);

@@ -32,7 +32,7 @@ public final class SpinWheel {
     public void update(PhoenixSlotMachineBlockEntity slotMachine) {
         this.lastSpinAmount = this.spinAmount;
         if (this.spinTime > 0) {
-            this.spinAmount -= 0.8F;
+            this.spinAmount -= 1.0F;
             if (--this.spinTime <= 0) {
                 this.normalizeSpinAmount();
                 this.completeCallbacks.forEach(callback -> callback.onSpinComplete(slotMachine, this.spinAmount));
