@@ -1,8 +1,9 @@
 package dev.tnt.phoenix;
 
-import dev.tnt.phoenix.data.FabricItemValueDefinitionManager;
-import dev.tnt.phoenix.data.ItemValueDefinitionManager;
+import dev.tnt.phoenix.data.FabricSlotMachineInputManager;
+import dev.tnt.phoenix.data.input.SlotMachineInputManager;
 import dev.tnt.phoenix.data.SlotMachineDataManager;
+import dev.tnt.phoenix.data.payout.SlotMachinePayoutManager;
 import dev.tnt.phoenix.network.*;
 import dev.tnt.phoenix.platform.FabricPlatform;
 import net.fabricmc.api.ModInitializer;
@@ -24,10 +25,11 @@ public final class PhoenixFabric implements ModInitializer {
         // data managers
         DataResourceLoader resourceLoader = (DataResourceLoader) ResourceLoader.get(PackType.SERVER_DATA);
         resourceLoader.registerReloadListener(SlotMachineDataManager.DATA_MANAGER_IDENTIFIER, Phoenix.SLOT_MACHINES);
-        resourceLoader.registerReloadListener(ItemValueDefinitionManager.DATA_MANAGER_IDENTIFIER, provider -> {
-            Phoenix.ITEM_VALUES = new FabricItemValueDefinitionManager(provider);
+        resourceLoader.registerReloadListener(SlotMachineInputManager.DATA_MANAGER_IDENTIFIER, provider -> {
+            Phoenix.ITEM_VALUES = new FabricSlotMachineInputManager(provider);
             return Phoenix.ITEM_VALUES;
         });
+        resourceLoader.registerReloadListener(SlotMachinePayoutManager.DATA_MANAGER_IDENTIFIER, Phoenix.PAYOUT_MANAGER);
 
         // packets
         PayloadTypeRegistry<RegistryFriendlyByteBuf> s2c = PayloadTypeRegistry.clientboundPlay();

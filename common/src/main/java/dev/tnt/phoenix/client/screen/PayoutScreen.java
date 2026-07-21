@@ -2,8 +2,8 @@ package dev.tnt.phoenix.client.screen;
 
 import dev.tnt.phoenix.client.PhoenixClient;
 import dev.tnt.phoenix.client.screen.widget.BalanceWidget;
-import dev.tnt.phoenix.data.ItemValueDefinition;
-import dev.tnt.phoenix.data.ItemValueHolder;
+import dev.tnt.phoenix.data.PayoutRequestEntry;
+import dev.tnt.phoenix.data.payout.SlotMachinePayout;
 import dev.tnt.phoenix.network.C2S_SlotMachinePayoutRequest;
 import it.unimi.dsi.fastutil.objects.Reference2IntMap;
 import it.unimi.dsi.fastutil.objects.Reference2IntOpenHashMap;
@@ -16,7 +16,6 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.List;
@@ -27,27 +26,22 @@ public final class PayoutScreen extends Screen {
 
     private final Screen parent;
     private final BlockPos pos;
-    private final List<ItemValueDefinition> definitions;
+    private final List<SlotMachinePayout> definitions;
     private final int availableBalance;
-    private final Reference2IntMap<Item> priceCache = new Reference2IntOpenHashMap<>();
-    private final Reference2IntMap<Item> cart = new Reference2IntOpenHashMap<>();
+    private final Reference2IntMap<SlotMachinePayout> cart = new Reference2IntOpenHashMap<>();
     private int checkoutPrice;
 
-    public PayoutScreen(Screen parent, BlockPos pos, List<ItemValueDefinition> definitions, int availableBalance) {
+    public PayoutScreen(Screen parent, BlockPos pos, List<SlotMachinePayout> definitions, int availableBalance) {
         super(TITLE);
         this.parent = parent;
         this.pos = pos;
         this.definitions = definitions;
         this.availableBalance = availableBalance;
-        this.computePriceCache();
     }
 
     @Override
     protected void init() {
         // shop buttons in grid
-        List<ItemValueHolder> items = this.definitions.stream()
-                .flatMap(ItemValueHolder::unwrap)
-                .toList();
         int itemWidth = 120;
         int itemHeight = 24;
         int columns = (this.width - 10) / itemWidth;
@@ -55,26 +49,26 @@ public final class PayoutScreen extends Screen {
         for (int x = 0; x < columns; x++) {
             for (int y = 0; y < rows; y++) {
                 int index = y + x * rows;
-                if (index >= items.size()) {
+                if (index >= this.definitions.size()) {
                     break;
                 }
-                ItemValueHolder item = items.get(index);
+                SlotMachinePayout payout = this.definitions.get(index);
                 int px = 5 + x * itemWidth;
                 int py = 5 + y * itemHeight;
-                int quantity = this.cart.getInt(item.item());
-                this.addRenderableOnly(new ItemValueWidget(px, py, itemWidth, itemHeight, this.font, item, quantity));
+                int quantity = this.cart.getInt(payout);
+                this.addRenderableOnly(new ItemValueWidget(px, py, itemWidth, itemHeight, this.font, payout, quantity));
                 Button add = this.addRenderableWidget(
-                        Button.builder(Component.literal("+"), _ -> this.updateQuantity(item.item(), 1))
+                        Button.builder(Component.literal("+"), _ -> this.updateQuantity(payout, 1))
                                 .bounds(px + itemWidth - 10, py + 1, 10, 10)
                                 .build()
                 );
-                add.active = (this.availableBalance - this.checkoutPrice) >= item.value();
+                add.active = (this.availableBalance - this.checkoutPrice) >= payout.price();
                 Button remove = this.addRenderableWidget(
-                        Button.builder(Component.literal("-"), _ -> this.updateQuantity(item.item(), -1))
+                        Button.builder(Component.literal("-"), _ -> this.updateQuantity(payout, -1))
                                 .bounds(px + itemWidth - 10, py + itemHeight - 11, 10, 10)
                                 .build()
                 );
-                remove.active = this.cart.getInt(item.item()) > 0;
+                remove.active = this.cart.getInt(payout) > 0;
             }
         }
 
@@ -107,7 +101,7 @@ public final class PayoutScreen extends Screen {
     }
 
     private void confirmButtonClicked(Button button) {
-        List<ItemValueHolder> payout = this.preparePayout();
+        List<PayoutRequestEntry> payout = this.preparePayoutsForRequest();
         PhoenixClient.PLATFORM.sendPacket(new C2S_SlotMachinePayoutRequest(this.pos, payout));
         this.minecraft.gui.setScreen(null);
     }
@@ -116,40 +110,33 @@ public final class PayoutScreen extends Screen {
         this.minecraft.gui.setScreen(this.parent);
     }
 
-    private void updateQuantity(Item item, int quantity) {
-        this.cart.mergeInt(item, quantity, Integer::sum);
+    private void updateQuantity(SlotMachinePayout payout, int quantity) {
+        this.cart.mergeInt(payout, quantity, Integer::sum);
         this.checkoutPrice = this.cart.reference2IntEntrySet().stream()
-                .mapToInt(e -> this.priceCache.getInt(e.getKey()) * e.getIntValue())
+                .mapToInt(e -> e.getIntValue() * e.getKey().price())
                 .sum();
         this.init(this.width, this.height);
     }
 
-    private void computePriceCache() {
-        this.priceCache.clear();
-        this.definitions.stream()
-                .flatMap(ItemValueHolder::unwrap)
-                .forEach(holder -> this.priceCache.put(holder.item(), holder.value()));
-    }
-
-    private List<ItemValueHolder> preparePayout() {
+    private List<PayoutRequestEntry> preparePayoutsForRequest() {
         return this.cart.reference2IntEntrySet().stream()
-                .map(e -> new ItemValueHolder(e.getKey(), e.getIntValue()))
+                .map(e -> new PayoutRequestEntry(e.getKey().payoutId(), e.getIntValue()))
                 .toList();
     }
 
     private static final class ItemValueWidget extends AbstractWidget {
 
         private final Font font;
-        private final ItemValueHolder holder;
+        private final SlotMachinePayout payout;
         private final int quantity;
         private final ItemStack itemStack;
 
-        public ItemValueWidget(int x, int y, int width, int height, Font font, ItemValueHolder holder, int quantity) {
+        public ItemValueWidget(int x, int y, int width, int height, Font font, SlotMachinePayout payout, int quantity) {
             super(x, y, width, height, CommonComponents.EMPTY);
             this.font = font;
-            this.holder = holder;
+            this.payout = payout;
             this.quantity = quantity;
-            this.itemStack = holder.item().getDefaultInstance();
+            this.itemStack = this.payout.template().create();
             this.setMessage(this.itemStack.getStyledHoverName());
         }
 
@@ -161,10 +148,14 @@ public final class PayoutScreen extends Screen {
             int quantityWidth = this.font.width(quantityLabel);
             graphics.enableScissor(this.getX(), this.getY(), this.getRight() - 14 - quantityWidth, this.getBottom());
             graphics.text(this.font, this.getMessage(), this.getX() + 24, this.getY() + 2, 0xFFFFFFFF);
-            graphics.text(this.font, Component.literal(String.valueOf(this.holder.value())), this.getX() + 24, this.getY() + 14, 0xFFFFFFFF);
+            graphics.text(this.font, Component.literal(String.valueOf(this.payout.price())), this.getX() + 24, this.getY() + 14, 0xFFFFFFFF);
             graphics.disableScissor();
 
             graphics.text(this.font, quantityLabel, this.getX() + this.getWidth() - quantityWidth - 12, this.getY() + (this.getHeight() - this.font.lineHeight) / 2 + 1, 0xFFFFFFFF);
+
+            if (mouseX >= this.getX() + 2 && mouseX <= this.getX() + 18 && mouseY >= this.getY() + 4 && mouseY <= this.getY() + 20) {
+                graphics.setTooltipForNextFrame(this.font, this.itemStack, mouseX, mouseY);
+            }
         }
 
         @Override

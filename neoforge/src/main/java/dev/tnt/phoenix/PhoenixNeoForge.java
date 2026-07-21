@@ -1,8 +1,9 @@
 package dev.tnt.phoenix;
 
-import dev.tnt.phoenix.data.ItemValueDefinitionManager;
-import dev.tnt.phoenix.data.NeoForgeItemValueDefinitionManager;
+import dev.tnt.phoenix.data.input.SlotMachineInputManager;
+import dev.tnt.phoenix.data.NeoForgeSlotMachineInputManager;
 import dev.tnt.phoenix.data.SlotMachineDataManager;
+import dev.tnt.phoenix.data.payout.SlotMachinePayoutManager;
 import dev.tnt.phoenix.network.*;
 import dev.tnt.phoenix.platform.NeoForgePlatform;
 import dev.tnt.phoenix.platform.NeoForgeRegistrationManager;
@@ -31,9 +32,10 @@ public final class PhoenixNeoForge {
     }
 
     private void registerDataPacks(AddServerReloadListenersEvent event) {
-        Phoenix.ITEM_VALUES = new NeoForgeItemValueDefinitionManager();
+        Phoenix.ITEM_VALUES = new NeoForgeSlotMachineInputManager();
         event.addListener(SlotMachineDataManager.DATA_MANAGER_IDENTIFIER, Phoenix.SLOT_MACHINES);
-        event.addListener(ItemValueDefinitionManager.DATA_MANAGER_IDENTIFIER, Phoenix.ITEM_VALUES);
+        event.addListener(SlotMachineInputManager.DATA_MANAGER_IDENTIFIER, Phoenix.ITEM_VALUES);
+        event.addListener(SlotMachinePayoutManager.DATA_MANAGER_IDENTIFIER, Phoenix.PAYOUT_MANAGER);
     }
 
     private void initNetworking(RegisterPayloadHandlersEvent event) {

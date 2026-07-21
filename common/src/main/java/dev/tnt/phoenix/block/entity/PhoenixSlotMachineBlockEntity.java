@@ -2,12 +2,12 @@ package dev.tnt.phoenix.block.entity;
 
 import com.mojang.serialization.Codec;
 import dev.tnt.phoenix.Phoenix;
-import dev.tnt.phoenix.data.ItemValueDefinition;
 import dev.tnt.phoenix.data.SlotMachineConfig;
 import dev.tnt.phoenix.data.game.AccountBalance;
 import dev.tnt.phoenix.data.game.BalanceType;
 import dev.tnt.phoenix.data.game.Game;
 import dev.tnt.phoenix.data.game.PlayerGameInstance;
+import dev.tnt.phoenix.data.payout.SlotMachinePayout;
 import dev.tnt.phoenix.network.S2C_OpenPayoutScreen;
 import dev.tnt.phoenix.network.S2C_OpenPhoenixMachineScreen;
 import net.minecraft.core.BlockPos;
@@ -32,7 +32,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Consumer;
-import java.util.function.IntConsumer;
 
 public final class PhoenixSlotMachineBlockEntity extends BlockEntity {
 
@@ -158,7 +157,7 @@ public final class PhoenixSlotMachineBlockEntity extends BlockEntity {
     private void payoutSelection(PlayerGameInstance instance, Player player) {
         if (player instanceof ServerPlayer serverPlayer) {
             int payoutBalance = instance.getAccountBalance().getBalance(BalanceType.MULTIWIN);
-            List<ItemValueDefinition> availableItemValueDefinitions = Phoenix.ITEM_VALUES.getEntries();
+            List<SlotMachinePayout> availableItemValueDefinitions = Phoenix.PAYOUT_MANAGER.getAvailablePayouts();
             Phoenix.PLATFORM.sendPacket(serverPlayer, new S2C_OpenPayoutScreen(this.getBlockPos(), availableItemValueDefinitions, payoutBalance));
         }
     }

@@ -1,12 +1,13 @@
 package dev.tnt.phoenix.data;
 
+import dev.tnt.phoenix.data.input.SlotMachineInputManager;
 import net.minecraft.core.HolderLookup;
 
-public class FabricItemValueDefinitionManager extends ItemValueDefinitionManager {
+public class FabricSlotMachineInputManager extends SlotMachineInputManager {
 
     private final HolderLookup.Provider provider;
 
-    public FabricItemValueDefinitionManager(HolderLookup.Provider provider) {
+    public FabricSlotMachineInputManager(HolderLookup.Provider provider) {
         this.provider = provider;
     }
 

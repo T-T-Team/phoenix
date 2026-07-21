@@ -24,7 +24,7 @@ public final class SlotMachineDataManager extends SimpleJsonResourceReloadListen
     private final Map<Identifier, SlotMachineConfigWithId> slotMachines = new HashMap<>();
 
     public SlotMachineDataManager() {
-        super(SlotMachineConfig.CODEC, FileToIdConverter.json("slot_machines"));
+        super(SlotMachineConfig.CODEC, FileToIdConverter.json("slot_machine/config"));
     }
 
     public Optional<SlotMachineConfig> getSlotMachine(Identifier id) {

@@ -1,0 +1,14 @@
+[
+  {
+    "payout_id": "phoenix:diamond_sword_with_sharpness_1",
+    "payout_price": 15,
+    "item_template": {
+      "id": "minecraft:diamond_sword",
+      "components": {
+        "minecraft:enchantments": {
+          "minecraft:sharpness": 1
+        }
+      }
+    }
+  }
+]

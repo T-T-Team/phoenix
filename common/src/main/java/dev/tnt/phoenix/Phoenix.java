@@ -4,8 +4,9 @@ import com.mojang.logging.LogUtils;
 import dev.tnt.phoenix.block.PhoenixSlotMachineBlock;
 import dev.tnt.phoenix.block.entity.PhoenixSlotMachineBlockEntity;
 import dev.tnt.phoenix.config.PhoenixConfig;
-import dev.tnt.phoenix.data.ItemValueDefinitionManager;
+import dev.tnt.phoenix.data.input.SlotMachineInputManager;
 import dev.tnt.phoenix.data.SlotMachineDataManager;
+import dev.tnt.phoenix.data.payout.SlotMachinePayoutManager;
 import dev.tnt.phoenix.platform.Platform;
 import dev.tnt.phoenix.platform.Services;
 import dev.tnt.phoenix.platform.init.Reference;
@@ -37,7 +38,8 @@ public class Phoenix {
 
     // Data managers
     public static final SlotMachineDataManager SLOT_MACHINES = new SlotMachineDataManager();
-    public static ItemValueDefinitionManager ITEM_VALUES;
+    public static SlotMachineInputManager ITEM_VALUES;
+    public static final SlotMachinePayoutManager PAYOUT_MANAGER = new SlotMachinePayoutManager();
 
     // Slot machine configs
     public static final Identifier SLOT_MACHINE_CONFIG_PHOENIX = identifier("phoenix");

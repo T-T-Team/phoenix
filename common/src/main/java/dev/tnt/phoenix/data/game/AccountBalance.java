@@ -74,6 +74,10 @@ public final class AccountBalance {
         return this.getBalance(BalanceType.WIN);
     }
 
+    public boolean hasSufficientBalance(BalanceType type, int requestAmount) {
+        return this.getBalance(type) >= requestAmount;
+    }
+
     public @Nullable Integer getWinBalanceForDisplay() {
         int balance = this.getWinBalance();
         return balance != 0 ? balance : null;

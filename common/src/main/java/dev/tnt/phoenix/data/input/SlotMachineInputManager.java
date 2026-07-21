@@ -1,7 +1,6 @@
-package dev.tnt.phoenix.data;
+package dev.tnt.phoenix.data.input;
 
 import com.google.common.base.Suppliers;
-import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonElement;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DynamicOps;
@@ -23,18 +22,18 @@ import net.minecraft.world.item.ItemInstance;
 import java.util.*;
 import java.util.function.Supplier;
 
-public abstract class ItemValueDefinitionManager extends SimplePreparableReloadListener<Map<Identifier, List<ItemValueDefinition>>> {
+public abstract class SlotMachineInputManager extends SimplePreparableReloadListener<Map<Identifier, List<SlotMachineInput>>> {
 
     public static final Identifier DATA_MANAGER_IDENTIFIER = Phoenix.identifier("item_value_manager");
-    private final Codec<List<ItemValueDefinition>> codec;
+    private final Codec<List<SlotMachineInput>> codec;
     private final Supplier<DynamicOps<JsonElement>> ops;
     private final FileToIdConverter lister;
-    private final List<ItemValueDefinition> values = new ArrayList<>();
+    private final List<SlotMachineInput> values = new ArrayList<>();
     private final Reference2IntMap<Item> cache = new Reference2IntOpenHashMap<>();
 
-    public ItemValueDefinitionManager() {
-        this.codec = ItemValueDefinition.CODEC.listOf();
-        this.lister = FileToIdConverter.json("slot_machine_values");
+    public SlotMachineInputManager() {
+        this.codec = SlotMachineInput.CODEC.listOf();
+        this.lister = FileToIdConverter.json("slot_machine/input");
         this.ops = Suppliers.memoize(() -> {
             HolderLookup.Provider provider = this.getRegistryProvider();
             return provider.createSerializationContext(JsonOps.INSTANCE);
@@ -59,20 +58,15 @@ public abstract class ItemValueDefinitionManager extends SimplePreparableReloadL
         return value;
     }
 
-
-    public List<ItemValueDefinition> getEntries() {
-        return ImmutableList.copyOf(this.values);
-    }
-
     @Override
-    protected Map<Identifier, List<ItemValueDefinition>> prepare(ResourceManager manager, ProfilerFiller profiler) {
-        Map<Identifier, List<ItemValueDefinition>> result = new HashMap<>();
+    protected Map<Identifier, List<SlotMachineInput>> prepare(ResourceManager manager, ProfilerFiller profiler) {
+        Map<Identifier, List<SlotMachineInput>> result = new HashMap<>();
         SimpleJsonResourceReloadListener.scanDirectory(manager, this.lister, this.ops.get(), this.codec, result);
         return result;
     }
 
     @Override
-    protected void apply(Map<Identifier, List<ItemValueDefinition>> preparations, ResourceManager manager, ProfilerFiller profiler) {
+    protected void apply(Map<Identifier, List<SlotMachineInput>> preparations, ResourceManager manager, ProfilerFiller profiler) {
         this.values.clear();
         this.cache.clear();
         preparations.values().stream()
@@ -82,7 +76,7 @@ public abstract class ItemValueDefinitionManager extends SimplePreparableReloadL
     }
 
     private int lookupValue(Item item) {
-        for (ItemValueDefinition definition : this.values) {
+        for (SlotMachineInput definition : this.values) {
             if (definition.isForItem(item)) {
                 return definition.value();
             }
