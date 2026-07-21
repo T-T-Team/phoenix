@@ -34,8 +34,8 @@ public record WinConfiguration(List<WinPattern> patterns, List<WinCombination> c
             }
             Optional<MatchedWinCombination> patternWin = patternWins.stream()
                     .max(
-                            Comparator.comparingInt(MatchedWinCombination::matchTypeBonus)
-                                    .thenComparingInt(MatchedWinCombination::count)
+                            Comparator.comparingInt(MatchedWinCombination::count)
+                                    .thenComparingInt(MatchedWinCombination::matchTypeBonus)
                                     .thenComparingInt(MatchedWinCombination::amount)
                     );
             patternWin.ifPresent(matchedCombination -> wins.add(matchedCombination.combination()));
