@@ -12,15 +12,15 @@
     "value": 10
   },
   {
-    "item": "minecraft:emerald",
+    "item": "#c:gems/emerald",
     "value": 20
   },
   {
-    "item": "minecraft:diamond",
+    "item": "#c:gems/diamond",
     "value": 50
   },
   {
-    "item": "minecraft:netherite_ingot",
+    "item": "#c:ingots/netherite",
     "value": 500
   }
 ]
