@@ -18,7 +18,7 @@ public final class Game {
     public static final Codec<Game> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             GameType.CODEC.optionalFieldOf("selected_game", GameType.LOW).forGetter(t -> t.selectedGameType),
             Codec.BOOL.optionalFieldOf("risk_hearts", false).forGetter(t -> t.riskHearts),
-            Codec.INT.optionalFieldOf("risk_duration", 0).forGetter(t -> t.riskPlayDuration),
+            Codec.INT.optionalFieldOf("risk_stop_delay", 0).forGetter(t -> t.riskStopDelay),
             Codec.INT.optionalFieldOf("current_risk", 0).forGetter(t -> t.currentRiskValue),
             Codec.BOOL.optionalFieldOf("played", false).forGetter(t -> t.played),
             Codec.INT.listOf().optionalFieldOf("held_slots", Collections.emptyList()).forGetter(t -> new ArrayList<>(t.hold)),
@@ -27,7 +27,7 @@ public final class Game {
 
     private GameType selectedGameType;
     private boolean riskHearts;
-    private int riskPlayDuration;
+    private int riskStopDelay;
     private int currentRiskValue;
     private boolean played;
     private IntSet hold;
@@ -39,10 +39,10 @@ public final class Game {
         return new Game(GameType.LOW, false, 0, 0, false, Collections.emptyList(), false);
     }
 
-    private Game(GameType selectedGameType, boolean riskHearts, int riskPlayDuration, int currentRiskValue, boolean played, List<Integer> hold, boolean riskActive) {
+    private Game(GameType selectedGameType, boolean riskHearts, int riskStopDelay, int currentRiskValue, boolean played, List<Integer> hold, boolean riskActive) {
         this.selectedGameType = selectedGameType;
         this.riskHearts = riskHearts;
-        this.riskPlayDuration = riskPlayDuration;
+        this.riskStopDelay = riskStopDelay;
         this.currentRiskValue = currentRiskValue;
         this.played = played;
         this.hold = new IntOpenHashSet(hold);
@@ -81,14 +81,17 @@ public final class Game {
         this.selectedGameType = EnumHelper.next(this.selectedGameType);
     }
 
-    public void startRisk(int duration, boolean riskHearts) {
+    public void startRiskBet(int riskStopDelay, boolean riskHearts) {
+        this.riskStopDelay = riskStopDelay;
         this.riskHearts = riskHearts;
-        this.riskPlayDuration = duration;
-        this.riskActive = true;
     }
 
     public boolean isRiskActive() {
         return riskActive;
+    }
+
+    public void enableRisk() {
+        this.riskActive = true;
     }
 
     public void cancelRisk() {
@@ -96,9 +99,9 @@ public final class Game {
     }
 
     public void update(PhoenixSlotMachineBlockEntity slotMachine) {
-        if (this.riskPlayDuration > 0) {
+        if (this.riskActive) {
             ++this.currentRiskValue;
-            if (--this.riskPlayDuration <= 0) {
+            if (this.riskStopDelay > 0 && --this.riskStopDelay <= 0) {
                 boolean won = this.riskHearts == this.isHearts();
                 Phoenix.LOGGER.debug("Risk game finished with result: {}", won);
                 this.completeCallbacks.forEach(callback -> callback.onRiskComplete(slotMachine, won));
@@ -118,7 +121,7 @@ public final class Game {
     public void updateFrom(Game other) {
         this.selectedGameType = other.selectedGameType;
         this.riskHearts = other.riskHearts;
-        this.riskPlayDuration = other.riskPlayDuration;
+        this.riskStopDelay = other.riskStopDelay;
         this.currentRiskValue = other.currentRiskValue;
         this.played = other.played;
         this.hold.clear();

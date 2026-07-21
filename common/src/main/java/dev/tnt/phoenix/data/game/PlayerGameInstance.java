@@ -124,7 +124,7 @@ public class PlayerGameInstance {
         RandomSource random = player.getRandom();
         PhoenixConfig config = Phoenix.CONFIG;
         int duration = config.minRiskDuration + random.nextInt(config.additionalRiskDuration);
-        this.game.startRisk(duration, riskHearts);
+        this.game.startRiskBet(duration, riskHearts);
         this.lock(Lock.RISK);
     }
 
@@ -226,6 +226,9 @@ public class PlayerGameInstance {
             if (this.accountBalance.getInputBalance() <= 0) {
                 this.game.setPlayed(false);
             }
+            if (this.accountBalance.getWinBalance() > 0) {
+                this.game.enableRisk();
+            }
         }
         this.updateSlotMachineAndView(slotMachine);
     }
@@ -236,6 +239,8 @@ public class PlayerGameInstance {
         this.accountBalance.clearBalance(BalanceType.WIN);
         if (wonBalance > 0) {
             this.accountBalance.addBalance(Phoenix.CONFIG.riskGameTargetAccount, wonBalance);
+        } else {
+            this.game.cancelRisk();
         }
         this.updateSlotMachineAndView(slotMachine);
     }

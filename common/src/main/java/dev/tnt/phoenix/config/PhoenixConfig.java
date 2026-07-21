@@ -27,18 +27,18 @@ public final class PhoenixConfig {
     public BalanceType riskGameTargetAccount = BalanceType.WIN;
 
     @Configurable
-    @Configurable.Range(min = 2, max = 10)
+    @Configurable.Range(min = 2, max = 20)
     @Configurable.Gui.Slider
     @Configurable.Synchronized
-    public int riskCycleDuration = 3;
+    public int riskCycleDuration = 2;
 
     @Configurable
-    @Configurable.Range(min = 5)
-    public int minRiskDuration = 5;
+    @Configurable.Range(min = 0)
+    public int minRiskDuration = 1;
 
     @Configurable
     @Configurable.Range(min = 1)
-    public int additionalRiskDuration = 40;
+    public int additionalRiskDuration = 10;
 
     @Configurable
     @Configurable.Range(min = 2, max = 5)
