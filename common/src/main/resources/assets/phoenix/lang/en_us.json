@@ -13,5 +13,8 @@
   "label.phoenix.ui.button_bet": "Bet",
   "label.phoenix.ui.button_risk_clubs": "Risk Clubs",
   "label.phoenix.ui.button_risk_hearts": "Risk Hearts",
-  "label.phoenix.ui.button_start": "Start"
+  "label.phoenix.ui.button_start": "Start",
+
+  "gui.phoenix.previous": "Previous",
+  "gui.phoenix.next": "Next"
 }

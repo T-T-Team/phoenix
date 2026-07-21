@@ -16,6 +16,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.List;
@@ -30,6 +31,8 @@ public final class PayoutScreen extends Screen {
     private final int availableBalance;
     private final Reference2IntMap<SlotMachinePayout> cart = new Reference2IntOpenHashMap<>();
     private int checkoutPrice;
+    private int pageDisplayLimit;
+    private int currentPage;
 
     public PayoutScreen(Screen parent, BlockPos pos, List<SlotMachinePayout> definitions, int availableBalance) {
         super(TITLE);
@@ -47,9 +50,12 @@ public final class PayoutScreen extends Screen {
         int itemHeight = 24;
         int columns = (this.width - 10) / itemWidth;
         int rows = (this.height - 25) / itemHeight;
+        this.pageDisplayLimit = columns * rows;
+        int pages = 1 + this.definitions.size() / this.pageDisplayLimit;
+        this.currentPage = Mth.clamp(this.currentPage, 0, pages - 1);
         for (int x = 0; x < columns; x++) {
             for (int y = 0; y < rows; y++) {
-                int index = y + x * rows;
+                int index = (this.currentPage * this.pageDisplayLimit) + y + x * rows;
                 if (index >= this.definitions.size()) {
                     break;
                 }
@@ -89,11 +95,30 @@ public final class PayoutScreen extends Screen {
                 .bounds(this.width - 215, this.height - 21, 50, 16)
                 .build()
         );
+
+        if (pages > 1) {
+            Button prevPage = this.addRenderableWidget(Button.builder(Component.translatable("gui.phoenix.previous"), btn -> this.changePage(-1))
+                    .bounds(5, this.height - 21, 50, 16)
+                    .build()
+            );
+            prevPage.active = this.currentPage > 0;
+
+            Button nextPage = this.addRenderableWidget(Button.builder(Component.translatable("gui.phoenix.next"), btn -> this.changePage(1))
+                    .bounds(100, this.height - 21, 50, 16)
+                    .build()
+            );
+            nextPage.active = this.currentPage < pages - 1;
+        }
     }
 
     @Override
     public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
         super.extractBackground(graphics, mouseX, mouseY, a);
+        int pages = 1 + this.definitions.size() / this.pageDisplayLimit;
+        if (pages > 1) {
+            Component label = Component.literal(this.currentPage + 1 + "/" + pages);
+            graphics.text(this.font, label, 55 + (45 - this.font.width(label)) / 2, this.height - 17, 0xFFFFFFFF);
+        }
     }
 
     @Override
@@ -123,6 +148,11 @@ public final class PayoutScreen extends Screen {
         return this.cart.reference2IntEntrySet().stream()
                 .map(e -> new PayoutRequestEntry(e.getKey().payoutId(), e.getIntValue()))
                 .toList();
+    }
+
+    private void changePage(int offset) {
+        this.currentPage += offset;
+        this.init(this.width, this.height);
     }
 
     private static final class ItemValueWidget extends AbstractWidget {
