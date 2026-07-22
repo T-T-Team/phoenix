@@ -3,6 +3,7 @@ package dev.tnt.phoenix.data.game;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.tnt.phoenix.block.entity.PhoenixSlotMachineBlockEntity;
+import dev.tnt.phoenix.config.PhoenixConfig;
 import net.minecraft.util.Mth;
 
 import java.util.ArrayList;
@@ -29,10 +30,10 @@ public final class SpinWheel {
         this.lastSpinAmount = spinAmount;
     }
 
-    public void update(PhoenixSlotMachineBlockEntity slotMachine) {
+    public void update(PhoenixSlotMachineBlockEntity slotMachine, PhoenixConfig.SpinConfiguration configuration) {
         this.lastSpinAmount = this.spinAmount;
         if (this.spinTime > 0) {
-            this.spinAmount -= 1.0F;
+            this.spinAmount -= configuration.spinSpeed;
             if (--this.spinTime <= 0) {
                 this.normalizeSpinAmount();
                 this.completeCallbacks.forEach(callback -> callback.onSpinComplete(slotMachine, this.spinAmount));

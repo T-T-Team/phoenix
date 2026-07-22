@@ -84,7 +84,8 @@ public class PlayerGameInstance {
         int index = this.game.getSelectedGameType() == GameType.LOW ? 0 : 3;
         for (int i = index; i < index + 3; i++) {
             SpinWheel wheel = this.spinWheels.get(i);
-            wheel.update(slotMachine);
+            PhoenixConfig.SpinConfiguration configuration = index < 3 ? Phoenix.CONFIG.lowSpinConfig : Phoenix.CONFIG.highSpinConfig;
+            wheel.update(slotMachine, configuration);
         }
         this.game.update(slotMachine);
     }
