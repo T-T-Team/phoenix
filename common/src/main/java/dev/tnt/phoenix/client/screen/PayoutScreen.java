@@ -7,6 +7,7 @@ import dev.tnt.phoenix.data.payout.SlotMachinePayout;
 import dev.tnt.phoenix.network.C2S_SlotMachinePayoutRequest;
 import it.unimi.dsi.fastutil.objects.Reference2IntMap;
 import it.unimi.dsi.fastutil.objects.Reference2IntOpenHashMap;
+import net.minecraft.client.gui.ActiveTextCollector;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -46,12 +47,12 @@ public final class PayoutScreen extends Screen {
     @Override
     protected void init() {
         // shop buttons in grid
-        int itemWidth = 120;
+        int itemWidth = 140;
         int itemHeight = 24;
         int columns = (this.width - 10) / itemWidth;
         int rows = (this.height - 25) / itemHeight;
         this.pageDisplayLimit = columns * rows;
-        int pages = 1 + this.definitions.size() / this.pageDisplayLimit;
+        int pages = this.getPageCount();
         this.currentPage = Mth.clamp(this.currentPage, 0, pages - 1);
         for (int x = 0; x < columns; x++) {
             for (int y = 0; y < rows; y++) {
@@ -114,7 +115,7 @@ public final class PayoutScreen extends Screen {
     @Override
     public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
         super.extractBackground(graphics, mouseX, mouseY, a);
-        int pages = 1 + this.definitions.size() / this.pageDisplayLimit;
+        int pages = this.getPageCount();
         if (pages > 1) {
             Component label = Component.literal(this.currentPage + 1 + "/" + pages);
             graphics.text(this.font, label, 55 + (45 - this.font.width(label)) / 2, this.height - 17, 0xFFFFFFFF);
@@ -155,6 +156,10 @@ public final class PayoutScreen extends Screen {
         this.init(this.width, this.height);
     }
 
+    private int getPageCount() {
+        return 1 + (this.definitions.size() - 1) / this.pageDisplayLimit;
+    }
+
     private static final class ItemValueWidget extends AbstractWidget {
 
         private final Font font;
@@ -178,7 +183,9 @@ public final class PayoutScreen extends Screen {
             Component quantityLabel = Component.literal(String.valueOf(this.quantity));
             int quantityWidth = this.font.width(quantityLabel);
             graphics.enableScissor(this.getX(), this.getY(), this.getRight() - 14 - quantityWidth, this.getBottom());
-            graphics.text(this.font, this.getMessage(), this.getX() + 24, this.getY() + 2, 0xFFFFFFFF);
+            ActiveTextCollector textRenderer = graphics.textRenderer();
+            textRenderer.acceptScrolling(this.getMessage(), this.getX() + 24, this.getX() + 24, this.getRight() - 14 - quantityWidth, this.getY() + 2, this.getY() + 12);
+            //graphics.text(this.font, this.getMessage(), this.getX() + 24, this.getY() + 2, 0xFFFFFFFF);
             graphics.text(this.font, Component.literal(String.valueOf(this.payout.price())), this.getX() + 24, this.getY() + 14, 0xFFFFFFFF);
             graphics.disableScissor();
 
