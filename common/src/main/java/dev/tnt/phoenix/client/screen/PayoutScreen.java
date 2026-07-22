@@ -87,10 +87,11 @@ public final class PayoutScreen extends Screen {
         widget.setTextCorrectionOffset(0.5F, 0.5F);
 
         // confirm button
-        this.addRenderableWidget(Button.builder(CommonComponents.GUI_PROCEED, this::confirmButtonClicked)
+        Button confirmButton = this.addRenderableWidget(Button.builder(CommonComponents.GUI_PROCEED, this::confirmButtonClicked)
                 .bounds(this.width - 160, this.height - 21, 50, 16)
                 .build()
         );
+        confirmButton.active = this.checkoutPrice > 0;
         // cancel button
         this.addRenderableWidget(Button.builder(CommonComponents.GUI_CANCEL, this::cancelButtonClicked)
                 .bounds(this.width - 215, this.height - 21, 50, 16)
@@ -182,12 +183,9 @@ public final class PayoutScreen extends Screen {
 
             Component quantityLabel = Component.literal(String.valueOf(this.quantity));
             int quantityWidth = this.font.width(quantityLabel);
-            graphics.enableScissor(this.getX(), this.getY(), this.getRight() - 14 - quantityWidth, this.getBottom());
             ActiveTextCollector textRenderer = graphics.textRenderer();
             textRenderer.acceptScrolling(this.getMessage(), this.getX() + 24, this.getX() + 24, this.getRight() - 14 - quantityWidth, this.getY() + 2, this.getY() + 12);
-            //graphics.text(this.font, this.getMessage(), this.getX() + 24, this.getY() + 2, 0xFFFFFFFF);
             graphics.text(this.font, Component.literal(String.valueOf(this.payout.price())), this.getX() + 24, this.getY() + 14, 0xFFFFFFFF);
-            graphics.disableScissor();
 
             graphics.text(this.font, quantityLabel, this.getX() + this.getWidth() - quantityWidth - 12, this.getY() + (this.getHeight() - this.font.lineHeight) / 2 + 1, 0xFFFFFFFF);
 
