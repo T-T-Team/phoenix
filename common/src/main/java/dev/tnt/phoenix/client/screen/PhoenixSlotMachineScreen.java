@@ -107,7 +107,7 @@ public class PhoenixSlotMachineScreen extends Screen {
         lowWinsWidget.setTextColor(0xFFDDDD00);
         lowWinsWidget.setDisabledTextColor(0xFFAAAA00);
         lowWinsWidget.setBlankSprite(BLANK);
-        lowWinsWidget.active = activeGameType == GameType.LOW;
+        lowWinsWidget.active = activeGameType == GameType.LOW && (balance.getInputBalance() > 0 || balance.getMultiWinBalance() > 0 || data.getLockReason() == LockReason.SPIN || data.getLockReason() == LockReason.RISK);
 
         // win combinations - special
         IconButtonWithHighlightWidget firstButton = this.holdButtons.getFirst();
@@ -118,7 +118,7 @@ public class PhoenixSlotMachineScreen extends Screen {
         specialWinsWidget.setTextColor(0xFFDDDD00);
         specialWinsWidget.setDisabledTextColor(0xFFAAAA00);
         specialWinsWidget.setOffsets(2);
-        specialWinsWidget.active = activeGameType == GameType.LOW;
+        specialWinsWidget.active = activeGameType == GameType.LOW && (balance.getInputBalance() > 0 || balance.getMultiWinBalance() > 0 || data.getLockReason() == LockReason.SPIN || data.getLockReason() == LockReason.RISK);
 
         // bet multiplier
         BalanceWidget betAmount = this.addRenderableOnly(new BalanceWidget(this.leftPos + 10, firstButton.getY() - 100, 41, 16, data::getBetMultiplierValue, this.font));
@@ -178,13 +178,14 @@ public class PhoenixSlotMachineScreen extends Screen {
 
     private void addSpinWheels(PlayerGameInstance instance, SlotMachineConfig config, WinConfiguration low, WinConfiguration high) {
         GameType activeGame = instance.getGame().getSelectedGameType();
+        AccountBalance account = instance.getAccountBalance();
         // wheels
         for (int i = 0; i < this.holdButtons.size(); i++) {
             IconButtonWithHighlightWidget holdButton = this.holdButtons.get(i);
             int offset = (i - 1) * 5;
             SpinWheel lowSpinWheel = instance.getSpinWheel(GameType.LOW, i);
             SpinWheelWidget lowWidget = this.addRenderableOnly(new SpinWheelWidget(holdButton.getX() - 2 + offset, holdButton.getY() - 89, holdButton.getWidth() + 4, 55, config, lowSpinWheel));
-            lowWidget.active = activeGame == GameType.LOW;
+            lowWidget.active = activeGame == GameType.LOW && (account.getInputBalance() > 0 || account.getMultiWinBalance() > 0 || instance.getLockReason() == LockReason.SPIN || instance.getLockReason() == LockReason.RISK);
             lowWidget.setSpriteType(lowWidget.active ? SpriteType.DEFAULT : SpriteType.DISABLED);
 
             SpinWheel highSpinWheel = instance.getSpinWheel(GameType.HIGH, i);
@@ -203,10 +204,10 @@ public class PhoenixSlotMachineScreen extends Screen {
         int rowTop = this.topPos + CONTENT_HEIGHT - 20;
 
         IconButtonWithHighlightWidget advancedButton = this.addRenderableWidget(new IconButtonWithHighlightWidget(rowLeft, rowTop, 16, 16, Component.translatable("label.phoenix.ui.button_advanced"), BUTTON_ADVANCED, this::onAdvancedButtonClicked));
-        advancedButton.active = !instance.isLocked(); // TODO better logic
+        advancedButton.active = !instance.isLocked() && ((account.getInputBalance() > 0 && account.getMultiWinBalance() >= instance.getCost(GameType.HIGH)) || game.getSelectedGameType().isHigh());
 
         IconButtonWithHighlightWidget betButton = this.addRenderableWidget(new IconButtonWithHighlightWidget(rowLeft + buttonWidth, rowTop, 16, 16, Component.translatable("label.phoenix.ui.button_bet"), BUTTON_BET, this::onBetButtonClicked));
-        betButton.active = !instance.isLocked(); // TODO and no wheel held
+        betButton.active = !instance.isLocked() && (account.getInputBalance() > 0 || account.getMultiWinBalance() > 0) && game.getHeldCount() == 0;
 
         for (int i = 0; i < SPIN_WHEELS; i++) {
             int posIndex = i + 2;

@@ -9,10 +9,10 @@ import dev.toma.configuration.config.Configurable;
 public final class PhoenixConfig {
 
     @Configurable
-    public SpinConfiguration lowSpinConfig = new SpinConfiguration(30, 5, 15, 0.8F);
+    public SpinConfiguration lowSpinConfig = new SpinConfiguration(30, 5, 15, 0.9F);
 
     @Configurable
-    public SpinConfiguration highSpinConfig = new SpinConfiguration(30, 5, 15, 0.8F);
+    public SpinConfiguration highSpinConfig = new SpinConfiguration(30, 5, 15, 0.9F);
 
     @Configurable
     @Configurable.Synchronized
@@ -33,12 +33,12 @@ public final class PhoenixConfig {
     public int riskCycleDuration = 2;
 
     @Configurable
-    @Configurable.Range(min = 0)
+    @Configurable.Range(min = 1)
     public int minRiskDuration = 1;
 
     @Configurable
     @Configurable.Range(min = 1)
-    public int additionalRiskDuration = 10;
+    public int additionalRiskDuration = 1;
 
     @Configurable
     @Configurable.Range(min = 2, max = 5)
