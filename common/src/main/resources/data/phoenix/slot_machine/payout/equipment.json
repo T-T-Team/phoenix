@@ -1,0 +1,76 @@
+[
+  {
+    "payout_id": "phoenix:netherite_helmet",
+    "payout_price": 15000,
+    "item_template": {
+      "id": "minecraft:netherite_helmet",
+      "components": {
+        "minecraft:enchantments": {
+          "minecraft:mending": 1,
+          "minecraft:protection": 5,
+          "minecraft:unbreaking": 5,
+          "minecraft:aqua_affinity": 1,
+          "minecraft:respiration": 5
+        }
+      }
+    }
+  },
+  {
+    "payout_id": "phoenix:netherite_chestplate",
+    "payout_price": 15000,
+    "item_template": {
+      "id": "minecraft:netherite_chestplate",
+      "components": {
+        "minecraft:enchantments": {
+          "minecraft:mending": 1,
+          "minecraft:protection": 5,
+          "minecraft:unbreaking": 5
+        }
+      }
+    }
+  },
+  {
+    "payout_id": "phoenix:netherite_leggings",
+    "payout_price": 15000,
+    "item_template": {
+      "id": "minecraft:netherite_leggings",
+      "components": {
+        "minecraft:enchantments": {
+          "minecraft:mending": 1,
+          "minecraft:protection": 5,
+          "minecraft:unbreaking": 5
+        }
+      }
+    }
+  },
+  {
+    "payout_id": "phoenix:netherite_boots",
+    "payout_price": 15000,
+    "item_template": {
+      "id": "minecraft:netherite_boots",
+      "components": {
+        "minecraft:enchantments": {
+          "minecraft:mending": 1,
+          "minecraft:protection": 5,
+          "minecraft:unbreaking": 5,
+          "minecraft:depth_strider": 3,
+          "minecraft:feather_falling": 5
+        }
+      }
+    }
+  },
+  {
+    "payout_id": "phoenix:netherite_horse_armor",
+    "payout_price": 1200,
+    "item_template": {
+      "id": "minecraft:netherite_horse_armor"
+    }
+  },
+  {
+    "payout_id": "phoenix:netherite_horse_armor",
+    "payout_price": 1200,
+    "item_template": {
+      "id": "minecraft:netherite_horse_armor"
+    }
+  }
+]

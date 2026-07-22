@@ -1,0 +1,205 @@
+[
+  {
+    "payout_id": "phoenix:steak",
+    "payout_price": 10,
+    "item_template": {
+      "id": "minecraft:cooked_beef"
+    }
+  },
+  {
+    "payout_id": "phoenix:copper_ingot",
+    "payout_price": 1,
+    "item_template": {
+      "id": "minecraft:copper_ingot"
+    }
+  },
+  {
+    "payout_id": "phoenix:iron_ingot",
+    "payout_price": 5,
+    "item_template": {
+      "id": "minecraft:iron_ingot"
+    }
+  },
+  {
+    "payout_id": "phoenix:gold_ingot",
+    "payout_price": 10,
+    "item_template": {
+      "id": "minecraft:gold_ingot"
+    }
+  },
+  {
+    "payout_id": "phoenix:emerald",
+    "payout_price": 20,
+    "item_template": {
+      "id": "minecraft:emerald"
+    }
+  },
+  {
+    "payout_id": "phoenix:diamond",
+    "payout_price": 50,
+    "item_template": {
+      "id": "minecraft:diamond"
+    }
+  },
+  {
+    "payout_id": "phoenix:netherite_ingot",
+    "payout_price": 500,
+    "item_template": {
+      "id": "minecraft:netherite_ingot"
+    }
+  },
+  {
+    "payout_id": "phoenix:amethyst_shard",
+    "payout_price": 15,
+    "item_template": {
+      "id": "minecraft:amethyst_shard"
+    }
+  },
+  {
+    "payout_id": "phoenix:lapis_block",
+    "payout_price": 20,
+    "item_template": {
+      "id": "minecraft:lapis_block"
+    }
+  },
+  {
+    "payout_id": "phoenix:redstone_block",
+    "payout_price": 15,
+    "item_template": {
+      "id": "minecraft:redstone_block"
+    }
+  },
+  {
+    "payout_id": "phoenix:redstone_block",
+    "payout_price": 15,
+    "item_template": {
+      "id": "minecraft:redstone_block"
+    }
+  },
+  {
+    "payout_id": "phoenix:bone",
+    "payout_price": 2,
+    "item_template": {
+      "id": "minecraft:bone"
+    }
+  },
+  {
+    "payout_id": "phoenix:string",
+    "payout_price": 2,
+    "item_template": {
+      "id": "minecraft:string"
+    }
+  },
+  {
+    "payout_id": "phoenix:oak_log",
+    "payout_price": 2,
+    "item_template": {
+      "id": "minecraft:oak_log"
+    }
+  },
+  {
+    "payout_id": "phoenix:leather",
+    "payout_price": 3,
+    "item_template": {
+      "id": "minecraft:leather"
+    }
+  },
+  {
+    "payout_id": "phoenix:slime_ball",
+    "payout_price": 3,
+    "item_template": {
+      "id": "minecraft:slime_ball"
+    }
+  },
+  {
+    "payout_id": "phoenix:clay_ball",
+    "payout_price": 1,
+    "item_template": {
+      "id": "minecraft:clay_ball"
+    }
+  },
+  {
+    "payout_id": "phoenix:cobblestone",
+    "payout_price": 1,
+    "item_template": {
+      "id": "minecraft:cobblestone"
+    }
+  },
+  {
+    "payout_id": "phoenix:blaze_rod",
+    "payout_price": 20,
+    "item_template": {
+      "id": "minecraft:blaze_rod"
+    }
+  },
+  {
+    "payout_id": "phoenix:breeze_rod",
+    "payout_price": 25,
+    "item_template": {
+      "id": "minecraft:breeze_rod"
+    }
+  },
+  {
+    "payout_id": "phoenix:ender_pearl",
+    "payout_price": 25,
+    "item_template": {
+      "id": "minecraft:ender_pearl"
+    }
+  },
+  {
+    "payout_id": "phoenix:shulker_shell",
+    "payout_price": 150,
+    "item_template": {
+      "id": "minecraft:shulker_shell"
+    }
+  },
+  {
+    "payout_id": "phoenix:nether_star",
+    "payout_price": 1500,
+    "item_template": {
+      "id": "minecraft:nether_star"
+    }
+  },
+  {
+    "payout_id": "phoenix:nether_wart",
+    "payout_price": 5,
+    "item_template": {
+      "id": "minecraft:nether_wart"
+    }
+  },
+  {
+    "payout_id": "phoenix:ghast_tear",
+    "payout_price": 40,
+    "item_template": {
+      "id": "minecraft:ghast_tear"
+    }
+  },
+  {
+    "payout_id": "phoenix:dragon_breath",
+    "payout_price": 50,
+    "item_template": {
+      "id": "minecraft:dragon_breath"
+    }
+  },
+  {
+    "payout_id": "phoenix:golden_apple",
+    "payout_price": 100,
+    "item_template": {
+      "id": "minecraft:golden_apple"
+    }
+  },
+  {
+    "payout_id": "phoenix:enchanted_golden_apple",
+    "payout_price": 1000,
+    "item_template": {
+      "id": "minecraft:enchanted_golden_apple"
+    }
+  },
+  {
+    "payout_id": "phoenix:totem_of_undying",
+    "payout_price": 2000,
+    "item_template": {
+      "id": "minecraft:totem_of_undying"
+    }
+  }
+]
