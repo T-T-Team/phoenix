@@ -95,6 +95,7 @@ public class PlayerGameInstance {
     }
 
     public void startPlaying(PhoenixSlotMachineBlockEntity slotMachine, Player player) {
+        this.winInfo.reset();
         if (this.accountBalance.getWinBalance() > 0) {
             this.accountBalance.transferBalance(BalanceType.WIN, BalanceType.MULTIWIN);
         } else {
@@ -196,6 +197,10 @@ public class PlayerGameInstance {
         return betMultiplier;
     }
 
+    public GameWinInfo getWinInfo() {
+        return winInfo;
+    }
+
     public int getCost(GameType type) {
         int cost = 1;
         if (type.isHigh())
@@ -248,6 +253,7 @@ public class PlayerGameInstance {
             this.accountBalance.addBalance(Phoenix.CONFIG.riskGameTargetAccount, wonBalance);
         } else {
             this.game.cancelRisk();
+            this.winInfo.reset();
         }
         this.updateSlotMachineAndView(slotMachine);
     }
@@ -272,9 +278,9 @@ public class PlayerGameInstance {
         }
     }
 
-    private void onWinHighlightFinished(PhoenixSlotMachineBlockEntity slotMachine, int remainingAnims) {
+    private void onWinHighlightFinished(PhoenixSlotMachineBlockEntity slotMachine) {
         // TODO money transfer event
-        MatchedWinCombination winCombination = this.winInfo.getCurrentWinCombinationForAnimation(remainingAnims);
+        MatchedWinCombination winCombination = this.winInfo.getAnimatedWinCombination();
         Phoenix.LOGGER.debug("Winning combination match found: {}", winCombination);
         BalanceType targetAccount = this.game.getSelectedGameType().isHigh() ? Phoenix.CONFIG.highGameTargetAccount : Phoenix.CONFIG.lowGameTargetAccount;
         this.accountBalance.addBalance(targetAccount, this.betMultiplier.getValue(winCombination.amount()));
