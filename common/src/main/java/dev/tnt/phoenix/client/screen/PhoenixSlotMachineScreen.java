@@ -99,6 +99,7 @@ public class PhoenixSlotMachineScreen extends Screen {
 
         // win combinations - low
         GameType activeGameType = data.getGame().getSelectedGameType();
+        boolean isLowGameAvailable = activeGameType == GameType.LOW && (balance.getInputBalance() > 0 || balance.getMultiWinBalance() > 0 || data.getLock().hasTag(Lock.LockTag.GAME));
         List<WinCombination> winCombinationsDisplay = lowConfiguration.getDisplayableCombinations(true);
         WinCombinationsWidget lowWinsWidget = this.addRenderableOnly(new WinCombinationsWidget(this.leftPos + 10, this.topPos + CONTENT_HEIGHT - 51, CONTENT_WIDTH - 20, 30, this.font, config, winCombinationsDisplay));
         lowWinsWidget.setGrid(3, 6, 3);
@@ -107,7 +108,7 @@ public class PhoenixSlotMachineScreen extends Screen {
         lowWinsWidget.setTextColor(0xFFDDDD00);
         lowWinsWidget.setDisabledTextColor(0xFFAAAA00);
         lowWinsWidget.setBlankSprite(BLANK);
-        lowWinsWidget.active = activeGameType == GameType.LOW && (balance.getInputBalance() > 0 || balance.getMultiWinBalance() > 0 || data.getLockReason() == LockReason.SPIN || data.getLockReason() == LockReason.RISK);
+        lowWinsWidget.active = isLowGameAvailable;
 
         // win combinations - special
         IconButtonWithHighlightWidget firstButton = this.holdButtons.getFirst();
@@ -118,7 +119,7 @@ public class PhoenixSlotMachineScreen extends Screen {
         specialWinsWidget.setTextColor(0xFFDDDD00);
         specialWinsWidget.setDisabledTextColor(0xFFAAAA00);
         specialWinsWidget.setOffsets(2);
-        specialWinsWidget.active = activeGameType == GameType.LOW && (balance.getInputBalance() > 0 || balance.getMultiWinBalance() > 0 || data.getLockReason() == LockReason.SPIN || data.getLockReason() == LockReason.RISK);
+        specialWinsWidget.active = isLowGameAvailable;
 
         // bet multiplier
         BalanceWidget betAmount = this.addRenderableOnly(new BalanceWidget(this.leftPos + 10, firstButton.getY() - 100, 41, 16, data::getBetMultiplierValue, this.font));

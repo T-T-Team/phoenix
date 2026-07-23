@@ -155,6 +155,10 @@ public class PlayerGameInstance {
         return this.lock.locked();
     }
 
+    public Lock getLock() {
+        return lock;
+    }
+
     public LockReason getLockReason() {
         return this.lock.reason();
     }
@@ -229,6 +233,9 @@ public class PlayerGameInstance {
             }
             if (this.accountBalance.getWinBalance() > 0) {
                 this.game.enableRisk();
+            }
+            if (this.game.getSelectedGameType().isHigh() && this.accountBalance.getMultiWinBalance() < this.getCost(GameType.HIGH)) {
+                this.game.changeGameType();
             }
         }
         this.updateSlotMachineAndView(slotMachine);
