@@ -22,14 +22,14 @@ public record WinConfiguration(List<WinPattern> patterns, List<WinCombination> c
             WinConfiguration::new
     );
 
-    public List<WinCombination> resolveWins(List<String> wildcardSymbols, List<SpinWheel> spinWheels) {
-        List<WinCombination> wins = new ArrayList<>();
+    public List<MatchedWinCombination> resolveWins(List<String> wildcardSymbols, List<SpinWheel> spinWheels) {
+        List<MatchedWinCombination> wins = new ArrayList<>();
         for (WinPattern pattern : this.patterns) {
             List<MatchedWinCombination> patternWins = new ArrayList<>();
             for (WinCombination combination : this.combinations) {
                 MatchType result = pattern.test(combination, spinWheels, wildcardSymbols);
                 if (result.isWinningMatch()) {
-                    patternWins.add(MatchedWinCombination.of(result, combination));
+                    patternWins.add(MatchedWinCombination.of(result, pattern, combination));
                 }
             }
             Optional<MatchedWinCombination> patternWin = patternWins.stream()
@@ -38,7 +38,7 @@ public record WinConfiguration(List<WinPattern> patterns, List<WinCombination> c
                                     .thenComparingInt(MatchedWinCombination::matchTypeBonus)
                                     .thenComparingInt(MatchedWinCombination::amount)
                     );
-            patternWin.ifPresent(matchedCombination -> wins.add(matchedCombination.combination()));
+            patternWin.ifPresent(wins::add);
         }
         return wins;
     }
@@ -100,21 +100,6 @@ public record WinConfiguration(List<WinPattern> patterns, List<WinCombination> c
 
         public boolean isWinningMatch() {
             return this != MISMATCH;
-        }
-    }
-
-    private record MatchedWinCombination(int matchTypeBonus, WinCombination combination) {
-
-        static MatchedWinCombination of(MatchType type, WinCombination combination) {
-            return new MatchedWinCombination(type.ordinal() - 1, combination);
-        }
-
-        public int count() {
-            return this.combination.count();
-        }
-
-        public int amount() {
-            return this.combination.amount();
         }
     }
 }

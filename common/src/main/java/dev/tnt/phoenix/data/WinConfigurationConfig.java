@@ -19,7 +19,7 @@ public record WinConfigurationConfig(List<String> wildcards, Map<GameType, WinCo
         return this.gameConfiguration.get(gameType);
     }
 
-    public List<WinCombination> resolveWins(GameType gameType, List<SpinWheel> spinWheels) {
+    public List<MatchedWinCombination> resolveWins(GameType gameType, List<SpinWheel> spinWheels) {
         WinConfiguration configuration = this.getConfigForGame(gameType);
         return configuration.resolveWins(this.wildcards, spinWheels);
     }

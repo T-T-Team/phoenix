@@ -5,10 +5,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.tnt.phoenix.Phoenix;
 import dev.tnt.phoenix.block.entity.PhoenixSlotMachineBlockEntity;
 import dev.tnt.phoenix.config.PhoenixConfig;
-import dev.tnt.phoenix.data.GameType;
-import dev.tnt.phoenix.data.SlotMachineConfig;
-import dev.tnt.phoenix.data.WinCombination;
-import dev.tnt.phoenix.data.WinConfigurationConfig;
+import dev.tnt.phoenix.data.*;
 import dev.tnt.phoenix.util.EnumHelper;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.server.level.ServerPlayer;
@@ -28,6 +25,7 @@ public class PlayerGameInstance {
             AccountBalance.CODEC.fieldOf("account_balance").forGetter(PlayerGameInstance::getAccountBalance),
             Game.CODEC.fieldOf("active_spin").forGetter(t -> t.game),
             SpinWheel.CODEC.listOf().fieldOf("spin_wheels").forGetter(t -> t.spinWheels),
+            GameWinInfo.CODEC.optionalFieldOf("game_win_info", GameWinInfo.create()).forGetter(t -> t.winInfo),
             BetMultiplier.CODEC.optionalFieldOf("bet_multiplier", BetMultiplier.X1).forGetter(t -> t.betMultiplier),
             Codec.INT.optionalFieldOf("spins", 0).forGetter(t -> t.pendingSpins),
             Lock.CODEC.optionalFieldOf("lock", Lock.EMPTY).forGetter(t -> t.lock)
@@ -37,15 +35,17 @@ public class PlayerGameInstance {
     private final AccountBalance accountBalance;
     private final Game game;
     private final List<SpinWheel> spinWheels;
+    private final GameWinInfo winInfo;
     private BetMultiplier betMultiplier;
     private int pendingSpins;
     private Lock lock;
 
-    private PlayerGameInstance(UUID owner, AccountBalance accountBalance, Game game, List<SpinWheel> spinWheels, BetMultiplier betMultiplier, int pendingSpins, Lock lock) {
+    private PlayerGameInstance(UUID owner, AccountBalance accountBalance, Game game, List<SpinWheel> spinWheels, GameWinInfo winInfo, BetMultiplier betMultiplier, int pendingSpins, Lock lock) {
         this.owner = owner;
         this.accountBalance = accountBalance;
         this.game = game;
         this.spinWheels = spinWheels;
+        this.winInfo = winInfo;
         this.betMultiplier = betMultiplier;
         this.pendingSpins = pendingSpins;
         this.lock = lock;
@@ -54,6 +54,8 @@ public class PlayerGameInstance {
             spinWheel.addSpinCompleteListener(this::onSpinComplete);
         }
         this.game.addRiskCompleteListener(this::onRiskFinished);
+        this.winInfo.setHighlightCompleteCallback(this::onWinHighlightFinished);
+        this.winInfo.setAnimationCompleteCallback(this::onWinAnimationFinished);
     }
 
     public static PlayerGameInstance createForPlayer(ServerPlayer player, SlotMachineConfig config) {
@@ -74,6 +76,7 @@ public class PlayerGameInstance {
                 AccountBalance.createDefault(),
                 game,
                 spinWheelList,
+                GameWinInfo.create(),
                 BetMultiplier.X1,
                 0,
                 Lock.EMPTY
@@ -88,6 +91,7 @@ public class PlayerGameInstance {
             wheel.update(slotMachine, configuration);
         }
         this.game.update(slotMachine);
+        this.winInfo.update(slotMachine);
     }
 
     public void startPlaying(PhoenixSlotMachineBlockEntity slotMachine, Player player) {
@@ -202,6 +206,7 @@ public class PlayerGameInstance {
     public PlayerGameInstance update(PlayerGameInstance holder) {
         this.accountBalance.updateFrom(holder.accountBalance);
         this.game.updateFrom(holder.game);
+        this.winInfo.update(holder.winInfo);
         this.betMultiplier = holder.betMultiplier;
         this.pendingSpins = holder.pendingSpins;
         this.lock = holder.lock;
@@ -217,22 +222,16 @@ public class PlayerGameInstance {
             GameType gameType = this.game.getSelectedGameType();
             WinConfigurationConfig winConfiguration = config.getWinningConfiguration();
             List<SpinWheel> spinWheels = this.getSpinWheelsForGame(gameType);
-            List<WinCombination> wins = winConfiguration.resolveWins(gameType, spinWheels);
-            for (WinCombination winningCombination : wins) {
-                Phoenix.LOGGER.debug("Winning combination match found: {}", winningCombination);
-                BalanceType targetAccount = gameType.isHigh() ? Phoenix.CONFIG.highGameTargetAccount : Phoenix.CONFIG.lowGameTargetAccount;
-                this.accountBalance.addBalance(targetAccount, this.betMultiplier.getValue(winningCombination.amount()));
-            }
+            List<MatchedWinCombination> wins = winConfiguration.resolveWins(gameType, spinWheels);
+            this.winInfo.assignWinCombination(wins);
             if (!wins.isEmpty()) {
                 this.game.setPlayed(false);
+            } else {
+                this.game.clearHold();
+                this.unlock();
             }
-            this.unlock(Lock.SPIN);
-            this.game.clearHold();
             if (this.accountBalance.getInputBalance() <= 0) {
                 this.game.setPlayed(false);
-            }
-            if (this.accountBalance.getWinBalance() > 0) {
-                this.game.enableRisk();
             }
             if (this.game.getSelectedGameType().isHigh() && this.accountBalance.getMultiWinBalance() < this.getCost(GameType.HIGH)) {
                 this.game.changeGameType();
@@ -271,5 +270,23 @@ public class PlayerGameInstance {
         if (player != null) {
             slotMachine.updatePlayerView(player);
         }
+    }
+
+    private void onWinHighlightFinished(PhoenixSlotMachineBlockEntity slotMachine, int remainingAnims) {
+        // TODO money transfer event
+        MatchedWinCombination winCombination = this.winInfo.getCurrentWinCombinationForAnimation(remainingAnims);
+        Phoenix.LOGGER.debug("Winning combination match found: {}", winCombination);
+        BalanceType targetAccount = this.game.getSelectedGameType().isHigh() ? Phoenix.CONFIG.highGameTargetAccount : Phoenix.CONFIG.lowGameTargetAccount;
+        this.accountBalance.addBalance(targetAccount, this.betMultiplier.getValue(winCombination.amount()));
+        this.updateSlotMachineAndView(slotMachine);
+    }
+
+    private void onWinAnimationFinished(PhoenixSlotMachineBlockEntity slotMachine) {
+        this.unlock();
+        this.game.clearHold();
+        if (this.accountBalance.getWinBalance() > 0) {
+            this.game.enableRisk();
+        }
+        this.updateSlotMachineAndView(slotMachine);
     }
 }
