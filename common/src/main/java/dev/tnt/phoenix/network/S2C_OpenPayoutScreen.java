@@ -1,9 +1,8 @@
 package dev.tnt.phoenix.network;
 
 import dev.tnt.phoenix.Phoenix;
-import dev.tnt.phoenix.client.screen.PayoutScreen;
+import dev.tnt.phoenix.client.PhoenixClient;
 import dev.tnt.phoenix.data.payout.SlotMachinePayout;
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -30,7 +29,6 @@ public record S2C_OpenPayoutScreen(BlockPos pos, List<SlotMachinePayout> payouts
     }
 
     public void handle() {
-        Minecraft minecraft = Minecraft.getInstance();
-        minecraft.gui.setScreen(new PayoutScreen(minecraft.gui.screen(), this.pos, this.payouts, this.balance));
+        PhoenixClient.handlePayoutScreenOpenRequest(this);
     }
 }

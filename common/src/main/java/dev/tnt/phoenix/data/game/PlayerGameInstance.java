@@ -16,6 +16,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public class PlayerGameInstance {
@@ -26,6 +27,7 @@ public class PlayerGameInstance {
             Game.CODEC.fieldOf("active_spin").forGetter(t -> t.game),
             SpinWheel.CODEC.listOf().fieldOf("spin_wheels").forGetter(t -> t.spinWheels),
             GameWinInfo.CODEC.optionalFieldOf("game_win_info", GameWinInfo.create()).forGetter(t -> t.winInfo),
+            MoneyTransfer.CODEC.optionalFieldOf("money_transfer", MoneyTransfer.createInitial()).forGetter(t -> t.moneyTransfer),
             BetMultiplier.CODEC.optionalFieldOf("bet_multiplier", BetMultiplier.X1).forGetter(t -> t.betMultiplier),
             Codec.INT.optionalFieldOf("spins", 0).forGetter(t -> t.pendingSpins),
             Lock.CODEC.optionalFieldOf("lock", Lock.EMPTY).forGetter(t -> t.lock)
@@ -36,16 +38,18 @@ public class PlayerGameInstance {
     private final Game game;
     private final List<SpinWheel> spinWheels;
     private final GameWinInfo winInfo;
+    private final MoneyTransfer moneyTransfer;
     private BetMultiplier betMultiplier;
     private int pendingSpins;
     private Lock lock;
 
-    private PlayerGameInstance(UUID owner, AccountBalance accountBalance, Game game, List<SpinWheel> spinWheels, GameWinInfo winInfo, BetMultiplier betMultiplier, int pendingSpins, Lock lock) {
+    private PlayerGameInstance(UUID owner, AccountBalance accountBalance, Game game, List<SpinWheel> spinWheels, GameWinInfo winInfo, MoneyTransfer moneyTransfer, BetMultiplier betMultiplier, int pendingSpins, Lock lock) {
         this.owner = owner;
         this.accountBalance = accountBalance;
         this.game = game;
         this.spinWheels = spinWheels;
         this.winInfo = winInfo;
+        this.moneyTransfer = moneyTransfer;
         this.betMultiplier = betMultiplier;
         this.pendingSpins = pendingSpins;
         this.lock = lock;
@@ -56,6 +60,7 @@ public class PlayerGameInstance {
         this.game.addRiskCompleteListener(this::onRiskFinished);
         this.winInfo.setHighlightCompleteCallback(this::onWinHighlightFinished);
         this.winInfo.setAnimationCompleteCallback(this::onWinAnimationFinished);
+        this.moneyTransfer.setTransferHandler(this::handleMoneyTransfer);
     }
 
     public static PlayerGameInstance createForPlayer(ServerPlayer player, SlotMachineConfig config) {
@@ -77,6 +82,7 @@ public class PlayerGameInstance {
                 game,
                 spinWheelList,
                 GameWinInfo.create(),
+                MoneyTransfer.createInitial(),
                 BetMultiplier.X1,
                 0,
                 Lock.EMPTY
@@ -90,6 +96,7 @@ public class PlayerGameInstance {
             PhoenixConfig.SpinConfiguration configuration = index < 3 ? Phoenix.CONFIG.lowSpinConfig : Phoenix.CONFIG.highSpinConfig;
             wheel.update(slotMachine, configuration);
         }
+        this.moneyTransfer.tick(slotMachine);
         this.game.update(slotMachine);
         this.winInfo.update(slotMachine);
     }
@@ -201,6 +208,11 @@ public class PlayerGameInstance {
         return winInfo;
     }
 
+    public void startMoneyTransfer(MoneyTransfer.TransferInitiatorType initiatorType, Optional<BalanceType> sourceAccount, BalanceType targetAccount, int amount, int totalDuration) {
+        this.lock(Lock.TRANSFER);
+        this.moneyTransfer.initiate(sourceAccount, targetAccount, amount, totalDuration, initiatorType);
+    }
+
     public int getCost(GameType type) {
         int cost = 1;
         if (type.isHigh())
@@ -212,6 +224,7 @@ public class PlayerGameInstance {
         this.accountBalance.updateFrom(holder.accountBalance);
         this.game.updateFrom(holder.game);
         this.winInfo.update(holder.winInfo);
+        this.moneyTransfer.update(holder.moneyTransfer);
         this.betMultiplier = holder.betMultiplier;
         this.pendingSpins = holder.pendingSpins;
         this.lock = holder.lock;
@@ -279,11 +292,11 @@ public class PlayerGameInstance {
     }
 
     private void onWinHighlightFinished(PhoenixSlotMachineBlockEntity slotMachine) {
-        // TODO money transfer event
         MatchedWinCombination winCombination = this.winInfo.getAnimatedWinCombination();
         Phoenix.LOGGER.debug("Winning combination match found: {}", winCombination);
         BalanceType targetAccount = this.game.getSelectedGameType().isHigh() ? Phoenix.CONFIG.highGameTargetAccount : Phoenix.CONFIG.lowGameTargetAccount;
-        this.accountBalance.addBalance(targetAccount, this.betMultiplier.getValue(winCombination.amount()));
+        int winAmount = this.betMultiplier.getValue(winCombination.amount());
+        this.startMoneyTransfer(MoneyTransfer.TransferInitiatorType.SPIN, Optional.empty(), targetAccount, winAmount, 100); // TODO duration based on bet
         this.updateSlotMachineAndView(slotMachine);
     }
 
@@ -292,6 +305,16 @@ public class PlayerGameInstance {
         this.game.clearHold();
         if (this.accountBalance.getWinBalance() > 0) {
             this.game.enableRisk();
+        }
+        this.updateSlotMachineAndView(slotMachine);
+    }
+
+    private void handleMoneyTransfer(PhoenixSlotMachineBlockEntity slotMachine, MoneyTransfer.TransferInitiatorType initiatorType, int amount, int remaining, BalanceType targetAccount) {
+        Phoenix.LOGGER.debug("Money transfer of {} from {} to {}: {} remaining", amount, initiatorType, targetAccount, remaining);
+        this.accountBalance.addBalance(targetAccount, amount);
+        if (remaining <= 0) {
+            Phoenix.LOGGER.debug("Money transfer finished, unlocking transfer lock");
+            this.unlock(Lock.TRANSFER);
         }
         this.updateSlotMachineAndView(slotMachine);
     }

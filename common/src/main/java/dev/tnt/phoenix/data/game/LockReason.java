@@ -7,7 +7,8 @@ public enum LockReason implements StringRepresentable {
 
     NONE("none"),
     SPIN("spin"),
-    RISK("risk");
+    RISK("risk"),
+    TRANSFER("transfer");
 
     public static final Codec<LockReason> CODEC = StringRepresentable.fromEnum(LockReason::values);
     private final String serializedName;
@@ -19,5 +20,9 @@ public enum LockReason implements StringRepresentable {
     @Override
     public String getSerializedName() {
         return this.serializedName;
+    }
+
+    public boolean isActiveGame() {
+        return this == SPIN || this == RISK || this == TRANSFER;
     }
 }

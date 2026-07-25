@@ -1,8 +1,7 @@
 package dev.tnt.phoenix.network;
 
 import dev.tnt.phoenix.Phoenix;
-import dev.tnt.phoenix.client.screen.PhoenixSlotMachineScreen;
-import net.minecraft.client.Minecraft;
+import dev.tnt.phoenix.client.PhoenixClient;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
@@ -10,9 +9,6 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.Identifier;
-import net.minecraft.util.ProblemReporter;
-import net.minecraft.world.level.storage.TagValueInput;
-import net.minecraft.world.level.storage.ValueInput;
 
 public record S2C_OpenPhoenixMachineScreen(BlockPos pos, CompoundTag tag, boolean refreshOnly) implements CustomPacketPayload {
 
@@ -35,15 +31,6 @@ public record S2C_OpenPhoenixMachineScreen(BlockPos pos, CompoundTag tag, boolea
     }
 
     public void handle() {
-        Minecraft instance = Minecraft.getInstance();
-        instance.level.getBlockEntity(this.pos, Phoenix.BLOCK_ENTITY_PHOENIX_SLOT_MACHINE.get()).ifPresent(slotMachine -> {
-            ProblemReporter problemReporter = new ProblemReporter.ScopedCollector(slotMachine.problemPath(), Phoenix.LOGGER_SLF4J);
-            ValueInput valueInput = TagValueInput.create(problemReporter, instance.level.registryAccess(), this.tag);
-            slotMachine.loadWithComponents(valueInput);
-            if (this.refreshOnly && !(instance.gui.screen() instanceof PhoenixSlotMachineScreen)) {
-                return;
-            }
-            instance.gui.setScreen(new PhoenixSlotMachineScreen(this.pos));
-        });
+        PhoenixClient.handlePhoenixScreenOpenRequest(this);
     }
 }

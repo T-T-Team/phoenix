@@ -1,6 +1,7 @@
 package dev.tnt.phoenix.data.game;
 
 import com.mojang.serialization.Codec;
+import dev.tnt.phoenix.Phoenix;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Collections;
@@ -31,7 +32,9 @@ public final class AccountBalance {
     }
 
     public void setBalance(BalanceType type, int amount) {
-        this.balances.put(type, Math.max(0, amount));
+        int balance = Math.max(0, amount);
+        this.balances.put(type, balance);
+        Phoenix.LOGGER.debug("Set balance of {} to {}", type, balance);
     }
 
     public void addBalance(BalanceType type, int amount) {

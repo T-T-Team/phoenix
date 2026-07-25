@@ -61,7 +61,7 @@ public final class GameWinInfo {
             if (this.animationIndex < this.combinations.size() - 1) {
                 ++this.animationIndex;
                 this.resetAnimation();
-            } else {
+            } else if (!this.animateAll) {
                 this.animationCompleteCallback.onAnimationComplete(slotMachine);
                 this.animateAll = true;
             }
@@ -107,7 +107,7 @@ public final class GameWinInfo {
         for (MatchedWinCombination combination : this.combinations) {
             WinConfiguration.WinPattern pattern = combination.pattern();
             int index = pattern.indexes().get(wheelIndex);
-            if (index == position) {
+            if (wheelIndex < combination.count() && index == position) {
                 return true;
             }
         }

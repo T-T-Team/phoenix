@@ -98,7 +98,7 @@ public class PhoenixSlotMachineScreen extends Screen {
         WinConfigurationConfig winConfigurationConfig = config.getWinningConfiguration();
         WinConfiguration lowConfiguration = winConfigurationConfig.getConfigForGame(GameType.LOW);
         GameType activeGameType = data.getGame().getSelectedGameType();
-        boolean isLowGameAvailable = activeGameType == GameType.LOW && (balance.getInputBalance() > 0 || balance.getMultiWinBalance() > 0 || data.getLock().hasTag(Lock.LockTag.GAME));
+        boolean isLowGameAvailable = activeGameType == GameType.LOW && (balance.getInputBalance() > 0 || balance.getMultiWinBalance() > 0 || data.getLockReason().isActiveGame());
         List<WinCombination> winCombinationsDisplay = lowConfiguration.getDisplayableCombinations(true);
         WinCombinationsWidget lowWinsWidget = this.addRenderableOnly(new WinCombinationsWidget(this.leftPos + 10, this.topPos + CONTENT_HEIGHT - 51, CONTENT_WIDTH - 20, 30, this.font, config, winCombinationsDisplay));
         lowWinsWidget.setGrid(3, 6, 3);
