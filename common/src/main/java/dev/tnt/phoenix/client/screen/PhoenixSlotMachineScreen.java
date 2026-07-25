@@ -157,7 +157,7 @@ public class PhoenixSlotMachineScreen extends Screen {
 
         // risk
         RiskWidget riskWidget = this.addRenderableOnly(new RiskWidget(this.leftPos + CONTENT_WIDTH - 60, this.topPos + CONTENT_HEIGHT - 109, 40, 20, game));
-        riskWidget.active = game.isRiskActive();
+        riskWidget.active = game.isRiskActive() && !data.hasActiveMoneyTransfer();
     }
 
     @Override

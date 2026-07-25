@@ -8,6 +8,7 @@ import dev.tnt.phoenix.data.game.BalanceType;
 import dev.tnt.phoenix.data.game.Lock;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.StringRepresentable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Optional;
 
@@ -58,7 +59,7 @@ public final class MoneyTransfer {
         if (this.isTransferTick()) {
             int toTransfer = this.getBalanceToTransfer();
             this.amount -= toTransfer;
-            this.transferHandler.performTransferOperation(slotMachine, this.initiatorType, toTransfer, this.amount, this.target);
+            this.transferHandler.performTransferOperation(slotMachine, this.initiatorType, toTransfer, this.amount, this.source.orElse(null), this.target);
             if (this.getBalanceToTransfer() == 0) {
                 this.onTransferFinished(slotMachine);
                 return;
@@ -94,7 +95,7 @@ public final class MoneyTransfer {
 
     private void onTransferFinished(PhoenixSlotMachineBlockEntity slotMachine) {
         this.duration = 0;
-        this.transferHandler.performTransferOperation(slotMachine, this.initiatorType, this.amount, 0, this.target);
+        this.transferHandler.performTransferOperation(slotMachine, this.initiatorType, this.amount, 0, this.source.orElse(null), this.target);
     }
 
     public void update(MoneyTransfer other) {
@@ -110,7 +111,8 @@ public final class MoneyTransfer {
 
         PENDING("pending", Lock.EMPTY),
         SPIN("spin", Lock.SPIN),
-        RISK("risk", Lock.RISK);
+        RISK("risk", Lock.RISK),
+        RISK_TRANSFER("risk_transfer", Lock.TRANSFER);
 
         public static final Codec<TransferInitiatorType> CODEC = StringRepresentable.fromEnum(TransferInitiatorType::values);
         private final String serializedName;
@@ -133,6 +135,6 @@ public final class MoneyTransfer {
 
     @FunctionalInterface
     public interface TransferHandler {
-        void performTransferOperation(PhoenixSlotMachineBlockEntity slotMachine, TransferInitiatorType initiatorType, int transferBalance, int remainingBalance, BalanceType targetAccount);
+        void performTransferOperation(PhoenixSlotMachineBlockEntity slotMachine, TransferInitiatorType initiatorType, int transferBalance, int remainingBalance, @Nullable BalanceType source, BalanceType targetAccount);
     }
 }

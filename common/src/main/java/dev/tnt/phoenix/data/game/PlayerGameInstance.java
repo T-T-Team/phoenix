@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+// FIXME game gets unlocked when having multiple wins active - during highligh phase
 public class PlayerGameInstance {
 
     public static final Codec<PlayerGameInstance> CODEC = RecordCodecBuilder.create(instance -> instance.group(
@@ -104,7 +105,7 @@ public class PlayerGameInstance {
     public void startPlaying(PhoenixSlotMachineBlockEntity slotMachine, Player player) {
         this.winInfo.reset();
         if (this.accountBalance.getWinBalance() > 0) {
-            this.accountBalance.transferBalance(BalanceType.WIN, BalanceType.MULTIWIN);
+            this.startMoneyTransfer(MoneyTransfer.TransferInitiatorType.RISK_TRANSFER, BalanceType.WIN, BalanceType.MULTIWIN, this.accountBalance.getWinBalance(), 50);
         } else {
             int balanceCost = this.getCost(GameType.LOW);
             this.accountBalance.subtractBalance(BalanceType.INPUT, balanceCost);
@@ -208,9 +209,13 @@ public class PlayerGameInstance {
         return winInfo;
     }
 
-    public void startMoneyTransfer(MoneyTransfer.TransferInitiatorType initiatorType, Optional<BalanceType> sourceAccount, BalanceType targetAccount, int amount, int totalDuration) {
+    public void startMoneyTransfer(MoneyTransfer.TransferInitiatorType initiatorType, BalanceType targetAccount, int amount, int totalDuration) {
+        this.startMoneyTransfer(initiatorType, null, targetAccount, amount, totalDuration);
+    }
+
+    public void startMoneyTransfer(MoneyTransfer.TransferInitiatorType initiatorType, @Nullable BalanceType sourceAccount, BalanceType targetAccount, int amount, int totalDuration) {
         this.lock(initiatorType.getLock());
-        this.moneyTransfer.initiate(sourceAccount, targetAccount, amount, totalDuration, initiatorType);
+        this.moneyTransfer.initiate(Optional.ofNullable(sourceAccount), targetAccount, amount, totalDuration, initiatorType);
     }
 
     public int getCost(GameType type) {
@@ -218,6 +223,10 @@ public class PlayerGameInstance {
         if (type.isHigh())
             cost *= Phoenix.CONFIG.multiWinSpinPriceMultiplier;
         return this.betMultiplier.getValue(cost);
+    }
+
+    public boolean hasActiveMoneyTransfer() {
+        return this.moneyTransfer.isActive();
     }
 
     public PlayerGameInstance update(PlayerGameInstance holder) {
@@ -259,12 +268,12 @@ public class PlayerGameInstance {
     }
 
     private void onRiskFinished(PhoenixSlotMachineBlockEntity slotMachine, boolean won) {
-        this.unlock(Lock.RISK);
         int wonBalance = won ? this.accountBalance.getWinBalance() * Phoenix.CONFIG.riskGameWinMultiplier : 0;
-        this.accountBalance.clearBalance(BalanceType.WIN);
         if (wonBalance > 0) {
-            this.accountBalance.addBalance(Phoenix.CONFIG.riskGameTargetAccount, wonBalance);
+            this.startMoneyTransfer(MoneyTransfer.TransferInitiatorType.RISK, Phoenix.CONFIG.riskGameTargetAccount, wonBalance, 50);
         } else {
+            this.unlock(Lock.RISK);
+            this.accountBalance.clearBalance(BalanceType.WIN);
             this.game.cancelRisk();
             this.winInfo.reset();
         }
@@ -297,7 +306,7 @@ public class PlayerGameInstance {
         BalanceType targetAccount = this.game.getSelectedGameType().isHigh() ? Phoenix.CONFIG.highGameTargetAccount : Phoenix.CONFIG.lowGameTargetAccount;
         int winAmount = this.betMultiplier.getValue(winCombination.amount());
         int transferDuration = this.getMoneyTransferDuration(MoneyTransfer.TransferInitiatorType.SPIN);
-        this.startMoneyTransfer(MoneyTransfer.TransferInitiatorType.SPIN, Optional.empty(), targetAccount, winAmount, transferDuration);
+        this.startMoneyTransfer(MoneyTransfer.TransferInitiatorType.SPIN, targetAccount, winAmount, transferDuration);
         this.updateSlotMachineAndView(slotMachine);
         return transferDuration;
     }
@@ -311,9 +320,12 @@ public class PlayerGameInstance {
         this.updateSlotMachineAndView(slotMachine);
     }
 
-    private void handleMoneyTransfer(PhoenixSlotMachineBlockEntity slotMachine, MoneyTransfer.TransferInitiatorType initiatorType, int amount, int remaining, BalanceType targetAccount) {
+    private void handleMoneyTransfer(PhoenixSlotMachineBlockEntity slotMachine, MoneyTransfer.TransferInitiatorType initiatorType, int amount, int remaining, @Nullable BalanceType source, BalanceType targetAccount) {
         Phoenix.LOGGER.debug("Money transfer of {} from {} to {}: {} remaining", amount, initiatorType, targetAccount, remaining);
         this.accountBalance.addBalance(targetAccount, amount);
+        if (source != null) {
+            this.accountBalance.subtractBalance(source, amount);
+        }
         if (remaining <= 0) {
             Phoenix.LOGGER.debug("Money transfer finished, unlocking transfer lock");
             this.unlock(initiatorType.getLock());
