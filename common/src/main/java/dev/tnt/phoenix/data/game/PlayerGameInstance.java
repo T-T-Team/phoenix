@@ -291,13 +291,15 @@ public class PlayerGameInstance {
         }
     }
 
-    private void onWinHighlightFinished(PhoenixSlotMachineBlockEntity slotMachine) {
+    private int onWinHighlightFinished(PhoenixSlotMachineBlockEntity slotMachine) {
         MatchedWinCombination winCombination = this.winInfo.getAnimatedWinCombination();
         Phoenix.LOGGER.debug("Winning combination match found: {}", winCombination);
         BalanceType targetAccount = this.game.getSelectedGameType().isHigh() ? Phoenix.CONFIG.highGameTargetAccount : Phoenix.CONFIG.lowGameTargetAccount;
         int winAmount = this.betMultiplier.getValue(winCombination.amount());
-        this.startMoneyTransfer(MoneyTransfer.TransferInitiatorType.SPIN, Optional.empty(), targetAccount, winAmount, 100); // TODO duration based on bet
+        int transferDuration = this.getMoneyTransferDuration(MoneyTransfer.TransferInitiatorType.SPIN);
+        this.startMoneyTransfer(MoneyTransfer.TransferInitiatorType.SPIN, Optional.empty(), targetAccount, winAmount, transferDuration);
         this.updateSlotMachineAndView(slotMachine);
+        return transferDuration;
     }
 
     private void onWinAnimationFinished(PhoenixSlotMachineBlockEntity slotMachine) {
@@ -317,5 +319,12 @@ public class PlayerGameInstance {
             this.unlock(Lock.TRANSFER);
         }
         this.updateSlotMachineAndView(slotMachine);
+    }
+
+    private int getMoneyTransferDuration(MoneyTransfer.TransferInitiatorType initiatorType) {
+        return switch (initiatorType) {
+            case SPIN -> 100 + this.betMultiplier.ordinal() * 20;
+            default -> 100;
+        };
     }
 }

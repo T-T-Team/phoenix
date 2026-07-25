@@ -21,6 +21,7 @@ public final class MoneyTransfer {
             ExtraCodecs.NON_NEGATIVE_INT.optionalFieldOf("transfer_amount", 0).forGetter(t -> t.transferAmount),
             TransferInitiatorType.CODEC.optionalFieldOf("initiator_type", TransferInitiatorType.SPIN).forGetter(t -> t.initiatorType)
     ).apply(instance, MoneyTransfer::new));
+    private static final int TRANSFER_CYCLE_LENGTH = 10;
 
     private Optional<BalanceType> source;
     private BalanceType target;
@@ -72,7 +73,8 @@ public final class MoneyTransfer {
         this.target = targetAccount;
         this.amount = amount;
         this.duration = totalDuration;
-        this.transferAmount = Math.max(amount / (totalDuration / 10), 1);
+        int transferCycles = totalDuration / TRANSFER_CYCLE_LENGTH;
+        this.transferAmount = Math.max(amount / transferCycles, 1);
         this.initiatorType = initiatorType;
         Phoenix.LOGGER.debug("Initiating money transfer of {}. Max duration is {} with transfer amount of {} per tick from account {} to {} initiated by {}", amount, totalDuration, this.transferAmount, sourceAccount, targetAccount, initiatorType);
     }
@@ -82,7 +84,7 @@ public final class MoneyTransfer {
     }
 
     private boolean isTransferTick() {
-        return this.duration % 20 == 0;
+        return this.duration % TRANSFER_CYCLE_LENGTH == 0;
     }
 
     private int getBalanceToTransfer() {

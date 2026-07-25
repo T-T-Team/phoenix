@@ -16,6 +16,7 @@ public final class GameWinInfo {
             ExtraCodecs.NON_NEGATIVE_INT.optionalFieldOf("animation_index", 0).forGetter(t -> t.animationIndex),
             ExtraCodecs.NON_NEGATIVE_INT.optionalFieldOf("highlight", 0).forGetter(t -> t.remainingHighlightDuration),
             ExtraCodecs.NON_NEGATIVE_INT.optionalFieldOf("blink", 0).forGetter(t -> t.remainingBlinkDuration),
+            ExtraCodecs.NON_NEGATIVE_INT.optionalFieldOf("blink_animation_length", 30).forGetter(t -> t.totalBlinkDuration),
             Codec.BOOL.optionalFieldOf("animate_all", false).forGetter(t -> t.animateAll)
     ).apply(instance, GameWinInfo::new));
 
@@ -23,16 +24,18 @@ public final class GameWinInfo {
     private int animationIndex;
     private int remainingHighlightDuration;
     private int remainingBlinkDuration;
+    private int totalBlinkDuration;
     private boolean animateAll;
 
     private HighlightCompleteCallback highlightCompleteCallback;
     private WinAnimationCompleteCallback animationCompleteCallback;
 
-    public GameWinInfo(List<MatchedWinCombination> combinations, int animationIndex, int remainingHighlightDuration, int remainingBlinkDuration, boolean animateAll) {
+    public GameWinInfo(List<MatchedWinCombination> combinations, int animationIndex, int remainingHighlightDuration, int remainingBlinkDuration, int totalBlinkDuration, boolean animateAll) {
         this.combinations = new ArrayList<>(combinations);
         this.animationIndex = animationIndex;
         this.remainingHighlightDuration = remainingHighlightDuration;
         this.remainingBlinkDuration = remainingBlinkDuration;
+        this.totalBlinkDuration = totalBlinkDuration;
         this.animateAll = animateAll;
     }
 
@@ -45,7 +48,7 @@ public final class GameWinInfo {
     }
 
     public static GameWinInfo create() {
-        return new GameWinInfo(Collections.emptyList(), 0, 0, 0, false);
+        return new GameWinInfo(Collections.emptyList(), 0, 0, 0, 30, false);
     }
 
     public void update(PhoenixSlotMachineBlockEntity slotMachine) {
@@ -53,7 +56,7 @@ public final class GameWinInfo {
             return;
         if (this.remainingHighlightDuration > 0) {
             if (--this.remainingHighlightDuration <= 0) {
-                this.highlightCompleteCallback.onHighlightComplete(slotMachine);
+                this.totalBlinkDuration = this.highlightCompleteCallback.onHighlightComplete(slotMachine);
             }
         } else if (this.remainingBlinkDuration > 0) {
             --this.remainingBlinkDuration;
@@ -96,7 +99,7 @@ public final class GameWinInfo {
 
     private void resetAnimation() {
         this.remainingHighlightDuration = 40;
-        this.remainingBlinkDuration = 30;
+        this.remainingBlinkDuration = this.totalBlinkDuration;
     }
 
     public MatchedWinCombination getAnimatedWinCombination() {
@@ -120,6 +123,7 @@ public final class GameWinInfo {
         this.animationIndex = winInfo.animationIndex;
         this.remainingHighlightDuration = winInfo.remainingHighlightDuration;
         this.remainingBlinkDuration = winInfo.remainingBlinkDuration;
+        this.totalBlinkDuration = winInfo.totalBlinkDuration;
         this.animateAll = winInfo.animateAll;
     }
 
@@ -130,6 +134,6 @@ public final class GameWinInfo {
 
     @FunctionalInterface
     public interface HighlightCompleteCallback {
-        void onHighlightComplete(PhoenixSlotMachineBlockEntity slotMachine);
+        int onHighlightComplete(PhoenixSlotMachineBlockEntity slotMachine);
     }
 }
