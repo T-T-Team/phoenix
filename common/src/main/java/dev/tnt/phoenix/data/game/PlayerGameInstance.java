@@ -209,7 +209,7 @@ public class PlayerGameInstance {
     }
 
     public void startMoneyTransfer(MoneyTransfer.TransferInitiatorType initiatorType, Optional<BalanceType> sourceAccount, BalanceType targetAccount, int amount, int totalDuration) {
-        this.lock(Lock.TRANSFER);
+        this.lock(initiatorType.getLock());
         this.moneyTransfer.initiate(sourceAccount, targetAccount, amount, totalDuration, initiatorType);
     }
 
@@ -316,14 +316,14 @@ public class PlayerGameInstance {
         this.accountBalance.addBalance(targetAccount, amount);
         if (remaining <= 0) {
             Phoenix.LOGGER.debug("Money transfer finished, unlocking transfer lock");
-            this.unlock(Lock.TRANSFER);
+            this.unlock(initiatorType.getLock());
         }
         this.updateSlotMachineAndView(slotMachine);
     }
 
     private int getMoneyTransferDuration(MoneyTransfer.TransferInitiatorType initiatorType) {
         return switch (initiatorType) {
-            case SPIN -> 100 + this.betMultiplier.ordinal() * 20;
+            case SPIN -> this.betMultiplier.getMoneyTransferDuration();
             default -> 100;
         };
     }

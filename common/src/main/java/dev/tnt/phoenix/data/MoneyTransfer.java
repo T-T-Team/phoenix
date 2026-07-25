@@ -5,6 +5,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.tnt.phoenix.Phoenix;
 import dev.tnt.phoenix.block.entity.PhoenixSlotMachineBlockEntity;
 import dev.tnt.phoenix.data.game.BalanceType;
+import dev.tnt.phoenix.data.game.Lock;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.StringRepresentable;
 
@@ -107,20 +108,26 @@ public final class MoneyTransfer {
 
     public enum TransferInitiatorType implements StringRepresentable {
 
-        PENDING("pending"),
-        SPIN("spin"),
-        RISK("risk");
+        PENDING("pending", Lock.EMPTY),
+        SPIN("spin", Lock.SPIN),
+        RISK("risk", Lock.RISK);
 
         public static final Codec<TransferInitiatorType> CODEC = StringRepresentable.fromEnum(TransferInitiatorType::values);
         private final String serializedName;
+        private final Lock lock;
 
-        TransferInitiatorType(String serializedName) {
+        TransferInitiatorType(String serializedName, Lock lock) {
             this.serializedName = serializedName;
+            this.lock = lock;
         }
 
         @Override
         public String getSerializedName() {
             return serializedName;
+        }
+
+        public Lock getLock() {
+            return this.lock;
         }
     }
 
