@@ -46,6 +46,8 @@ public class PlayerGameInstance {
     private int pendingSpins;
     private Lock lock;
 
+    private boolean needsSynchronization;
+
     private PlayerGameInstance(UUID owner, String traceId, AccountBalance accountBalance, Game game, List<SpinWheel> spinWheels, GameWinInfo winInfo, BalanceTransfer balanceTransfer, BetMultiplier betMultiplier, int pendingSpins, Lock lock) {
         this.owner = owner;
         this.traceId = traceId;
@@ -107,6 +109,9 @@ public class PlayerGameInstance {
         this.balanceTransfer.tick(slotMachine);
         this.game.update(slotMachine);
         this.winInfo.update(slotMachine);
+        if (this.needsSynchronization) {
+            this.updateSlotMachineAndView(slotMachine);
+        }
     }
 
     public boolean canSpinOrTransfer() {
@@ -246,6 +251,7 @@ public class PlayerGameInstance {
     public void lock(Lock lock) {
         this.lock = lock;
         Phoenix.LOGGER.debug(MARKER, "[{}] Locking slot machine with lock {}", this.traceId, lock);
+        this.markForUpdate();
     }
 
     public void unlock(@Nullable Lock lock) {
@@ -259,6 +265,7 @@ public class PlayerGameInstance {
             return;
         }
         this.lock = Lock.EMPTY;
+        this.markForUpdate();
     }
 
     public boolean isLocked() {
@@ -381,7 +388,7 @@ public class PlayerGameInstance {
                 this.game.setPlayed(false);
             }
         }
-        this.updateSlotMachineAndView(slotMachine);
+        this.markForUpdate();
     }
 
     private void onRiskFinished(PhoenixSlotMachineBlockEntity slotMachine, boolean won) {
@@ -398,7 +405,7 @@ public class PlayerGameInstance {
             this.winInfo.reset();
             this.unlock(Lock.RISK);
         }
-        this.updateSlotMachineAndView(slotMachine);
+        this.markForUpdate();
     }
 
     private static void reloadSequences(List<SpinWheel> wheels, GameType gameType, SlotMachineConfig config, RandomSource random, Game game) {
@@ -412,22 +419,13 @@ public class PlayerGameInstance {
         }
     }
 
-    private void updateSlotMachineAndView(PhoenixSlotMachineBlockEntity slotMachine) {
-        slotMachine.markUpdated();
-        Level level = slotMachine.getLevel();
-        Player player = level.getPlayerByUUID(this.owner);
-        if (player != null) {
-            slotMachine.updatePlayerView(player);
-        }
-    }
-
     private void onWinHighlightFinished(PhoenixSlotMachineBlockEntity slotMachine) {
         MatchedWinCombination winCombination = this.winInfo.getAnimatedWinCombination();
         AccountType targetAccount = this.game.getSelectedGameType().isHigh() ? Phoenix.CONFIG.highGameTargetAccount : Phoenix.CONFIG.lowGameTargetAccount;
         int winAmount = this.betMultiplier.getValue(winCombination.amount());
         this.startBalanceTransfer(BalanceTransfer.InitiatorType.SPIN, targetAccount, winAmount);
         this.winInfo.transitionToBlinkMode();
-        this.updateSlotMachineAndView(slotMachine);
+        this.markForUpdate();
     }
 
     private void handleBalanceTransferTick(PhoenixSlotMachineBlockEntity slotMachine, BalanceTransfer.InitiatorType initiatorType, int amount, int remaining, @Nullable AccountType source, AccountType targetAccount) {
@@ -458,7 +456,7 @@ public class PlayerGameInstance {
                 this.game.unfreezeRisk();
             }
         }
-        this.updateSlotMachineAndView(slotMachine);
+        this.markForUpdate();
     }
 
     private int getBalanceTransferDuration(BalanceTransfer.InitiatorType initiatorType) {
@@ -473,5 +471,20 @@ public class PlayerGameInstance {
         int diff = newAmount - originalAmount;
         String diffLabel = (diff > 0 ? "+" : "") + diff;
         Phoenix.LOGGER.debug(MARKER, "[{}] Balance changed in account {}: {} -> {} [{}]", this.traceId, type, originalAmount, newAmount, diffLabel);
+        this.markForUpdate();
+    }
+
+    private void markForUpdate() {
+        this.needsSynchronization = true;
+    }
+
+    private void updateSlotMachineAndView(PhoenixSlotMachineBlockEntity slotMachine) {
+        slotMachine.markUpdated();
+        Level level = slotMachine.getLevel();
+        Player player = level.getPlayerByUUID(this.owner);
+        if (player != null) {
+            slotMachine.updatePlayerView(player);
+        }
+        this.needsSynchronization = false;
     }
 }
