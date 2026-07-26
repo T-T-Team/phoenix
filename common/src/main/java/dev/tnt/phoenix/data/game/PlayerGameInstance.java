@@ -376,8 +376,7 @@ public class PlayerGameInstance {
         Phoenix.LOGGER.debug(MARKER, "[{}] Spin completed, remaining wheels: {}", this.traceId, this.pendingSpins - 1);
         Level level = slotMachine.getLevel();
         BlockPos pos = slotMachine.getBlockPos();
-        float extraPitch = 0.9F - this.pendingSpins * 0.3F;
-        level.playSound(null, pos, Phoenix.SOUND_SLOT.get(), SoundSource.BLOCKS, 1.0F, 1.0F + extraPitch);
+        level.playSound(null, pos, Phoenix.SOUND_SLOT.get(), SoundSource.BLOCKS, 1.0F, 1.0F);
         if (--this.pendingSpins <= 0) {
             Phoenix.LOGGER.debug(MARKER, "[{}] All spin wheels finished, checking winning combination for {} game type", this.traceId, this.game.getSelectedGameType());
             SlotMachineConfig config = PhoenixSlotMachineBlockEntity.getConfig();
