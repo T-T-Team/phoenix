@@ -24,7 +24,7 @@ public final class BalanceTransfer {
             ExtraCodecs.NON_NEGATIVE_INT.optionalFieldOf("transfer_amount", 0).forGetter(t -> t.transferAmount),
             InitiatorType.CODEC.optionalFieldOf("initiator_type", InitiatorType.SPIN).forGetter(t -> t.initiatorType)
     ).apply(instance, BalanceTransfer::new));
-    private static final int TRANSFER_CYCLE_LENGTH = 5;
+    private static final int TRANSFER_CYCLE_LENGTH = 2;
 
     private Optional<AccountType> source;
     private AccountType target;
