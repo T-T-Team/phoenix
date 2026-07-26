@@ -1,0 +1,32 @@
+{
+  "bet": {
+    "sounds": [ "phoenix:bet" ]
+  },
+  "count": {
+    "sounds": [ "phoenix:count" ]
+  },
+  "gamble": {
+    "sounds": [ "phoenix:gamble" ]
+  },
+  "gamble_lose": {
+    "sounds": [ "phoenix:gamble_lose" ]
+  },
+  "gamble_win": {
+    "sounds": [ "phoenix:gamble_win" ]
+  },
+  "hit": {
+    "sounds": [ "phoenix:hit" ]
+  },
+  "hold": {
+    "sounds": [ "phoenix:hold" ]
+  },
+  "slot": {
+    "sounds": [ "phoenix:slot" ]
+  },
+  "start": {
+    "sounds": [ "phoenix:start" ]
+  },
+  "win": {
+    "sounds": [ "phoenix:win" ]
+  }
+}

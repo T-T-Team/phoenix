@@ -18,6 +18,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
@@ -56,6 +57,7 @@ public class Phoenix {
     public static final RegistrationManager<Block> BLOCKS_REGISTRY = PLATFORM.createRegistryManager(BuiltInRegistries.BLOCK);
     public static final RegistrationManager<BlockEntityType<?>> BLOCK_ENTITY_REGISTRY = PLATFORM.createRegistryManager(BuiltInRegistries.BLOCK_ENTITY_TYPE);
     public static final RegistrationManager<Item> ITEMS_REGISTRY = PLATFORM.createRegistryManager(BuiltInRegistries.ITEM);
+    public static final RegistrationManager<SoundEvent> SOUND_REGISTRY = PLATFORM.createRegistryManager(BuiltInRegistries.SOUND_EVENT);
     public static final RegistrationManager<CreativeModeTab> CREATIVE_TABS_REGISTRY = PLATFORM.createRegistryManager(BuiltInRegistries.CREATIVE_MODE_TAB);
 
     // Blocks
@@ -64,6 +66,17 @@ public class Phoenix {
     public static final Reference<BlockEntityType<PhoenixSlotMachineBlockEntity>> BLOCK_ENTITY_PHOENIX_SLOT_MACHINE = BLOCK_ENTITY_REGISTRY.registerElement("phoenix", () -> new BlockEntityType<>(PhoenixSlotMachineBlockEntity::new, Set.of(BLOCK_PHOENIX_SLOT_MACHINE.get())));
     // Items
     public static final Reference<BlockItem> ITEM_PHOENIX_SLOT_MACHINE = registerBlockItem(BLOCK_PHOENIX_SLOT_MACHINE);
+    // Sounds
+    public static final Reference<SoundEvent> BET = registerVariableRangeSound("bet");
+    public static final Reference<SoundEvent> COUNT = registerVariableRangeSound("count");
+    public static final Reference<SoundEvent> GAMBLE = registerVariableRangeSound("gamble");
+    public static final Reference<SoundEvent> GAMBLE_LOSE = registerVariableRangeSound("gamble_lose");
+    public static final Reference<SoundEvent> GAMBLE_WIN = registerVariableRangeSound("gamble_win");
+    public static final Reference<SoundEvent> HIT = registerVariableRangeSound("hit");
+    public static final Reference<SoundEvent> HOLD = registerVariableRangeSound("hold");
+    public static final Reference<SoundEvent> SLOT = registerVariableRangeSound("slot");
+    public static final Reference<SoundEvent> START = registerVariableRangeSound("start");
+    public static final Reference<SoundEvent> WIN = registerVariableRangeSound("win");
     // Creative tabs
     public static final Reference<CreativeModeTab> PHOENIX_TAB = CREATIVE_TABS_REGISTRY.registerElement("phoenix", id -> PLATFORM.buildCreativeTab(id, ITEM_PHOENIX_SLOT_MACHINE, populator -> {
         populator.apply(ITEM_PHOENIX_SLOT_MACHINE);
@@ -103,6 +116,14 @@ public class Phoenix {
                     .setId(ResourceKey.create(Registries.ITEM, id));
             return item.apply(properties);
         });
+    }
+
+    private static Reference<SoundEvent> registerVariableRangeSound(String name) {
+        return SOUND_REGISTRY.registerElement(name, SoundEvent::createVariableRangeEvent);
+    }
+
+    private static Reference<SoundEvent> registerFixedRangeSound(String name, float range) {
+        return SOUND_REGISTRY.registerElement(name, id -> SoundEvent.createFixedRangeEvent(id, range));
     }
 
     private static Reference<BlockItem> registerBlockItem(Reference<? extends Block> blockReference) {
