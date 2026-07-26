@@ -64,7 +64,8 @@ public class PlayerGameInstance {
             spinWheel.addSpinCompleteListener(this::onSpinComplete);
         }
         this.accountBalance.setChangeListener(this::onAccountBalanceChanged);
-        this.game.addRiskCompleteListener(this::onRiskFinished);
+        this.game.setRiskCompleteCallback(this::onRiskFinished);
+        this.game.setRiskUnfreezeCallback(this::onRiskAnimationUnfreeze);
         this.winInfo.setHighlightCompleteCallback(this::onWinHighlightFinished);
         this.balanceTransfer.setTransferHandler(this::handleBalanceTransferTick);
     }
@@ -127,7 +128,6 @@ public class PlayerGameInstance {
             return;
         }
         this.winInfo.reset();
-        this.game.unfreezeRisk();
         if (this.accountBalance.getWinBalance() > 0) {
             Phoenix.LOGGER.debug(MARKER, "[{}] Risk game round skipped, transferring win balance of {} to multiWin account", this.traceId, this.accountBalance.getWinBalance());
             this.startBalanceTransfer(BalanceTransfer.InitiatorType.RISK_TRANSFER, AccountType.WIN, AccountType.MULTIWIN, this.accountBalance.getWinBalance());
@@ -162,7 +162,7 @@ public class PlayerGameInstance {
     }
 
     public boolean canStartRisk() {
-        return !this.isLocked() && this.game.isRiskActive() && !this.game.hasRiskResult() && this.accountBalance.hasBalanceInAccount(AccountType.WIN);
+        return !this.isLocked() && this.game.isRiskActive() && !this.game.isFrozen() && this.accountBalance.hasBalanceInAccount(AccountType.WIN);
     }
 
     public void startRisk(Player player, boolean riskHearts) {
@@ -394,16 +394,14 @@ public class PlayerGameInstance {
     private void onRiskFinished(PhoenixSlotMachineBlockEntity slotMachine, boolean won) {
         Phoenix.LOGGER.debug(MARKER, "[{}] Risk game finished with win: {}", this.traceId, won);
         int wonBalance = won ? this.accountBalance.getWinBalance() * (Phoenix.CONFIG.riskGameWinMultiplier - 1) : 0;
-        this.game.freezeRisk();
         if (wonBalance > 0) {
             Phoenix.LOGGER.debug(MARKER, "[{}] Risk game won, bonus balance: {}", this.traceId, wonBalance);
-            this.startBalanceTransfer(BalanceTransfer.InitiatorType.RISK, Phoenix.CONFIG.riskGameTargetAccount, wonBalance);
+            this.accountBalance.addBalance(Phoenix.CONFIG.riskGameTargetAccount, wonBalance);
         } else {
             Phoenix.LOGGER.debug(MARKER, "[{}] Risk game lost, removing win bet balance", this.traceId);
             this.accountBalance.clearBalance(AccountType.WIN);
             this.game.cancelRisk();
             this.winInfo.reset();
-            this.unlock(Lock.RISK);
         }
         this.markForUpdate();
     }
@@ -452,17 +450,20 @@ public class PlayerGameInstance {
                     }
                     this.unlock(Lock.SPIN);
                 }
-            } else if (initiatorType == BalanceTransfer.InitiatorType.RISK) {
-                this.game.unfreezeRisk();
             }
         }
+        this.markForUpdate();
+    }
+
+    private void onRiskAnimationUnfreeze(PhoenixSlotMachineBlockEntity slotMachineBlock) {
+        this.unlock(Lock.RISK);
         this.markForUpdate();
     }
 
     private int getBalanceTransferDuration(BalanceTransfer.InitiatorType initiatorType) {
         return switch (initiatorType) {
             case SPIN -> this.betMultiplier.getBalanceTransferDuration();
-            case RISK, RISK_TRANSFER -> 50;
+            case RISK_TRANSFER -> 50;
             case PENDING -> throw new IllegalArgumentException("Invalid initiator type for balance transfer: " + initiatorType);
         };
     }

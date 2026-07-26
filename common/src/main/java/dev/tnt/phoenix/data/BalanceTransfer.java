@@ -114,7 +114,6 @@ public final class BalanceTransfer {
 
         PENDING("pending", Lock.EMPTY),
         SPIN("spin", Lock.SPIN),
-        RISK("risk", Lock.RISK),
         RISK_TRANSFER("risk_transfer", Lock.TRANSFER);
 
         public static final Codec<InitiatorType> CODEC = StringRepresentable.fromEnum(InitiatorType::values);
