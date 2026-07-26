@@ -207,6 +207,7 @@ public class PhoenixSlotMachineScreen extends Screen {
 
         IconButtonWithHighlightWidget betButton = this.addRenderableWidget(new IconButtonWithHighlightWidget(rowLeft + buttonWidth, rowTop, 16, 16, Component.translatable("label.phoenix.ui.button_bet"), BUTTON_BET, this::onBetButtonClicked));
         betButton.active = instance.canToggleBetMultiplier();
+        betButton.setClickSound(Phoenix.SOUND_BET);
 
         for (int i = 0; i < SPIN_WHEELS; i++) {
             int posIndex = i + 2;
@@ -215,6 +216,7 @@ public class PhoenixSlotMachineScreen extends Screen {
             boolean isHeld = game.getSelectedGameType() == GameType.LOW && game.isHeld(i);
             widget.active = instance.canHold(i);
             widget.setLightOnDisabled(isHeld);
+            widget.setClickSound(Phoenix.SOUND_HOLD);
             this.holdButtons.add(widget);
         }
 

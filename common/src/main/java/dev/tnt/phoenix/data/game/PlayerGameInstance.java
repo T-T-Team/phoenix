@@ -10,6 +10,7 @@ import dev.tnt.phoenix.util.EnumHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -132,6 +133,8 @@ public class PlayerGameInstance {
             Phoenix.LOGGER.debug(MARKER, "[{}] Risk game round skipped, transferring win balance of {} to multiWin account", this.traceId, this.accountBalance.getWinBalance());
             this.startBalanceTransfer(BalanceTransfer.InitiatorType.RISK_TRANSFER, AccountType.WIN, AccountType.MULTIWIN, this.accountBalance.getWinBalance());
         } else {
+            Level level = player.level();
+            level.playSound(null, player, Phoenix.SOUND_START.get(), SoundSource.BLOCKS, 1.0F, 1.0F);
             int balanceCost = this.getCost(GameType.LOW);
             this.accountBalance.subtractBalance(AccountType.INPUT, balanceCost);
             if (game.getSelectedGameType() == GameType.HIGH) {
@@ -367,6 +370,10 @@ public class PlayerGameInstance {
 
     private void onSpinComplete(PhoenixSlotMachineBlockEntity slotMachine, float amount) {
         Phoenix.LOGGER.debug(MARKER, "[{}] Spin completed, remaining wheels: {}", this.traceId, this.pendingSpins - 1);
+        Level level = slotMachine.getLevel();
+        BlockPos pos = slotMachine.getBlockPos();
+        float extraPitch = 0.9F - this.pendingSpins * 0.3F;
+        level.playSound(null, pos, Phoenix.SOUND_SLOT.get(), SoundSource.BLOCKS, 1.0F, 1.0F + extraPitch);
         if (--this.pendingSpins <= 0) {
             Phoenix.LOGGER.debug(MARKER, "[{}] All spin wheels finished, checking winning combination for {} game type", this.traceId, this.game.getSelectedGameType());
             SlotMachineConfig config = PhoenixSlotMachineBlockEntity.getConfig();

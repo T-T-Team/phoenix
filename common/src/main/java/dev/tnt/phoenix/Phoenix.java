@@ -67,16 +67,16 @@ public class Phoenix {
     // Items
     public static final Reference<BlockItem> ITEM_PHOENIX_SLOT_MACHINE = registerBlockItem(BLOCK_PHOENIX_SLOT_MACHINE);
     // Sounds
-    public static final Reference<SoundEvent> BET = registerVariableRangeSound("bet");
-    public static final Reference<SoundEvent> COUNT = registerVariableRangeSound("count");
-    public static final Reference<SoundEvent> GAMBLE = registerVariableRangeSound("gamble");
-    public static final Reference<SoundEvent> GAMBLE_LOSE = registerVariableRangeSound("gamble_lose");
-    public static final Reference<SoundEvent> GAMBLE_WIN = registerVariableRangeSound("gamble_win");
-    public static final Reference<SoundEvent> HIT = registerVariableRangeSound("hit");
-    public static final Reference<SoundEvent> HOLD = registerVariableRangeSound("hold");
-    public static final Reference<SoundEvent> SLOT = registerVariableRangeSound("slot");
-    public static final Reference<SoundEvent> START = registerVariableRangeSound("start");
-    public static final Reference<SoundEvent> WIN = registerVariableRangeSound("win");
+    public static final Reference<SoundEvent> SOUND_BET = registerVariableRangeSound("bet");
+    public static final Reference<SoundEvent> SOUND_COUNT = registerVariableRangeSound("count");
+    public static final Reference<SoundEvent> SOUND_GAMBLE = registerVariableRangeSound("gamble");
+    public static final Reference<SoundEvent> SOUND_GAMBLE_LOSE = registerVariableRangeSound("gamble_lose");
+    public static final Reference<SoundEvent> SOUND_GAMBLE_WIN = registerVariableRangeSound("gamble_win");
+    public static final Reference<SoundEvent> SOUND_HIT = registerVariableRangeSound("hit");
+    public static final Reference<SoundEvent> SOUND_HOLD = registerVariableRangeSound("hold");
+    public static final Reference<SoundEvent> SOUND_SLOT = registerVariableRangeSound("slot");
+    public static final Reference<SoundEvent> SOUND_START = registerVariableRangeSound("start");
+    public static final Reference<SoundEvent> SOUND_WIN = registerVariableRangeSound("win");
     // Creative tabs
     public static final Reference<CreativeModeTab> PHOENIX_TAB = CREATIVE_TABS_REGISTRY.registerElement("phoenix", id -> PLATFORM.buildCreativeTab(id, ITEM_PHOENIX_SLOT_MACHINE, populator -> {
         populator.apply(ITEM_PHOENIX_SLOT_MACHINE);
