@@ -55,10 +55,13 @@ public record C2S_SlotMachinePayoutRequest(BlockPos pos, List<PayoutRequestEntry
                 Phoenix.LOGGER.debug(NETWORK_MARKER, "[{}] Processing payout ID '{}': {}x {}", traceId, request.payoutId(), request.quantity(), payoutOptional);
                 boolean success = payoutOptional.map(payout -> {
                     int price = payout.price();
+                    int buyPrice = 0;
+                    boolean processed = true;
                     for (int i = 0; i < request.quantity(); i++) {
-                        if (!balance.hasBalanceInAccount(AccountType.MULTIWIN, price)) {
+                        if (!balance.hasBalanceInAccount(AccountType.MULTIWIN, buyPrice)) {
                             Phoenix.LOGGER.warn(NETWORK_MARKER, "[{}] Not enough balance in multiWin account to payout '{}', terminating payouts...", traceId, request.payoutId());
-                            return false;
+                            processed = false;
+                            break;
                         }
                         ItemStack itemStack = payout.assemble();
                         ItemStack insertItem = itemStack.copy();
@@ -66,13 +69,17 @@ public record C2S_SlotMachinePayoutRequest(BlockPos pos, List<PayoutRequestEntry
                             Phoenix.LOGGER.warn(NETWORK_MARKER, "[{}] Failed to insert payout '{}' result into inventory, terminating payouts...", traceId, request.payoutId());
                             if (itemStack.getCount() != insertItem.getCount()) {
                                 Phoenix.LOGGER.warn(NETWORK_MARKER, "[{}] Payout was partially inserted to inventory, subtracting full price!", traceId);
-                                balance.subtractBalance(AccountType.MULTIWIN, price);
+                                buyPrice += price;
                             }
-                            return false;
+                            processed = false;
+                            break;
                         }
-                        balance.subtractBalance(AccountType.MULTIWIN, price);
+                        buyPrice += price;
                     }
-                    return true;
+                    if (buyPrice > 0) {
+                        balance.subtractBalance(AccountType.MULTIWIN, buyPrice);
+                    }
+                    return processed;
                 }).orElse(false);
                 if (!success) {
                     Phoenix.LOGGER.warn(NETWORK_MARKER, "[{}] Failed to fully process payout, terminating...", traceId);
