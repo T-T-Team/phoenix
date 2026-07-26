@@ -354,6 +354,10 @@ public class PlayerGameInstance {
         return bet.getValue(cost);
     }
 
+    public boolean isRolling() {
+        return this.pendingSpins > 0;
+    }
+
     public PlayerGameInstance update(PlayerGameInstance holder) {
         this.accountBalance.updateFrom(holder.accountBalance);
         this.game.updateFrom(holder.game);

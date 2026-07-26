@@ -6,16 +6,20 @@ import dev.tnt.phoenix.block.entity.ActionType;
 import dev.tnt.phoenix.block.entity.PhoenixSlotMachineBlockEntity;
 import dev.tnt.phoenix.client.PhoenixClient;
 import dev.tnt.phoenix.client.screen.widget.*;
+import dev.tnt.phoenix.client.sound.SpinRollSoundInstance;
 import dev.tnt.phoenix.data.*;
 import dev.tnt.phoenix.data.game.*;
 import dev.tnt.phoenix.network.C2S_SlotMachineRequest;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.resources.sounds.AbstractTickableSoundInstance;
+import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -46,6 +50,8 @@ public class PhoenixSlotMachineScreen extends Screen {
     private int leftPos;
     private int topPos;
     private boolean isLoading;
+
+    private SpinRollSoundInstance spinRollSound;
 
     public PhoenixSlotMachineScreen(BlockPos pos) {
         super(PhoenixSlotMachineBlock.NAME);
@@ -159,6 +165,8 @@ public class PhoenixSlotMachineScreen extends Screen {
         // risk
         RiskWidget riskWidget = this.addRenderableOnly(new RiskWidget(this.leftPos + CONTENT_WIDTH - 60, this.topPos + CONTENT_HEIGHT - 109, 40, 20, game));
         riskWidget.active = (!instance.isLocked() && game.isRiskActive()) || game.isFrozen();
+
+        this.initiateLoopSounds(instance);
     }
 
     @Override
@@ -197,6 +205,7 @@ public class PhoenixSlotMachineScreen extends Screen {
 
     private void addBottomButtonRow(PlayerGameInstance instance) {
         Game game = instance.getGame();
+        AccountBalance accountBalance = instance.getAccountBalance();
         int buttonOffset = 5;
         int buttonWidth = 16 + buttonOffset;
         int rowLeft = this.leftPos + (CONTENT_WIDTH - (8 * buttonWidth - buttonOffset)) / 2;
@@ -268,5 +277,19 @@ public class PhoenixSlotMachineScreen extends Screen {
     private void sendServerRequest(ActionType type) {
         BlockPos position = this.blockEntity.getBlockPos();
         PhoenixClient.PLATFORM.sendPacket(new C2S_SlotMachineRequest(position, type));
+    }
+
+    private void initiateLoopSounds(PlayerGameInstance instance) {
+        SoundManager manager = this.minecraft.getSoundManager();
+        if (instance.isRolling()) {
+            if (this.needsRestart(manager, this.spinRollSound)) {
+                this.spinRollSound = new SpinRollSoundInstance(this.minecraft.level.getRandom(), instance);
+                manager.play(this.spinRollSound);
+            }
+        }
+    }
+
+    private boolean needsRestart(SoundManager manager, @Nullable AbstractTickableSoundInstance instance) {
+        return instance == null || !manager.isActive(instance);
     }
 }
