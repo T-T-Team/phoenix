@@ -7,11 +7,13 @@ import dev.tnt.phoenix.data.sequence.SequenceGenerator;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.Identifier;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.Util;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public final class SlotMachineConfig {
 
@@ -32,9 +34,8 @@ public final class SlotMachineConfig {
         this.winConfiguration = winConfiguration;
     }
 
-    public Identifier getSprite(String symbol, SpriteType spriteType) {
-        SpinWheelEntry entry = Objects.requireNonNull(this.entries.get(symbol), "No sprite defined for symbol: " + symbol);
-        return entry.getSpriteForType(spriteType);
+    public SpinWheelEntry getSymbolData(String symbol) {
+        return this.entries.get(symbol);
     }
 
     public SequenceGenerator getSequenceGenerator(GameType type, int index) {
@@ -51,10 +52,6 @@ public final class SlotMachineConfig {
         List<String> output = new ArrayList<>();
         generator.generateSymbolSequence(random, output::add);
         return output;
-    }
-
-    public List<Identifier> getSprites(SpriteType type, List<String> symbols) {
-        return symbols.stream().map(symbol -> this.getSprite(symbol, type)).toList();
     }
 
     public WinConfigurationConfig getWinningConfiguration() {

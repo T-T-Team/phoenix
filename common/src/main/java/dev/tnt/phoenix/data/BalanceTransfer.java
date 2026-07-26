@@ -4,7 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.tnt.phoenix.Phoenix;
 import dev.tnt.phoenix.block.entity.PhoenixSlotMachineBlockEntity;
-import dev.tnt.phoenix.data.game.BalanceType;
+import dev.tnt.phoenix.data.game.AccountType;
 import dev.tnt.phoenix.data.game.Lock;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.StringRepresentable;
@@ -13,28 +13,28 @@ import org.jspecify.annotations.Nullable;
 import java.util.Optional;
 
 @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-public final class MoneyTransfer {
+public final class BalanceTransfer {
 
-    public static final Codec<MoneyTransfer> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            BalanceType.CODEC.optionalFieldOf("source").forGetter(t -> t.source),
-            BalanceType.CODEC.fieldOf("target").forGetter(t -> t.target),
+    public static final Codec<BalanceTransfer> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            AccountType.CODEC.optionalFieldOf("source").forGetter(t -> t.source),
+            AccountType.CODEC.fieldOf("target").forGetter(t -> t.target),
             ExtraCodecs.NON_NEGATIVE_INT.optionalFieldOf("amount", 0).forGetter(t -> t.amount),
             ExtraCodecs.NON_NEGATIVE_INT.optionalFieldOf("duration", 0).forGetter(t -> t.duration),
             ExtraCodecs.NON_NEGATIVE_INT.optionalFieldOf("transfer_amount", 0).forGetter(t -> t.transferAmount),
-            TransferInitiatorType.CODEC.optionalFieldOf("initiator_type", TransferInitiatorType.SPIN).forGetter(t -> t.initiatorType)
-    ).apply(instance, MoneyTransfer::new));
+            InitiatorType.CODEC.optionalFieldOf("initiator_type", InitiatorType.SPIN).forGetter(t -> t.initiatorType)
+    ).apply(instance, BalanceTransfer::new));
     private static final int TRANSFER_CYCLE_LENGTH = 5;
 
-    private Optional<BalanceType> source;
-    private BalanceType target;
+    private Optional<AccountType> source;
+    private AccountType target;
     private int amount;
     private int duration;
     private int transferAmount;
-    private TransferInitiatorType initiatorType;
+    private InitiatorType initiatorType;
 
     private TransferHandler transferHandler;
 
-    public MoneyTransfer(Optional<BalanceType> source, BalanceType target, int amount, int duration, int transferAmount, TransferInitiatorType initiatorType) {
+    public BalanceTransfer(Optional<AccountType> source, AccountType target, int amount, int duration, int transferAmount, InitiatorType initiatorType) {
         this.source = source;
         this.target = target;
         this.amount = amount;
@@ -43,9 +43,9 @@ public final class MoneyTransfer {
         this.initiatorType = initiatorType;
     }
 
-    public static MoneyTransfer createInitial() {
-        return new MoneyTransfer(
-                Optional.empty(), BalanceType.WIN, 0, 0, 0, TransferInitiatorType.PENDING
+    public static BalanceTransfer createInitial() {
+        return new BalanceTransfer(
+                Optional.empty(), AccountType.WIN, 0, 0, 0, InitiatorType.PENDING
         );
     }
 
@@ -70,7 +70,7 @@ public final class MoneyTransfer {
         }
     }
 
-    public void initiate(Optional<BalanceType> sourceAccount, BalanceType targetAccount, int amount, int totalDuration, TransferInitiatorType initiatorType) {
+    public void initiate(String sourceId, Optional<AccountType> sourceAccount, AccountType targetAccount, int amount, int totalDuration, InitiatorType initiatorType) {
         this.source = sourceAccount;
         this.target = targetAccount;
         this.amount = amount;
@@ -78,7 +78,7 @@ public final class MoneyTransfer {
         int transferCycles = totalDuration / TRANSFER_CYCLE_LENGTH;
         this.transferAmount = Math.max(amount / transferCycles, 1);
         this.initiatorType = initiatorType;
-        Phoenix.LOGGER.debug("Initiating money transfer of {}. Max duration is {} with transfer amount of {} per tick from account {} to {} initiated by {}", amount, totalDuration, this.transferAmount, sourceAccount, targetAccount, initiatorType);
+        Phoenix.LOGGER.debug("[{}] Initiating balance transfer of {}. Max duration is {} with transfer amount of {} per tick from account {} to {} initiated by {}", sourceId, amount, totalDuration, this.transferAmount, sourceAccount, targetAccount, initiatorType);
     }
 
     public boolean isActive() {
@@ -95,10 +95,12 @@ public final class MoneyTransfer {
 
     private void onTransferFinished(PhoenixSlotMachineBlockEntity slotMachine) {
         this.duration = 0;
-        this.transferHandler.performTransferOperation(slotMachine, this.initiatorType, this.amount, 0, this.source.orElse(null), this.target);
+        if (this.amount > 0) {
+            this.transferHandler.performTransferOperation(slotMachine, this.initiatorType, this.amount, 0, this.source.orElse(null), this.target);
+        }
     }
 
-    public void update(MoneyTransfer other) {
+    public void update(BalanceTransfer other) {
         this.source = other.source;
         this.target = other.target;
         this.amount = other.amount;
@@ -107,18 +109,18 @@ public final class MoneyTransfer {
         this.initiatorType = other.initiatorType;
     }
 
-    public enum TransferInitiatorType implements StringRepresentable {
+    public enum InitiatorType implements StringRepresentable {
 
         PENDING("pending", Lock.EMPTY),
         SPIN("spin", Lock.SPIN),
         RISK("risk", Lock.RISK),
         RISK_TRANSFER("risk_transfer", Lock.TRANSFER);
 
-        public static final Codec<TransferInitiatorType> CODEC = StringRepresentable.fromEnum(TransferInitiatorType::values);
+        public static final Codec<InitiatorType> CODEC = StringRepresentable.fromEnum(InitiatorType::values);
         private final String serializedName;
         private final Lock lock;
 
-        TransferInitiatorType(String serializedName, Lock lock) {
+        InitiatorType(String serializedName, Lock lock) {
             this.serializedName = serializedName;
             this.lock = lock;
         }
@@ -135,6 +137,6 @@ public final class MoneyTransfer {
 
     @FunctionalInterface
     public interface TransferHandler {
-        void performTransferOperation(PhoenixSlotMachineBlockEntity slotMachine, TransferInitiatorType initiatorType, int transferBalance, int remainingBalance, @Nullable BalanceType source, BalanceType targetAccount);
+        void performTransferOperation(PhoenixSlotMachineBlockEntity slotMachine, InitiatorType initiatorType, int transferBalance, int remainingBalance, @Nullable AccountType source, AccountType targetAccount);
     }
 }

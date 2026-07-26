@@ -1,24 +1,37 @@
 package dev.tnt.phoenix.data;
 
+import com.mojang.serialization.Codec;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.StringRepresentable;
 
-public enum SpriteType {
+public enum SpriteType implements StringRepresentable {
 
-    DEFAULT(""),
-    ENABLED("_on"),
-    DISABLED("_off");
+    DEFAULT("default"),
+    ENABLED("enabled"),
+    DISABLED("disabled");
 
-    private final String pathSuffix;
+    public static final Codec<SpriteType> CODEC = StringRepresentable.fromEnum(SpriteType::values);
+    private final String serializedName;
 
-    SpriteType(String pathSuffix) {
-        this.pathSuffix = pathSuffix;
+
+    SpriteType(String serializedName) {
+        this.serializedName = serializedName;
     }
 
-    public Identifier createTexturePath(Identifier basePath) {
-        return basePath.withPath(path -> "textures/" + path + this.pathSuffix + ".png");
+    @Override
+    public String getSerializedName() {
+        return serializedName;
     }
 
-    public Identifier getPath(Identifier path) {
-        return path.withPath(pth -> pth.replace(".png", this.pathSuffix + ".png"));
+    public Identifier getSpritePath(Identifier sprite) {
+        return sprite.withPath(path -> path.replace(".png", this.getDefaultTexturePathSuffix() + ".png"));
+    }
+
+    public String getDefaultTexturePathSuffix() {
+        return switch (this) {
+            case DEFAULT -> "";
+            case ENABLED -> "_on";
+            case DISABLED -> "_off";
+        };
     }
 }

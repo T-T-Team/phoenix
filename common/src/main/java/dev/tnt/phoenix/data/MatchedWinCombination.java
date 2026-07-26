@@ -22,4 +22,11 @@ public record MatchedWinCombination(int matchTypeBonus, WinConfiguration.WinPatt
     public int amount() {
         return this.combination.amount();
     }
+
+    public boolean is(WinCombination combination) {
+        if (this.combination.count() != combination.count())
+            return false;
+        String firstSymbol = combination.symbols().getFirst(); // for this comparison there should be always only one symbol
+        return this.combination.symbols().contains(firstSymbol);
+    }
 }

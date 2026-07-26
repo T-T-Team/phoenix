@@ -23,6 +23,18 @@ public enum LockReason implements StringRepresentable {
     }
 
     public boolean isActiveGame() {
-        return this == SPIN || this == RISK || this == TRANSFER;
+        return this.is(SPIN, RISK, TRANSFER);
+    }
+
+    public boolean is(LockReason reason, LockReason... otherReasons) {
+        if (this == reason) {
+            return true;
+        }
+        for (LockReason otherReason : otherReasons) {
+            if (this == otherReason) {
+                return true;
+            }
+        }
+        return false;
     }
 }

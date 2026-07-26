@@ -1,6 +1,8 @@
 package dev.tnt.phoenix.client.screen.widget;
 
 import dev.tnt.phoenix.Phoenix;
+import dev.tnt.phoenix.client.screen.SymbolRenderHelper;
+import dev.tnt.phoenix.data.GameWinInfo;
 import dev.tnt.phoenix.data.SlotMachineConfig;
 import dev.tnt.phoenix.data.SpriteType;
 import dev.tnt.phoenix.data.WinCombination;
@@ -22,6 +24,7 @@ public class WinCombinationsWidget extends AbstractWidget {
     private final Font font;
     private final SlotMachineConfig config;
     private final List<WinCombination> combinations;
+    private final GameWinInfo winInfo;
     private int rows;
     private int columns;
     private int maxColumnSize = 3;
@@ -35,11 +38,12 @@ public class WinCombinationsWidget extends AbstractWidget {
     private int textColorDisabled = 0xFF808080;
     private Identifier blankSprite;
 
-    public WinCombinationsWidget(int x, int y, int width, int height, Font font, SlotMachineConfig config, List<WinCombination> combinations) {
+    public WinCombinationsWidget(int x, int y, int width, int height, Font font, SlotMachineConfig config, List<WinCombination> combinations, GameWinInfo winInfo) {
         super(x, y, width, height, CommonComponents.EMPTY);
         this.font = font;
         this.config = config;
         this.combinations = combinations;
+        this.winInfo = winInfo;
     }
 
     public void setGrid(int rows, int columns, int maxColumnSize) {
@@ -89,20 +93,37 @@ public class WinCombinationsWidget extends AbstractWidget {
                     break;
                 }
                 WinCombination combination = this.combinations.get(index);
-                Identifier icon = combination.getSprite(this.config, this.active ? SpriteType.DEFAULT : SpriteType.DISABLED); // TODO logic
+                SpriteType spriteType = this.resolveSpriteType(combination);
                 for (int i = 0; i < this.maxColumnSize; i++) {
-                    Identifier sprite = i >= combination.count() ? this.blankSprite : icon;
-                    if (sprite == null) {
-                        break;
-                    }
                     int left = px + i * this.iconOverlaySpacing;
-                    graphics.blit(sprite, left, py, left + this.iconSize, py + this.iconSize, 0.0F, 1.0F, 0.0F, 1.0F);
+                    if (i >= combination.count()) {
+                        if (this.blankSprite == null)
+                            break;
+                        graphics.blit(this.blankSprite, left, py, left + this.iconSize, py + this.iconSize, 0.0F, 1.0F, 0.0F, 1.0F);
+                    } else {
+                        String symbol = combination.getCombinationSymbol();
+                        SymbolRenderHelper.renderSymbol(symbol, this.config, graphics, left, py, this.iconSize, this.iconSize, spriteType);
+                    }
                 }
                 Component amountLabel = Component.literal(String.valueOf(combination.amount()));
                 graphics.text(this.font, amountLabel, px + this.maxColumnSize * this.iconSize - 5, py + (this.iconSize - this.font.lineHeight) / 2, this.active ? this.textColor : this.textColorDisabled, true);
             }
         }
         graphics.disableScissor();
+    }
+
+    private SpriteType resolveSpriteType(WinCombination combination) {
+        if (!this.active) {
+            return SpriteType.DISABLED;
+        }
+        if (this.winInfo.isBeingAnimated(combination)) {
+            if (this.winInfo.isBlinkMode()) {
+                long time = System.currentTimeMillis();
+                return (time % 150L) < 75L ? SpriteType.ENABLED : SpriteType.DEFAULT;
+            }
+            return SpriteType.ENABLED;
+        }
+        return this.winInfo.isAnimatingWin() ? SpriteType.DISABLED : SpriteType.DEFAULT;
     }
 
     @Override

@@ -1,6 +1,5 @@
 package dev.tnt.phoenix.block.entity;
 
-import dev.tnt.phoenix.network.C2S_SlotMachineRequest;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;

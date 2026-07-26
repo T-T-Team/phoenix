@@ -2,11 +2,7 @@ package dev.tnt.phoenix.data.game;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.util.StringRepresentable;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.EnumSet;
+import org.jspecify.annotations.NonNull;
 
 public record Lock(boolean locked, LockReason reason) {
 
@@ -22,5 +18,10 @@ public record Lock(boolean locked, LockReason reason) {
 
     public Lock(LockReason reason) {
         this(true, reason);
+    }
+
+    @Override
+    public @NonNull String toString() {
+        return this.locked ? "Lock[" + reason + "]" : "<No Lock>";
     }
 }

@@ -1,26 +1,19 @@
 package dev.tnt.phoenix.platform;
 
-import dev.tnt.phoenix.platform.init.PlatformMenuProvider;
+import dev.tnt.phoenix.PhoenixFabric;
+import dev.tnt.phoenix.data.input.SlotMachineInputApi;
+import dev.tnt.phoenix.data.payout.SlotMachinePayoutApi;
 import dev.tnt.phoenix.platform.init.Reference;
 import dev.tnt.phoenix.platform.init.RegistrationManager;
 import net.fabricmc.fabric.api.creativetab.v1.FabricCreativeModeTab;
-import net.fabricmc.fabric.api.menu.v1.ExtendedMenuProvider;
-import net.fabricmc.fabric.api.menu.v1.ExtendedMenuType;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.Registry;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
-import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,33 +40,18 @@ public final class FabricPlatform implements Platform {
     }
 
     @Override
-    public <M extends AbstractContainerMenu, D> MenuType<M> createMenuType(MenuFactory<M, D> factory, StreamCodec<? super FriendlyByteBuf, D> dataCodec) {
-        return new ExtendedMenuType<>(factory::createMenu, dataCodec);
-    }
-
-    @Override
-    public <T> void openMenu(ServerPlayer player, StreamCodec<? super FriendlyByteBuf, T> codec, PlatformMenuProvider<T> provider) {
-        player.openMenu(new ExtendedMenuProvider<>() {
-            @Override
-            public Object getScreenOpeningData(ServerPlayer player) {
-                return provider.getMenuData(player);
-            }
-
-            @Override
-            public Component getDisplayName() {
-                return provider.title();
-            }
-
-            @Override
-            public @Nullable AbstractContainerMenu createMenu(int containerId, Inventory inventory, Player player) {
-                return provider.createMenu(containerId, inventory, player);
-            }
-        });
-    }
-
-    @Override
     public void sendPacket(ServerPlayer target, CustomPacketPayload payload) {
         ServerPlayNetworking.send(target, payload);
+    }
+
+    @Override
+    public SlotMachineInputApi getSlotMachineInputs() {
+        return PhoenixFabric.INPUT_MANAGER;
+    }
+
+    @Override
+    public SlotMachinePayoutApi getSlotMachinePayouts() {
+        return PhoenixFabric.PAYOUT_MANAGER;
     }
 
     public static void bindRegistries() {

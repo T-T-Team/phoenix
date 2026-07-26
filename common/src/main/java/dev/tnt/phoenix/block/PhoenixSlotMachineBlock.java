@@ -3,7 +3,7 @@ package dev.tnt.phoenix.block;
 import com.mojang.serialization.MapCodec;
 import dev.tnt.phoenix.Phoenix;
 import dev.tnt.phoenix.block.entity.PhoenixSlotMachineBlockEntity;
-import dev.tnt.phoenix.data.game.BalanceType;
+import dev.tnt.phoenix.data.game.AccountType;
 import dev.tnt.phoenix.network.S2C_OpenPhoenixMachineScreen;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -41,7 +41,7 @@ public class PhoenixSlotMachineBlock extends HorizontalDirectionalBlock implemen
     public static final Component MESSAGE_ITEM_NOT_INSERTABLE = Component.translatable("message.phoenix.item_not_insertable").withStyle(ChatFormatting.RED);
 
     public PhoenixSlotMachineBlock(Properties properties) {
-        super(properties.noOcclusion().strength(2.0F, 1.0F));
+        super(properties.noOcclusion().strength(2.0F, 1.0F).lightLevel(_ -> 8));
         this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH));
     }
 
@@ -74,9 +74,11 @@ public class PhoenixSlotMachineBlock extends HorizontalDirectionalBlock implemen
         if (!level.isClientSide()) {
             UUID uid = player.getUUID();
             PhoenixSlotMachineBlockEntity blockEntity = (PhoenixSlotMachineBlockEntity) level.getBlockEntity(pos);
+            ServerPlayer serverPlayer = (ServerPlayer) player;
+            blockEntity.onPlayerInteracted(serverPlayer);
             boolean inserted = blockEntity.insertItem(uid, itemStack, player.isCrouching(), (change, balance) -> {
                 Component changeLabel = Component.literal(String.valueOf(change)).withStyle(ChatFormatting.YELLOW);
-                Component balanceLabel = Component.literal(String.valueOf(balance.getBalance(BalanceType.INPUT))).withStyle(ChatFormatting.YELLOW);
+                Component balanceLabel = Component.literal(String.valueOf(balance.getBalance(AccountType.INPUT))).withStyle(ChatFormatting.YELLOW);
                 player.sendOverlayMessage(Component.translatable("message.phoenix.item_inserted", changeLabel, balanceLabel).withStyle(ChatFormatting.GREEN));
             });
             if (inserted) {
@@ -98,7 +100,7 @@ public class PhoenixSlotMachineBlock extends HorizontalDirectionalBlock implemen
     @Override
     public @Nullable <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState blockState, BlockEntityType<T> type) {
         return type == Phoenix.BLOCK_ENTITY_PHOENIX_SLOT_MACHINE.get()
-                ? (innerLevel, pos, state, slotMachine) -> ((PhoenixSlotMachineBlockEntity) slotMachine).tick(innerLevel, state)
+                ? (_, _, _, slotMachine) -> ((PhoenixSlotMachineBlockEntity) slotMachine).tick()
                 : null;
     }
 

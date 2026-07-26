@@ -1,7 +1,6 @@
 package dev.tnt.phoenix.data.game;
 
 import com.mojang.serialization.Codec;
-import dev.tnt.phoenix.Phoenix;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Collections;
@@ -10,12 +9,13 @@ import java.util.Map;
 
 public final class AccountBalance {
 
-    public static final Codec<AccountBalance> CODEC = Codec.unboundedMap(BalanceType.CODEC, Codec.INT)
+    public static final Codec<AccountBalance> CODEC = Codec.unboundedMap(AccountType.CODEC, Codec.INT)
             .xmap(AccountBalance::new, holder -> holder.balances);
 
-    private final Map<BalanceType, Integer> balances;
+    private final Map<AccountType, Integer> balances;
+    private BalanceChangeListener changeListener;
 
-    public AccountBalance(Map<BalanceType, Integer> balances) {
+    public AccountBalance(Map<AccountType, Integer> balances) {
         this.balances = new HashMap<>(balances);
     }
 
@@ -23,62 +23,94 @@ public final class AccountBalance {
         return new AccountBalance(Collections.emptyMap());
     }
 
+    public void setChangeListener(BalanceChangeListener changeListener) {
+        this.changeListener = changeListener;
+    }
+
     public void updateFrom(AccountBalance holder) {
         this.balances.putAll(holder.balances);
     }
 
-    public int getBalance(BalanceType type) {
+    public int getBalance(AccountType type) {
         return this.balances.getOrDefault(type, 0);
     }
 
-    public void setBalance(BalanceType type, int amount) {
+    public void setBalance(AccountType type, int amount) {
         int balance = Math.max(0, amount);
-        this.balances.put(type, balance);
-        Phoenix.LOGGER.debug("Set balance of {} to {}", type, balance);
+        int original = this.balances.getOrDefault(type, 0);
+        if (original != balance) {
+            this.balances.put(type, balance);
+            this.changeListener.onBalanceChanged(type, original, balance);
+        }
     }
 
-    public void addBalance(BalanceType type, int amount) {
+    public void addBalance(AccountType type, int amount) {
         this.setBalance(type, this.getBalance(type) + amount);
     }
 
-    public void multiplyBalance(BalanceType type, int amount) {
+    public void multiplyBalance(AccountType type, int amount) {
         this.setBalance(type, this.getBalance(type) * amount);
     }
 
-    public void subtractBalance(BalanceType type, int amount) {
+    public void subtractBalance(AccountType type, int amount) {
         this.setBalance(type, this.getBalance(type) - amount);
     }
 
-    public void transferBalance(BalanceType from, BalanceType to) {
+    public void transferBalance(AccountType from, AccountType to) {
         this.transferBalance(from, to, Integer.MAX_VALUE);
     }
 
-    public void transferBalance(BalanceType from, BalanceType to, int limit) {
+    public void transferBalance(AccountType from, AccountType to, int limit) {
         int available = Math.min(limit, this.getBalance(from));
         this.subtractBalance(from, available);
         this.addBalance(to, available);
     }
 
-    public void clearBalance(BalanceType type) {
+    public void clearBalance(AccountType type) {
         this.setBalance(type, 0);
     }
 
     public void clearAllBalances() {
-        for (BalanceType type : BalanceType.values()) {
+        for (AccountType type : AccountType.values()) {
             this.setBalance(type, 0);
         }
     }
 
     public int getInputBalance() {
-        return this.getBalance(BalanceType.INPUT);
+        return this.getBalance(AccountType.INPUT);
     }
 
     public int getWinBalance() {
-        return this.getBalance(BalanceType.WIN);
+        return this.getBalance(AccountType.WIN);
     }
 
-    public boolean hasSufficientBalance(BalanceType type, int requestAmount) {
+    public boolean hasBalanceInAccount(AccountType type) {
+        return this.hasBalanceInAccount(type, 1);
+    }
+
+    public boolean hasBalanceInAccount(AccountType type, int requestAmount) {
         return this.getBalance(type) >= requestAmount;
+    }
+
+    public boolean hasBalanceInEitherAccount(int minBalance, AccountType account, AccountType... otherAccounts) {
+        if (this.hasBalanceInAccount(account, minBalance)) {
+            return true;
+        }
+        for (AccountType otherAccount : otherAccounts) {
+            if (this.hasBalanceInAccount(otherAccount, minBalance)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean isZeroBalance() {
+        for (AccountType type : AccountType.values()) {
+            if (this.getBalance(type) > 0) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public @Nullable Integer getWinBalanceForDisplay() {
@@ -87,6 +119,11 @@ public final class AccountBalance {
     }
 
     public int getMultiWinBalance() {
-        return this.getBalance(BalanceType.MULTIWIN);
+        return this.getBalance(AccountType.MULTIWIN);
+    }
+
+    @FunctionalInterface
+    public interface BalanceChangeListener {
+        void onBalanceChanged(AccountType type, int originalAmount, int newAmount);
     }
 }

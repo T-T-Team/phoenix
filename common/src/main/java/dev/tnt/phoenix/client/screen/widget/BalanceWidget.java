@@ -13,7 +13,6 @@ import net.minecraft.resources.Identifier;
 import org.apache.commons.lang3.StringUtils;
 import org.joml.Matrix3x2fStack;
 
-import java.util.function.IntSupplier;
 import java.util.function.Supplier;
 
 public final class BalanceWidget extends AbstractWidget {

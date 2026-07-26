@@ -23,13 +23,14 @@ public record C2S_SlotMachineRequest(BlockPos pos, ActionType actionType) implem
     );
 
     public void handle(Player player) {
-        // TODO validations
         Level level = player.level();
         if (!level.isLoaded(this.pos))
             return;
         BlockEntity blockEntity = level.getBlockEntity(this.pos);
         if (!(blockEntity instanceof PhoenixSlotMachineBlockEntity slotMachineBlockEntity))
             return;
+        String traceId = Phoenix.getTraceId(this.pos, player.getUUID());
+        Phoenix.LOGGER.debug("[{}] Received slot machine request for action '{}'", traceId, this.actionType);
         slotMachineBlockEntity.performAction(player, this.actionType);
         slotMachineBlockEntity.updatePlayerView(player);
     }

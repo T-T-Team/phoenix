@@ -33,7 +33,7 @@ public enum BetMultiplier implements StringRepresentable {
         return this.multiplier * input;
     }
 
-    public int getMoneyTransferDuration() {
+    public int getBalanceTransferDuration() {
         return 40 + this.additionalTransferDuration;
     }
 

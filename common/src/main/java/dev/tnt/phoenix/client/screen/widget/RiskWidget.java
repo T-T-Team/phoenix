@@ -30,10 +30,10 @@ public final class RiskWidget extends AbstractWidget {
         graphics.blitSprite(RenderPipelines.GUI_TEXTURED, SPRITE, this.getX(), this.getY(), this.getWidth(), this.getHeight());
         // risk texture
         SpriteType clubsSpriteType = this.active && !isHearts ? SpriteType.ENABLED : SpriteType.DEFAULT;
-        graphics.blit(clubsSpriteType.getPath(RISK_CLUBS), this.getX() + 2, this.getY() + 2, this.getX() + 18, this.getY() + 18, 0.0F, 1.0F, 0.0F, 1.0F);
+        graphics.blit(clubsSpriteType.getSpritePath(RISK_CLUBS), this.getX() + 2, this.getY() + 2, this.getX() + 18, this.getY() + 18, 0.0F, 1.0F, 0.0F, 1.0F);
 
         SpriteType heartsSpriteType = this.active && isHearts ? SpriteType.ENABLED : SpriteType.DEFAULT;
-        graphics.blit(heartsSpriteType.getPath(RISK_HEARTS), this.getRight() - 18, this.getY() + 2, this.getRight() - 2, this.getY() + 18, 0.0F, 1.0F, 0.0F, 1.0F);
+        graphics.blit(heartsSpriteType.getSpritePath(RISK_HEARTS), this.getRight() - 18, this.getY() + 2, this.getRight() - 2, this.getY() + 18, 0.0F, 1.0F, 0.0F, 1.0F);
     }
 
     @Override

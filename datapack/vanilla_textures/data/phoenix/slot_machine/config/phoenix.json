@@ -3,105 +3,118 @@
     {
       "id": "cherry",
       "sprites": {
-        "default": "phoenix:textures/spinwheel/cherry.png",
-        "enabled": "phoenix:textures/spinwheel/cherry_on.png",
-        "disabled": "phoenix:textures/spinwheel/cherry_off.png"
+        "default": "minecraft:textures/item/sweet_berries.png"
+      },
+      "sprite_options": {
+        "default_texture_only": true
       }
     },
     {
       "id": "grapes",
       "sprites": {
-        "default": "phoenix:textures/spinwheel/grapes.png",
-        "enabled": "phoenix:textures/spinwheel/grapes_on.png",
-        "disabled": "phoenix:textures/spinwheel/grapes_off.png"
+        "default": "minecraft:textures/item/glow_berries.png"
+      },
+      "sprite_options": {
+        "default_texture_only": true
       }
     },
     {
       "id": "joker",
       "sprites": {
-        "default": "phoenix:textures/spinwheel/joker.png",
-        "enabled": "phoenix:textures/spinwheel/joker_on.png",
-        "disabled": "phoenix:textures/spinwheel/joker_off.png"
+        "default": "minecraft:textures/item/totem_of_undying.png"
+      },
+      "sprite_options": {
+        "default_texture_only": true
       }
     },
     {
       "id": "bar",
       "sprites": {
-        "default": "phoenix:textures/spinwheel/bar.png",
-        "enabled": "phoenix:textures/spinwheel/bar_on.png",
-        "disabled": "phoenix:textures/spinwheel/bar_off.png"
+        "default": "minecraft:textures/item/copper_ingot.png"
+      },
+      "sprite_options": {
+        "default_texture_only": true
       }
     },
     {
       "id": "barbar",
       "sprites": {
-        "default": "phoenix:textures/spinwheel/barbar.png",
-        "enabled": "phoenix:textures/spinwheel/barbar_on.png",
-        "disabled": "phoenix:textures/spinwheel/barbar_off.png"
+        "default": "minecraft:textures/item/iron_ingot.png"
+      },
+      "sprite_options": {
+        "default_texture_only": true
       }
     },
     {
       "id": "barbarbar",
       "sprites": {
-        "default": "phoenix:textures/spinwheel/barbarbar.png",
-        "enabled": "phoenix:textures/spinwheel/barbarbar_on.png",
-        "disabled": "phoenix:textures/spinwheel/barbarbar_off.png"
+        "default": "minecraft:textures/item/gold_ingot.png"
+      },
+      "sprite_options": {
+        "default_texture_only": true
       }
     },
     {
       "id": "bell",
       "sprites": {
-        "default": "phoenix:textures/spinwheel/bell.png",
-        "enabled": "phoenix:textures/spinwheel/bell_on.png",
-        "disabled": "phoenix:textures/spinwheel/bell_off.png"
+        "default": "minecraft:textures/item/bell.png"
+      },
+      "sprite_options": {
+        "default_texture_only": true
       }
     },
     {
       "id": "lemon",
       "sprites": {
-        "default": "phoenix:textures/spinwheel/lemon.png",
-        "enabled": "phoenix:textures/spinwheel/lemon_on.png",
-        "disabled": "phoenix:textures/spinwheel/lemon_off.png"
+        "default": "minecraft:textures/item/cake.png"
+      },
+      "sprite_options": {
+        "default_texture_only": true
       }
     },
     {
       "id": "melon",
       "sprites": {
-        "default": "phoenix:textures/spinwheel/melon.png",
-        "enabled": "phoenix:textures/spinwheel/melon_on.png",
-        "disabled": "phoenix:textures/spinwheel/melon_off.png"
+        "default": "minecraft:textures/item/melon_slice.png"
+      },
+      "sprite_options": {
+        "default_texture_only": true
       }
     },
     {
       "id": "orange",
       "sprites": {
-        "default": "phoenix:textures/spinwheel/orange.png",
-        "enabled": "phoenix:textures/spinwheel/orange_on.png",
-        "disabled": "phoenix:textures/spinwheel/orange_off.png"
+        "default": "minecraft:textures/item/apple.png"
+      },
+      "sprite_options": {
+        "default_texture_only": true
       }
     },
     {
       "id": "plum",
       "sprites": {
-        "default": "phoenix:textures/spinwheel/plum.png",
-        "enabled": "phoenix:textures/spinwheel/plum_on.png",
-        "disabled": "phoenix:textures/spinwheel/plum_off.png"
+        "default": "minecraft:textures/item/carrot.png"
+      },
+      "sprite_options": {
+        "default_texture_only": true
       }
     },
     {
       "id": "seven",
       "sprites": {
-        "default": "phoenix:textures/spinwheel/seven.png",
-        "enabled": "phoenix:textures/spinwheel/seven_on.png",
-        "disabled": "phoenix:textures/spinwheel/seven_off.png"
+        "default": "minecraft:textures/item/diamond.png"
+      },
+      "sprite_options": {
+        "default_texture_only": true
       }
     },
     {
       "id": "star",
       "sprites": {
-        "default": "phoenix:textures/spinwheel/star.png",
-        "enabled": "phoenix:textures/spinwheel/star_on.png",
-        "disabled": "phoenix:textures/spinwheel/star_off.png"
+        "default": "minecraft:textures/item/nether_star.png"
+      },
+      "sprite_options": {
+        "default_texture_only": true
       }
     }
   ],

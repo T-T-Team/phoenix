@@ -1,7 +1,11 @@
 package dev.tnt.phoenix.client.screen.widget;
 
 import dev.tnt.phoenix.Phoenix;
-import dev.tnt.phoenix.data.*;
+import dev.tnt.phoenix.client.screen.SymbolRenderHelper;
+import dev.tnt.phoenix.data.GameWinInfo;
+import dev.tnt.phoenix.data.MatchedWinCombination;
+import dev.tnt.phoenix.data.SlotMachineConfig;
+import dev.tnt.phoenix.data.SpriteType;
 import dev.tnt.phoenix.data.game.PlayerGameInstance;
 import dev.tnt.phoenix.data.game.SpinWheel;
 import net.minecraft.client.DeltaTracker;
@@ -26,7 +30,6 @@ public final class SpinWheelWidget extends AbstractWidget {
     private final SpinWheel spinWheel;
     private final int displayedIcons;
     private final int wheelIndex;
-    private SpriteType spriteType = SpriteType.DEFAULT;
     private final PlayerGameInstance instance;
 
     public SpinWheelWidget(int x, int y, int width, int height, int wheelIndex, SlotMachineConfig config, SpinWheel spinWheel, PlayerGameInstance instance) {
@@ -36,10 +39,6 @@ public final class SpinWheelWidget extends AbstractWidget {
         this.spinWheel = spinWheel;
         this.displayedIcons = height / (ICON_SIZE + 2) + 1;
         this.instance = instance;
-    }
-
-    public void setSpriteType(SpriteType spriteType) {
-        this.spriteType = spriteType;
     }
 
     @Override
@@ -62,9 +61,8 @@ public final class SpinWheelWidget extends AbstractWidget {
             int positionIndex = i - startSpinIndex;
             String symbol = sequence.get(spriteIndex);
             int winningIndex = winCombination != null && this.wheelIndex < winCombination.count() ? winIndexes.get(this.wheelIndex) : -1;
-            Identifier sprite = this.config.getSprite(symbol, this.resolveSpriteType(positionIndex, winningIndex, isBlinkMode));
             int y = this.getY() + 2 + positionIndex * (ICON_SIZE + 2);
-            graphics.blit(sprite, this.getX() + 2, y - spinOffset, this.getX() + 2 + ICON_SIZE, y + ICON_SIZE - spinOffset, 0.0F, 1.0F, 0.0F, 1.0F);
+            SymbolRenderHelper.renderSymbol(symbol, this.config, graphics, this.getX() + 2, y - spinOffset, ICON_SIZE, ICON_SIZE, this.resolveSpriteType(positionIndex, winningIndex, isBlinkMode));
         }
         graphics.disableScissor();
     }

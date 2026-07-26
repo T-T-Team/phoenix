@@ -111,59 +111,14 @@
         "generator": "weighted_pools",
         "pools": [
           {
-            "symbol": "cherry",
-            "count": 5,
-            "weight": 5
-          },
-          {
-            "symbol": "lemon",
-            "count": 4,
-            "weight": 4
-          },
-          {
-            "symbol": "orange",
+            "symbol": "joker",
             "count": 3,
-            "weight": 3
-          },
-          {
-            "symbol": "plum",
-            "count": 2,
-            "weight": 2
-          },
-          {
-            "symbol": "bell",
-            "count": 2,
-            "weight": 2
-          },
-          {
-            "symbol": "grapes",
-            "count": 2,
-            "weight": 2
-          },
-          {
-            "symbol": "melon",
-            "count": 2,
-            "weight": 2
-          },
-          {
-            "symbol": "bar",
-            "count": 1,
-            "weight": 1
-          },
-          {
-            "symbol": "barbar",
-            "count": 1,
             "weight": 1
           },
           {
             "symbol": "barbarbar",
             "count": 1,
             "weight": 1
-          },
-          {
-            "symbol": "joker",
-            "count": 2,
-            "weight": 2
           }
         ]
       },
@@ -171,59 +126,14 @@
         "generator": "weighted_pools",
         "pools": [
           {
-            "symbol": "cherry",
-            "count": 4,
-            "weight": 4
-          },
-          {
-            "symbol": "lemon",
-            "count": 5,
-            "weight": 5
-          },
-          {
-            "symbol": "orange",
+            "symbol": "joker",
             "count": 3,
-            "weight": 3
-          },
-          {
-            "symbol": "plum",
-            "count": 2,
-            "weight": 2
-          },
-          {
-            "symbol": "bell",
-            "count": 2,
-            "weight": 2
-          },
-          {
-            "symbol": "grapes",
-            "count": 2,
-            "weight": 2
-          },
-          {
-            "symbol": "melon",
-            "count": 2,
-            "weight": 2
-          },
-          {
-            "symbol": "bar",
-            "count": 1,
-            "weight": 1
-          },
-          {
-            "symbol": "barbar",
-            "count": 1,
             "weight": 1
           },
           {
             "symbol": "barbarbar",
             "count": 1,
             "weight": 1
-          },
-          {
-            "symbol": "joker",
-            "count": 2,
-            "weight": 2
           }
         ]
       },
@@ -231,59 +141,14 @@
         "generator": "weighted_pools",
         "pools": [
           {
-            "symbol": "cherry",
-            "count": 4,
-            "weight": 4
-          },
-          {
-            "symbol": "lemon",
-            "count": 4,
-            "weight": 4
-          },
-          {
-            "symbol": "orange",
-            "count": 4,
-            "weight": 4
-          },
-          {
-            "symbol": "plum",
+            "symbol": "joker",
             "count": 2,
-            "weight": 2
-          },
-          {
-            "symbol": "bell",
-            "count": 2,
-            "weight": 2
-          },
-          {
-            "symbol": "grapes",
-            "count": 2,
-            "weight": 2
-          },
-          {
-            "symbol": "melon",
-            "count": 2,
-            "weight": 2
-          },
-          {
-            "symbol": "bar",
-            "count": 1,
-            "weight": 1
-          },
-          {
-            "symbol": "barbar",
-            "count": 1,
             "weight": 1
           },
           {
             "symbol": "barbarbar",
             "count": 1,
             "weight": 1
-          },
-          {
-            "symbol": "joker",
-            "count": 2,
-            "weight": 2
           }
         ]
       }
@@ -294,104 +159,26 @@
         "sequence": [
           "cherry",
           "cherry",
-          "cherry",
           "bell",
-          "bell",
-          "grapes",
-          "bell",
-          "grapes",
-          "grapes",
-          "seven",
-          "lemon",
-          "lemon",
-          "lemon",
-          "melon",
-          "star",
-          "melon",
-          "orange",
-          "orange",
-          "orange",
-          "cherry",
-          "cherry",
-          "plum",
-          "plum",
-          "plum",
-          "lemon",
-          "orange",
-          "lemon",
-          "orange",
-          "plum",
-          "lemon"
+          "bell"
         ]
       },
       {
         "generator": "simple_sequence",
         "sequence": [
-          "grapes",
-          "grapes",
-          "seven",
-          "grapes",
-          "lemon",
-          "lemon",
-          "lemon",
-          "orange",
-          "plum",
-          "orange",
           "cherry",
-          "cherry",
-          "cherry",
-          "melon",
-          "melon",
-          "lemon",
-          "lemon",
-          "bell",
-          "bell",
           "cherry",
           "bell",
-          "cherry",
-          "orange",
-          "orange",
-          "orange",
-          "plum",
-          "plum",
-          "plum",
-          "star",
-          "cherry"
+          "bell"
         ]
       },
       {
         "generator": "simple_sequence",
         "sequence": [
-          "plum",
-          "melon",
-          "plum",
-          "melon",
-          "melon",
-          "orange",
-          "orange",
-          "orange",
+          "cherry",
+          "cherry",
           "bell",
-          "bell",
-          "lemon",
-          "lemon",
-          "lemon",
-          "cherry",
-          "cherry",
-          "plum",
-          "seven",
-          "grapes",
-          "bell",
-          "orange",
-          "orange",
-          "lemon",
-          "grapes",
-          "lemon",
-          "grapes",
-          "star",
-          "cherry",
-          "cherry",
-          "cherry",
-          "orange"
+          "bell"
         ]
       }
     ]

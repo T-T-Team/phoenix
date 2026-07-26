@@ -4,10 +4,11 @@ import com.mojang.serialization.Codec;
 import dev.tnt.phoenix.Phoenix;
 import dev.tnt.phoenix.data.SlotMachineConfig;
 import dev.tnt.phoenix.data.game.AccountBalance;
-import dev.tnt.phoenix.data.game.BalanceType;
-import dev.tnt.phoenix.data.game.Game;
+import dev.tnt.phoenix.data.game.AccountType;
 import dev.tnt.phoenix.data.game.PlayerGameInstance;
+import dev.tnt.phoenix.data.input.SlotMachineInputApi;
 import dev.tnt.phoenix.data.payout.SlotMachinePayout;
+import dev.tnt.phoenix.data.payout.SlotMachinePayoutApi;
 import dev.tnt.phoenix.network.S2C_OpenPayoutScreen;
 import dev.tnt.phoenix.network.S2C_OpenPhoenixMachineScreen;
 import net.minecraft.core.BlockPos;
@@ -20,7 +21,6 @@ import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemInstance;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
@@ -49,33 +49,34 @@ public final class PhoenixSlotMachineBlockEntity extends BlockEntity {
         return this.data.getData(player);
     }
 
-    public void tick(Level level, BlockState blockState) {
+    public void tick() {
         this.data.forEach(instance -> instance.tick(this));
     }
 
     public void performAction(Player player, ActionType actionType) {
         PlayerGameInstance instance = this.getPlayerData(player.getUUID());
         switch (actionType) {
-            case PLAY -> this.play(instance, player);
-            case BET -> this.bet(instance, player);
-            case RISK_CLUBS -> this.risk(instance, player, false);
-            case RISK_HEARTS -> this.risk(instance, player, true);
-            case ADVANCED -> this.advancedPlay(instance, player);
-            case MULTIWIN -> this.transferMultiWin(instance, player);
-            case HOLD_1 -> this.hold(instance, 0);
-            case HOLD_2 -> this.hold(instance, 1);
-            case HOLD_3 -> this.hold(instance, 2);
+            case PLAY -> instance.startPlaying(player);
+            case BET -> instance.toggleBetMultiplier();
+            case RISK_CLUBS -> instance.startRisk(player, false);
+            case RISK_HEARTS -> instance.startRisk(player, true);
+            case ADVANCED -> instance.swapGameType();
+            case MULTIWIN -> instance.transferMultiWin();
+            case HOLD_1 -> instance.hold(0);
+            case HOLD_2 -> instance.hold(1);
+            case HOLD_3 -> instance.hold(2);
             case PAYOUT -> this.payoutSelection(instance, player);
         }
         this.markUpdated();
     }
 
     public boolean insertItem(UUID owner, ItemInstance instance, boolean insertAll, ItemInsertionCallback insertionCallback) {
-        int value = Phoenix.ITEM_VALUES.getItemValue(instance, insertAll);
+        SlotMachineInputApi inputApi = Phoenix.PLATFORM.getSlotMachineInputs();
+        int value = inputApi.getItemValue(instance, insertAll);
         if (value > 0) {
             PlayerGameInstance holder = this.data.getData(owner);
             AccountBalance balance = holder.getAccountBalance();
-            balance.addBalance(BalanceType.INPUT, value);
+            balance.addBalance(AccountType.INPUT, value);
             insertionCallback.onInsertion(value, balance);
             this.markUpdated();
             return true;
@@ -120,44 +121,17 @@ public final class PhoenixSlotMachineBlockEntity extends BlockEntity {
     public void onPlayerInteracted(ServerPlayer serverPlayer) {
         if (!this.data.data.containsKey(serverPlayer.getUUID())) {
             SlotMachineConfig config = Phoenix.SLOT_MACHINES.getSlotMachineOrThrow(Phoenix.SLOT_MACHINE_CONFIG_PHOENIX);
-            PlayerGameInstance instance = PlayerGameInstance.createForPlayer(serverPlayer, config);
+            PlayerGameInstance instance = PlayerGameInstance.createForPlayer(serverPlayer, this.getBlockPos(), config);
             this.data.data.put(serverPlayer.getUUID(), instance);
             this.markUpdated();
         }
     }
 
-    // TODO validations everywhere
-    private void play(PlayerGameInstance instance, Player player) {
-        instance.startPlaying(this, player);
-    }
-
-    private void bet(PlayerGameInstance instance, Player player) {
-        instance.toggleBetMultiplier();
-    }
-
-    private void risk(PlayerGameInstance instance, Player player, boolean riskHearts) {
-        instance.startRisk(player, riskHearts);
-    }
-
-    private void advancedPlay(PlayerGameInstance instance, Player player) {
-        Game game = instance.getGame();
-        game.changeGameType();
-    }
-
-    private void transferMultiWin(PlayerGameInstance instance, Player player) {
-        AccountBalance accountBalance = instance.getAccountBalance();
-        int transferAmount = instance.getBetMultiplier().getValue(Phoenix.CONFIG.multiWinSpinPriceMultiplier);
-        accountBalance.transferBalance(BalanceType.MULTIWIN, BalanceType.INPUT, transferAmount);
-    }
-
-    private void hold(PlayerGameInstance instance, int index) {
-        instance.hold(index);
-    }
-
     private void payoutSelection(PlayerGameInstance instance, Player player) {
         if (player instanceof ServerPlayer serverPlayer) {
-            int payoutBalance = instance.getAccountBalance().getBalance(BalanceType.MULTIWIN);
-            List<SlotMachinePayout> availableItemValueDefinitions = Phoenix.PAYOUT_MANAGER.getAvailablePayouts();
+            int payoutBalance = instance.getAccountBalance().getBalance(AccountType.MULTIWIN);
+            SlotMachinePayoutApi payoutApi = Phoenix.PLATFORM.getSlotMachinePayouts();
+            List<SlotMachinePayout> availableItemValueDefinitions = payoutApi.listAvailablePayouts();
             Phoenix.PLATFORM.sendPacket(serverPlayer, new S2C_OpenPayoutScreen(this.getBlockPos(), availableItemValueDefinitions, payoutBalance));
         }
     }

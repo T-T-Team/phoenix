@@ -1,7 +1,7 @@
 package dev.tnt.phoenix.config;
 
 import dev.tnt.phoenix.Phoenix;
-import dev.tnt.phoenix.data.game.BalanceType;
+import dev.tnt.phoenix.data.game.AccountType;
 import dev.toma.configuration.config.Config;
 import dev.toma.configuration.config.Configurable;
 
@@ -16,15 +16,15 @@ public final class PhoenixConfig {
 
     @Configurable
     @Configurable.Synchronized
-    public BalanceType lowGameTargetAccount = BalanceType.WIN;
+    public AccountType lowGameTargetAccount = AccountType.WIN;
 
     @Configurable
     @Configurable.Synchronized
-    public BalanceType highGameTargetAccount = BalanceType.WIN;
+    public AccountType highGameTargetAccount = AccountType.WIN;
 
     @Configurable
     @Configurable.Synchronized
-    public BalanceType riskGameTargetAccount = BalanceType.WIN;
+    public AccountType riskGameTargetAccount = AccountType.WIN;
 
     @Configurable
     @Configurable.Range(min = 2, max = 20)

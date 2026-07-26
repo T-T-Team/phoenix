@@ -5,7 +5,6 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.Identifier;
 import net.minecraft.util.ExtraCodecs;
 
 import java.util.Collections;
@@ -33,9 +32,8 @@ public record WinCombination(List<String> symbols, int count, int amount, boolea
                 .map(symbol -> new WinCombination(Collections.singletonList(symbol), this.count, this.amount, this.render));
     }
 
-    public Identifier getSprite(SlotMachineConfig config, SpriteType type) {
-        String symbol = this.symbols.getFirst();
-        return config.getSprite(symbol, type);
+    public String getCombinationSymbol() {
+        return this.symbols.getFirst();
     }
 
     public boolean testInput(String symbol) {

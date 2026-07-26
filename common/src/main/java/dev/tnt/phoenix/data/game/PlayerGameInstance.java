@@ -7,6 +7,7 @@ import dev.tnt.phoenix.block.entity.PhoenixSlotMachineBlockEntity;
 import dev.tnt.phoenix.config.PhoenixConfig;
 import dev.tnt.phoenix.data.*;
 import dev.tnt.phoenix.util.EnumHelper;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
@@ -14,43 +15,42 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import org.jspecify.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
-// FIXME game gets unlocked when having multiple wins active - during highligh phase
 public class PlayerGameInstance {
 
     public static final Codec<PlayerGameInstance> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             UUIDUtil.CODEC.fieldOf("owner").forGetter(t -> t.owner),
+            Codec.STRING.optionalFieldOf("trace_id", "<no trace id>").forGetter(t -> t.traceId),
             AccountBalance.CODEC.fieldOf("account_balance").forGetter(PlayerGameInstance::getAccountBalance),
             Game.CODEC.fieldOf("active_spin").forGetter(t -> t.game),
             SpinWheel.CODEC.listOf().fieldOf("spin_wheels").forGetter(t -> t.spinWheels),
             GameWinInfo.CODEC.optionalFieldOf("game_win_info", GameWinInfo.create()).forGetter(t -> t.winInfo),
-            MoneyTransfer.CODEC.optionalFieldOf("money_transfer", MoneyTransfer.createInitial()).forGetter(t -> t.moneyTransfer),
+            BalanceTransfer.CODEC.optionalFieldOf("balance_transfer", BalanceTransfer.createInitial()).forGetter(t -> t.balanceTransfer),
             BetMultiplier.CODEC.optionalFieldOf("bet_multiplier", BetMultiplier.X1).forGetter(t -> t.betMultiplier),
             Codec.INT.optionalFieldOf("spins", 0).forGetter(t -> t.pendingSpins),
             Lock.CODEC.optionalFieldOf("lock", Lock.EMPTY).forGetter(t -> t.lock)
     ).apply(instance, PlayerGameInstance::new));
 
     private final UUID owner;
+    private final String traceId;
     private final AccountBalance accountBalance;
     private final Game game;
     private final List<SpinWheel> spinWheels;
     private final GameWinInfo winInfo;
-    private final MoneyTransfer moneyTransfer;
+    private final BalanceTransfer balanceTransfer;
     private BetMultiplier betMultiplier;
     private int pendingSpins;
     private Lock lock;
 
-    private PlayerGameInstance(UUID owner, AccountBalance accountBalance, Game game, List<SpinWheel> spinWheels, GameWinInfo winInfo, MoneyTransfer moneyTransfer, BetMultiplier betMultiplier, int pendingSpins, Lock lock) {
+    private PlayerGameInstance(UUID owner, String traceId, AccountBalance accountBalance, Game game, List<SpinWheel> spinWheels, GameWinInfo winInfo, BalanceTransfer balanceTransfer, BetMultiplier betMultiplier, int pendingSpins, Lock lock) {
         this.owner = owner;
+        this.traceId = traceId;
         this.accountBalance = accountBalance;
         this.game = game;
         this.spinWheels = spinWheels;
         this.winInfo = winInfo;
-        this.moneyTransfer = moneyTransfer;
+        this.balanceTransfer = balanceTransfer;
         this.betMultiplier = betMultiplier;
         this.pendingSpins = pendingSpins;
         this.lock = lock;
@@ -58,13 +58,13 @@ public class PlayerGameInstance {
         for (SpinWheel spinWheel : this.spinWheels) {
             spinWheel.addSpinCompleteListener(this::onSpinComplete);
         }
+        this.accountBalance.setChangeListener(this::onAccountBalanceChanged);
         this.game.addRiskCompleteListener(this::onRiskFinished);
         this.winInfo.setHighlightCompleteCallback(this::onWinHighlightFinished);
-        this.winInfo.setAnimationCompleteCallback(this::onWinAnimationFinished);
-        this.moneyTransfer.setTransferHandler(this::handleMoneyTransfer);
+        this.balanceTransfer.setTransferHandler(this::handleBalanceTransferTick);
     }
 
-    public static PlayerGameInstance createForPlayer(ServerPlayer player, SlotMachineConfig config) {
+    public static PlayerGameInstance createForPlayer(ServerPlayer player, BlockPos position, SlotMachineConfig config) {
         List<SpinWheel> spinWheelList = new ArrayList<>(6);
         RandomSource random = player.getRandom();
         for (int i = 0; i < 6; i++) {
@@ -77,13 +77,17 @@ public class PlayerGameInstance {
         Game game = Game.create();
         reloadSequences(spinWheelList.subList(0, 3), GameType.LOW, config, random, game);
         reloadSequences(spinWheelList.subList(3, 6), GameType.HIGH, config, random, game);
+
+        UUID playerId = player.getUUID();
+        String traceId = Phoenix.getTraceId(position, playerId);
         return new PlayerGameInstance(
-                player.getUUID(),
+                playerId,
+                traceId,
                 AccountBalance.createDefault(),
                 game,
                 spinWheelList,
                 GameWinInfo.create(),
-                MoneyTransfer.createInitial(),
+                BalanceTransfer.createInitial(),
                 BetMultiplier.X1,
                 0,
                 Lock.EMPTY
@@ -97,27 +101,42 @@ public class PlayerGameInstance {
             PhoenixConfig.SpinConfiguration configuration = index < 3 ? Phoenix.CONFIG.lowSpinConfig : Phoenix.CONFIG.highSpinConfig;
             wheel.update(slotMachine, configuration);
         }
-        this.moneyTransfer.tick(slotMachine);
+        this.balanceTransfer.tick(slotMachine);
         this.game.update(slotMachine);
         this.winInfo.update(slotMachine);
     }
 
-    public void startPlaying(PhoenixSlotMachineBlockEntity slotMachine, Player player) {
+    public boolean canSpinOrTransfer() {
+        if (this.isLocked()) {
+            return false;
+        }
+        return this.hasSufficientBalanceForGame(this.game.getSelectedGameType()) || this.accountBalance.hasBalanceInAccount(AccountType.WIN);
+    }
+
+    public void startPlaying(Player player) {
+        if (!this.canSpinOrTransfer()) {
+            Phoenix.LOGGER.error("[{}] Attempted to start playing which was not available due to restrictions", this.traceId);
+            return;
+        }
         this.winInfo.reset();
+        this.game.unfreezeRisk();
         if (this.accountBalance.getWinBalance() > 0) {
-            this.startMoneyTransfer(MoneyTransfer.TransferInitiatorType.RISK_TRANSFER, BalanceType.WIN, BalanceType.MULTIWIN, this.accountBalance.getWinBalance(), 50);
+            Phoenix.LOGGER.debug("[{}] Risk game round skipped, transferring win balance of {} to multiWin account", this.traceId, this.accountBalance.getWinBalance());
+            this.startBalanceTransfer(BalanceTransfer.InitiatorType.RISK_TRANSFER, AccountType.WIN, AccountType.MULTIWIN, this.accountBalance.getWinBalance());
         } else {
             int balanceCost = this.getCost(GameType.LOW);
-            this.accountBalance.subtractBalance(BalanceType.INPUT, balanceCost);
+            this.accountBalance.subtractBalance(AccountType.INPUT, balanceCost);
             if (game.getSelectedGameType() == GameType.HIGH) {
                 int balanceCostMultiWin = this.getCost(GameType.HIGH);
-                this.accountBalance.subtractBalance(BalanceType.MULTIWIN, balanceCostMultiWin);
+                this.accountBalance.subtractBalance(AccountType.MULTIWIN, balanceCostMultiWin);
             }
             List<SpinWheel> spinWheels = this.getSpinWheelsForGame(this.game.getSelectedGameType());
             reloadSequences(spinWheels, this.game.getSelectedGameType(), PhoenixSlotMachineBlockEntity.getConfig(), player.getRandom(), this.game);
             this.pendingSpins = spinWheels.size() - this.game.getHeldCount();
+            Phoenix.LOGGER.debug("[{}] Starting spin round with {} active and {} held spin wheels on {} game type", this.traceId, this.pendingSpins, this.game.getHeldCount(), this.game.getSelectedGameType());
             this.lock(Lock.SPIN);
-            this.game.setPlayed(this.game.getHeldCount() <= 0);
+            if (this.game.getSelectedGameType().isLow())
+                this.game.setPlayed(this.game.getHeldCount() <= 0);
             RandomSource random = player.getRandom();
             PhoenixConfig config = Phoenix.CONFIG;
             PhoenixConfig.SpinConfiguration spinConfiguration = this.game.getSelectedGameType().isLow() ? config.lowSpinConfig : config.highSpinConfig;
@@ -134,16 +153,87 @@ public class PlayerGameInstance {
         this.game.cancelRisk();
     }
 
+    public boolean canStartRisk() {
+        return !this.isLocked() && this.game.isRiskActive() && !this.game.hasRiskResult() && this.accountBalance.hasBalanceInAccount(AccountType.WIN);
+    }
+
     public void startRisk(Player player, boolean riskHearts) {
+        if (!this.canStartRisk()) {
+            Phoenix.LOGGER.error("[{}] Attempted to start risk game which was not available", this.traceId);
+            return;
+        }
         RandomSource random = player.getRandom();
         PhoenixConfig config = Phoenix.CONFIG;
         int duration = config.minRiskDuration + random.nextInt(config.additionalRiskDuration);
         this.game.startRiskBet(duration, riskHearts);
+        Phoenix.LOGGER.debug("[{}] Starting risk game with stop delay of {}. Bet on hearts: {}", this.traceId, duration, riskHearts);
         this.lock(Lock.RISK);
     }
 
+    public boolean canSwapGameType() {
+        if (this.isLocked() || this.game.getHeldCount() > 0 || this.game.isRiskActive())
+            return false;
+        if (this.game.getSelectedGameType().isHigh())
+            return true;
+        return this.hasSufficientBalanceForGame(GameType.HIGH);
+    }
+
+    public boolean hasSufficientBalanceForGame(GameType type) {
+        return this.hasSufficientBalanceForGame(this.betMultiplier, type);
+    }
+
+    public boolean hasSufficientBalanceForGame(BetMultiplier bet, GameType type) {
+        if (type.isHigh()) {
+            int highCost = this.getCost(bet, type);
+            if (!this.accountBalance.hasBalanceInAccount(AccountType.MULTIWIN, highCost)) {
+                return false;
+            }
+        }
+        return this.accountBalance.hasBalanceInAccount(AccountType.INPUT, this.getCost(bet, GameType.LOW));
+    }
+
+    public void swapGameType() {
+        this.swapGameType(false);
+    }
+
+    public void swapGameType(boolean force) {
+        if (!force && !this.canSwapGameType()) {
+            Phoenix.LOGGER.error("[{}] Failed to swap game type, not enough balance or already holding a slot", this.traceId);
+            return;
+        }
+        this.game.changeGameType();
+        this.winInfo.reset();
+        Phoenix.LOGGER.debug("[{}] Swapped game type to {}", this.traceId, this.game.getSelectedGameType());
+    }
+
+    public boolean canHold(int slot) {
+        return !this.isLocked() && this.game.getSelectedGameType().isLow() && this.game.hasPlayed() && this.game.getHeldCount() < 2 && !this.game.isHeld(slot) && this.hasSufficientBalanceForGame(this.game.getSelectedGameType());
+    }
+
     public void hold(int slot) {
+        if (!this.canHold(slot)) {
+            Phoenix.LOGGER.error("[{}] Failed to lock slot {}, not enough slots available slots or already held", this.traceId, slot);
+            return;
+        }
         this.game.hold(slot);
+        Phoenix.LOGGER.debug("[{}] Holding slot {} for next round, currently holding {} wheels", this.traceId, slot, this.game.getHeldCount());
+    }
+
+    public boolean canWithdrawMultiWin() {
+        if (this.isLocked())
+            return false;
+        int amount = this.betMultiplier.getValue(Phoenix.CONFIG.multiWinSpinPriceMultiplier);
+        return this.accountBalance.hasBalanceInAccount(AccountType.MULTIWIN, amount);
+    }
+
+    public void transferMultiWin() {
+        int requestAmount = this.betMultiplier.getValue(Phoenix.CONFIG.multiWinSpinPriceMultiplier);
+        Phoenix.LOGGER.debug("[{}] Attempting to withdraw {} from multiWin account", this.traceId, requestAmount);
+        if (!this.canWithdrawMultiWin()) {
+            Phoenix.LOGGER.error("[{}] Failed to withdraw {} from multiWin account, not enough balance. Available balance: {}", this.traceId, requestAmount, this.accountBalance.getMultiWinBalance());
+            return;
+        }
+        this.accountBalance.transferBalance(AccountType.MULTIWIN, AccountType.INPUT, requestAmount);
     }
 
     public AccountBalance getAccountBalance() {
@@ -152,24 +242,24 @@ public class PlayerGameInstance {
 
     public void lock(Lock lock) {
         this.lock = lock;
-    }
-
-    public void unlock() {
-        this.unlock(null);
+        Phoenix.LOGGER.debug("[{}] Locking slot machine with lock {}", this.traceId, lock);
     }
 
     public void unlock(@Nullable Lock lock) {
-        if (lock == null || this.lock.equals(lock)) {
-            this.lock(Lock.EMPTY);
+        Phoenix.LOGGER.debug("[{}] Unlocking slot machine lock {}", this.traceId, lock);
+        if (!this.lock.locked()) {
+            Phoenix.LOGGER.warn("[{}] Failed to unlock: not locked", this.traceId);
+            return;
         }
+        if (lock != null && !this.lock.equals(lock)) {
+            Phoenix.LOGGER.warn("[{}] Failed to unlock: expected {}, got {}", this.traceId, this.lock, lock);
+            return;
+        }
+        this.lock = Lock.EMPTY;
     }
 
     public boolean isLocked() {
         return this.lock.locked();
-    }
-
-    public Lock getLock() {
-        return lock;
     }
 
     public LockReason getLockReason() {
@@ -189,51 +279,73 @@ public class PlayerGameInstance {
         return this.spinWheels.subList(type.ordinal() * 3, (type.ordinal() + 1) * 3);
     }
 
-    public void toggleBetMultiplier() {
-        this.betMultiplier = EnumHelper.next(this.betMultiplier);
+    public boolean canToggleBetMultiplier() {
+        if (this.isLocked() || this.game.getHeldCount() > 0 || this.game.isRiskActive()) {
+            return false;
+        }
+        BetMultiplier nextBet = this.getNextBetMultiplier();
+        return nextBet != null && this.hasSufficientBalanceForGame(nextBet, this.game.getSelectedGameType());
     }
 
-    public void setBetMultiplier(BetMultiplier betMultiplier) {
-        this.betMultiplier = betMultiplier;
+    public @Nullable BetMultiplier getNextBetMultiplier() {
+        int maxIterations = BetMultiplier.values().length - 1;
+        BetMultiplier multiplier = this.betMultiplier;
+        for (int i = 0; i < maxIterations; i++) {
+            multiplier = EnumHelper.next(multiplier);
+            if (this.hasSufficientBalanceForGame(multiplier, this.game.getSelectedGameType())) {
+                return multiplier;
+            }
+        }
+        return null;
+    }
+
+    public void toggleBetMultiplier() {
+        if (!this.canToggleBetMultiplier()) {
+            Phoenix.LOGGER.error("[{}] Failed to toggle bet multiplier, not enough balance or already holding a slot", this.traceId);
+            return;
+        }
+        BetMultiplier multiplier = this.getNextBetMultiplier();
+        if (multiplier == null) {
+            throw new IllegalStateException("Failed to find next bet multiplier");
+        }
+        Phoenix.LOGGER.debug("[{}] Bet multiplier changed {} -> {}", this.traceId, this.betMultiplier, multiplier);
+        this.betMultiplier = multiplier;
     }
 
     public int getBetMultiplierValue() {
         return this.betMultiplier.getMultiplier();
     }
 
-    public BetMultiplier getBetMultiplier() {
-        return betMultiplier;
-    }
-
     public GameWinInfo getWinInfo() {
         return winInfo;
     }
 
-    public void startMoneyTransfer(MoneyTransfer.TransferInitiatorType initiatorType, BalanceType targetAccount, int amount, int totalDuration) {
-        this.startMoneyTransfer(initiatorType, null, targetAccount, amount, totalDuration);
+    public void startBalanceTransfer(BalanceTransfer.InitiatorType initiatorType, AccountType targetAccount, int amount) {
+        this.startBalanceTransfer(initiatorType, null, targetAccount, amount);
     }
 
-    public void startMoneyTransfer(MoneyTransfer.TransferInitiatorType initiatorType, @Nullable BalanceType sourceAccount, BalanceType targetAccount, int amount, int totalDuration) {
+    public void startBalanceTransfer(BalanceTransfer.InitiatorType initiatorType, @Nullable AccountType sourceAccount, AccountType targetAccount, int amount) {
         this.lock(initiatorType.getLock());
-        this.moneyTransfer.initiate(Optional.ofNullable(sourceAccount), targetAccount, amount, totalDuration, initiatorType);
+        int duration = this.getBalanceTransferDuration(initiatorType);
+        this.balanceTransfer.initiate(this.traceId, Optional.ofNullable(sourceAccount), targetAccount, amount, duration, initiatorType);
     }
 
     public int getCost(GameType type) {
+        return this.getCost(this.betMultiplier, type);
+    }
+
+    public int getCost(BetMultiplier bet, GameType type) {
         int cost = 1;
         if (type.isHigh())
             cost *= Phoenix.CONFIG.multiWinSpinPriceMultiplier;
-        return this.betMultiplier.getValue(cost);
-    }
-
-    public boolean hasActiveMoneyTransfer() {
-        return this.moneyTransfer.isActive();
+        return bet.getValue(cost);
     }
 
     public PlayerGameInstance update(PlayerGameInstance holder) {
         this.accountBalance.updateFrom(holder.accountBalance);
         this.game.updateFrom(holder.game);
         this.winInfo.update(holder.winInfo);
-        this.moneyTransfer.update(holder.moneyTransfer);
+        this.balanceTransfer.update(holder.balanceTransfer);
         this.betMultiplier = holder.betMultiplier;
         this.pendingSpins = holder.pendingSpins;
         this.lock = holder.lock;
@@ -244,7 +356,9 @@ public class PlayerGameInstance {
     }
 
     private void onSpinComplete(PhoenixSlotMachineBlockEntity slotMachine, float amount) {
+        Phoenix.LOGGER.debug("[{}] Spin completed, remaining wheels: {}", this.traceId, this.pendingSpins - 1);
         if (--this.pendingSpins <= 0) {
+            Phoenix.LOGGER.debug("[{}] All spin wheels finished, checking winning combination for {} game type", this.traceId, this.game.getSelectedGameType());
             SlotMachineConfig config = PhoenixSlotMachineBlockEntity.getConfig();
             GameType gameType = this.game.getSelectedGameType();
             WinConfigurationConfig winConfiguration = config.getWinningConfiguration();
@@ -252,30 +366,34 @@ public class PlayerGameInstance {
             List<MatchedWinCombination> wins = winConfiguration.resolveWins(gameType, spinWheels);
             this.winInfo.assignWinCombination(wins);
             if (!wins.isEmpty()) {
+                Phoenix.LOGGER.debug("[{}] Found {} winning combinations, freezing hold for next round. Combinations: {}", this.traceId, wins.size(), wins);
                 this.game.setPlayed(false);
             } else {
+                Phoenix.LOGGER.debug("[{}] No winning combinations found, clearing held slot", this.traceId);
                 this.game.clearHold();
-                this.unlock();
+                this.unlock(Lock.SPIN);
             }
             if (this.accountBalance.getInputBalance() <= 0) {
+                Phoenix.LOGGER.debug("[{}] No more input balance, disabling held slots", this.traceId);
                 this.game.setPlayed(false);
-            }
-            if (this.game.getSelectedGameType().isHigh() && this.accountBalance.getMultiWinBalance() < this.getCost(GameType.HIGH)) {
-                this.game.changeGameType();
             }
         }
         this.updateSlotMachineAndView(slotMachine);
     }
 
     private void onRiskFinished(PhoenixSlotMachineBlockEntity slotMachine, boolean won) {
-        int wonBalance = won ? this.accountBalance.getWinBalance() * Phoenix.CONFIG.riskGameWinMultiplier : 0;
+        Phoenix.LOGGER.debug("[{}] Risk game finished with win: {}", this.traceId, won);
+        int wonBalance = won ? this.accountBalance.getWinBalance() * (Phoenix.CONFIG.riskGameWinMultiplier - 1) : 0;
+        this.game.freezeRisk();
         if (wonBalance > 0) {
-            this.startMoneyTransfer(MoneyTransfer.TransferInitiatorType.RISK, Phoenix.CONFIG.riskGameTargetAccount, wonBalance, 50);
+            Phoenix.LOGGER.debug("[{}] Risk game won, bonus balance: {}", this.traceId, wonBalance);
+            this.startBalanceTransfer(BalanceTransfer.InitiatorType.RISK, Phoenix.CONFIG.riskGameTargetAccount, wonBalance);
         } else {
-            this.unlock(Lock.RISK);
-            this.accountBalance.clearBalance(BalanceType.WIN);
+            Phoenix.LOGGER.debug("[{}] Risk game lost, removing win bet balance", this.traceId);
+            this.accountBalance.clearBalance(AccountType.WIN);
             this.game.cancelRisk();
             this.winInfo.reset();
+            this.unlock(Lock.RISK);
         }
         this.updateSlotMachineAndView(slotMachine);
     }
@@ -300,43 +418,57 @@ public class PlayerGameInstance {
         }
     }
 
-    private int onWinHighlightFinished(PhoenixSlotMachineBlockEntity slotMachine) {
+    private void onWinHighlightFinished(PhoenixSlotMachineBlockEntity slotMachine) {
         MatchedWinCombination winCombination = this.winInfo.getAnimatedWinCombination();
-        Phoenix.LOGGER.debug("Winning combination match found: {}", winCombination);
-        BalanceType targetAccount = this.game.getSelectedGameType().isHigh() ? Phoenix.CONFIG.highGameTargetAccount : Phoenix.CONFIG.lowGameTargetAccount;
+        AccountType targetAccount = this.game.getSelectedGameType().isHigh() ? Phoenix.CONFIG.highGameTargetAccount : Phoenix.CONFIG.lowGameTargetAccount;
         int winAmount = this.betMultiplier.getValue(winCombination.amount());
-        int transferDuration = this.getMoneyTransferDuration(MoneyTransfer.TransferInitiatorType.SPIN);
-        this.startMoneyTransfer(MoneyTransfer.TransferInitiatorType.SPIN, targetAccount, winAmount, transferDuration);
-        this.updateSlotMachineAndView(slotMachine);
-        return transferDuration;
-    }
-
-    private void onWinAnimationFinished(PhoenixSlotMachineBlockEntity slotMachine) {
-        this.unlock();
-        this.game.clearHold();
-        if (this.accountBalance.getWinBalance() > 0) {
-            this.game.enableRisk();
-        }
+        this.startBalanceTransfer(BalanceTransfer.InitiatorType.SPIN, targetAccount, winAmount);
+        this.winInfo.transitionToBlinkMode();
         this.updateSlotMachineAndView(slotMachine);
     }
 
-    private void handleMoneyTransfer(PhoenixSlotMachineBlockEntity slotMachine, MoneyTransfer.TransferInitiatorType initiatorType, int amount, int remaining, @Nullable BalanceType source, BalanceType targetAccount) {
-        Phoenix.LOGGER.debug("Money transfer of {} from {} to {}: {} remaining", amount, initiatorType, targetAccount, remaining);
+    private void handleBalanceTransferTick(PhoenixSlotMachineBlockEntity slotMachine, BalanceTransfer.InitiatorType initiatorType, int amount, int remaining, @Nullable AccountType source, AccountType targetAccount) {
         this.accountBalance.addBalance(targetAccount, amount);
         if (source != null) {
             this.accountBalance.subtractBalance(source, amount);
         }
         if (remaining <= 0) {
-            Phoenix.LOGGER.debug("Money transfer finished, unlocking transfer lock");
-            this.unlock(initiatorType.getLock());
+            Phoenix.LOGGER.debug("[{}] Balance transfer finished from source {}", this.traceId, initiatorType);
+            if (this.getLockReason() != LockReason.SPIN) {
+                this.unlock(initiatorType.getLock());
+            }
+            if (initiatorType == BalanceTransfer.InitiatorType.SPIN) {
+                this.winInfo.cancelBlinkMode();
+                this.game.clearHold();
+                if (this.winInfo.isFinalAnimation()) {
+                    this.winInfo.forceLockAnimation();
+                    if (this.accountBalance.getWinBalance() > 0) {
+                        this.game.enableRisk();
+                        Phoenix.LOGGER.debug("[{}] Detected {} winning balance, activating risk game", this.traceId, this.accountBalance.getWinBalance());
+                    }
+                    if (this.game.getSelectedGameType().isHigh() && !this.hasSufficientBalanceForGame(GameType.HIGH)) {
+                        this.swapGameType(true);
+                    }
+                    this.unlock(Lock.SPIN);
+                }
+            } else if (initiatorType == BalanceTransfer.InitiatorType.RISK) {
+                this.game.unfreezeRisk();
+            }
         }
         this.updateSlotMachineAndView(slotMachine);
     }
 
-    private int getMoneyTransferDuration(MoneyTransfer.TransferInitiatorType initiatorType) {
+    private int getBalanceTransferDuration(BalanceTransfer.InitiatorType initiatorType) {
         return switch (initiatorType) {
-            case SPIN -> this.betMultiplier.getMoneyTransferDuration();
-            default -> 100;
+            case SPIN -> this.betMultiplier.getBalanceTransferDuration();
+            case RISK, RISK_TRANSFER -> 50;
+            case PENDING -> throw new IllegalArgumentException("Invalid initiator type for balance transfer: " + initiatorType);
         };
+    }
+
+    private void onAccountBalanceChanged(AccountType type, int originalAmount, int newAmount) {
+        int diff = newAmount - originalAmount;
+        String diffLabel = (diff > 0 ? "+" : "") + diff;
+        Phoenix.LOGGER.debug("[{}] Balance changed in account {}: {} -> {} [{}]", this.traceId, type, originalAmount, newAmount, diffLabel);
     }
 }

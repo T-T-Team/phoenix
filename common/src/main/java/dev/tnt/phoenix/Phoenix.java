@@ -4,14 +4,13 @@ import com.mojang.logging.LogUtils;
 import dev.tnt.phoenix.block.PhoenixSlotMachineBlock;
 import dev.tnt.phoenix.block.entity.PhoenixSlotMachineBlockEntity;
 import dev.tnt.phoenix.config.PhoenixConfig;
-import dev.tnt.phoenix.data.input.SlotMachineInputManager;
 import dev.tnt.phoenix.data.SlotMachineDataManager;
-import dev.tnt.phoenix.data.payout.SlotMachinePayoutManager;
 import dev.tnt.phoenix.platform.Platform;
 import dev.tnt.phoenix.platform.Services;
 import dev.tnt.phoenix.platform.init.Reference;
 import dev.tnt.phoenix.platform.init.RegistrationManager;
 import dev.toma.configuration.Configuration;
+import net.minecraft.core.Vec3i;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
@@ -25,21 +24,21 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.Locale;
 import java.util.Set;
+import java.util.UUID;
 import java.util.function.Function;
 
 public class Phoenix {
 
     public static final String MOD_ID = "phoenix";
-    public static final Logger LOGGER = LogManager.getLogger(Phoenix.class);
+    public static final Logger LOGGER = LogManager.getLogger("Phoenix");
     public static final org.slf4j.Logger LOGGER_SLF4J = LogUtils.getLogger();
     public static final Platform PLATFORM = Services.load(Platform.class);
     public static final PhoenixConfig CONFIG = Configuration.registerSimpleJsonConfig(PhoenixConfig.class);
 
     // Data managers
     public static final SlotMachineDataManager SLOT_MACHINES = new SlotMachineDataManager();
-    public static SlotMachineInputManager ITEM_VALUES;
-    public static final SlotMachinePayoutManager PAYOUT_MANAGER = new SlotMachinePayoutManager();
 
     // Slot machine configs
     public static final Identifier SLOT_MACHINE_CONFIG_PHOENIX = identifier("phoenix");
@@ -61,12 +60,12 @@ public class Phoenix {
         populator.apply(ITEM_PHOENIX_SLOT_MACHINE);
     }));
 
-    public static void init() {
-
-    }
-
     public static Identifier identifier(String path) {
         return Identifier.fromNamespaceAndPath(MOD_ID, path);
+    }
+
+    public static String getTraceId(Vec3i pos, UUID uid) {
+        return String.format(Locale.ROOT, "%s@[%d %d %d]", uid, pos.getX(), pos.getY(), pos.getZ());
     }
 
     private static <T extends Block> Reference<T> registerBlock(String name, Function<BlockBehaviour.Properties, T> block) {
