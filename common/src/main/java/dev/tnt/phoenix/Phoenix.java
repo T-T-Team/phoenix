@@ -77,6 +77,7 @@ public class Phoenix {
     public static final Reference<SoundEvent> SOUND_SLOT = registerVariableRangeSound("slot");
     public static final Reference<SoundEvent> SOUND_START = registerVariableRangeSound("start");
     public static final Reference<SoundEvent> SOUND_WIN = registerVariableRangeSound("win");
+    public static final Reference<SoundEvent> SOUND_ROLL = registerVariableRangeSound("roll");
     // Creative tabs
     public static final Reference<CreativeModeTab> PHOENIX_TAB = CREATIVE_TABS_REGISTRY.registerElement("phoenix", id -> PLATFORM.buildCreativeTab(id, ITEM_PHOENIX_SLOT_MACHINE, populator -> {
         populator.apply(ITEM_PHOENIX_SLOT_MACHINE);
