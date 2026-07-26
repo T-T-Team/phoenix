@@ -3,8 +3,6 @@ package dev.tnt.phoenix.data.input;
 import dev.tnt.phoenix.Phoenix;
 import dev.tnt.phoenix.network.S2C_SyncSlotMachineInputs;
 import dev.tnt.phoenix.platform.MultiPlatformJsonReloadListener;
-import it.unimi.dsi.fastutil.objects.Reference2IntMap;
-import it.unimi.dsi.fastutil.objects.Reference2IntOpenHashMap;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.FileToIdConverter;
 import net.minecraft.resources.Identifier;
@@ -21,7 +19,7 @@ public abstract class SlotMachineInputManager extends MultiPlatformJsonReloadLis
 
     public static final Identifier DATA_MANAGER_IDENTIFIER = Phoenix.identifier("item_value_manager");
     private final List<SlotMachineInput> values = new ArrayList<>();
-    private final Reference2IntMap<Item> cache = new Reference2IntOpenHashMap<>();
+    private final Map<Item, Integer> cache = new IdentityHashMap<>();
 
     public SlotMachineInputManager() {
         super(SlotMachineInput.CODEC.listOf(), FileToIdConverter.json("slot_machine/input"));
