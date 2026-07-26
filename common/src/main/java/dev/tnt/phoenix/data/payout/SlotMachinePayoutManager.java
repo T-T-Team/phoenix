@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static dev.tnt.phoenix.Phoenix.DATA_MARKER;
+
 public abstract class SlotMachinePayoutManager extends MultiPlatformJsonReloadListener<List<SlotMachinePayout>> implements SlotMachinePayoutApi {
 
     public static final Identifier DATA_MANAGER_IDENTIFIER = Phoenix.identifier("slot_machine_payout_manager");
@@ -38,5 +40,6 @@ public abstract class SlotMachinePayoutManager extends MultiPlatformJsonReloadLi
         for (List<SlotMachinePayout> payoutFile : preparations.values()) {
             payoutFile.forEach(payout -> this.payouts.put(payout.payoutId(), payout));
         }
+        Phoenix.LOGGER.info(DATA_MARKER, "Loaded {} slot machine payouts from {} data files", this.payouts.size(), preparations.size());
     }
 }

@@ -1,6 +1,7 @@
 package dev.tnt.phoenix.data.input;
 
 import dev.tnt.phoenix.Phoenix;
+import dev.tnt.phoenix.network.S2C_SyncSlotMachineInputs;
 import dev.tnt.phoenix.platform.MultiPlatformJsonReloadListener;
 import it.unimi.dsi.fastutil.objects.Reference2IntMap;
 import it.unimi.dsi.fastutil.objects.Reference2IntOpenHashMap;
@@ -16,6 +17,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+
+import static dev.tnt.phoenix.Phoenix.DATA_MARKER;
 
 public abstract class SlotMachineInputManager extends MultiPlatformJsonReloadListener<List<SlotMachineInput>> implements SlotMachineInputApi {
 
@@ -41,6 +44,17 @@ public abstract class SlotMachineInputManager extends MultiPlatformJsonReloadLis
         return value;
     }
 
+    public S2C_SyncSlotMachineInputs getPayload() {
+        return new S2C_SyncSlotMachineInputs(this.values);
+    }
+
+    public void receivePayload(S2C_SyncSlotMachineInputs payload) {
+        this.values.clear();
+        this.cache.clear();
+        this.values.addAll(payload.inputs());
+        Phoenix.LOGGER.info(DATA_MARKER, "Received {} slot machine input values from server", this.values.size());
+    }
+
     @Override
     protected void apply(Map<Identifier, List<SlotMachineInput>> preparations, ResourceManager manager, ProfilerFiller profiler) {
         this.values.clear();
@@ -49,6 +63,7 @@ public abstract class SlotMachineInputManager extends MultiPlatformJsonReloadLis
                 .flatMap(Collection::stream)
                 .sorted()
                 .forEach(this.values::add);
+        Phoenix.LOGGER.info(DATA_MARKER, "Loaded {} slot machine input values from {} data files", this.values.size(), preparations.size());
     }
 
     private int lookupValue(Item item) {

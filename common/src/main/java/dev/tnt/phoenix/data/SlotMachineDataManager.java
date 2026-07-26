@@ -13,6 +13,8 @@ import net.minecraft.util.profiling.ProfilerFiller;
 
 import java.util.*;
 
+import static dev.tnt.phoenix.Phoenix.DATA_MARKER;
+
 public final class SlotMachineDataManager extends SimpleJsonResourceReloadListener<SlotMachineConfig> {
 
     public static final Identifier DATA_MANAGER_IDENTIFIER = Phoenix.identifier("slot_machine_manager");
@@ -44,12 +46,14 @@ public final class SlotMachineDataManager extends SimpleJsonResourceReloadListen
     public void receivePayload(S2C_SyncSlotMachineConfigs payload) {
         this.slotMachines.clear();
         payload.definitions().forEach(config -> this.slotMachines.put(config.id(), config));
+        Phoenix.LOGGER.info(DATA_MARKER, "Received {} slot machine configs from server", this.slotMachines.size());
     }
 
     @Override
     protected void apply(Map<Identifier, SlotMachineConfig> preparations, ResourceManager manager, ProfilerFiller profiler) {
         this.slotMachines.clear();
         preparations.forEach((id, config) -> this.slotMachines.put(id, new SlotMachineConfigWithId(id, config)));
+        Phoenix.LOGGER.info(DATA_MARKER, "Loaded {} slot machine configs", this.slotMachines.size());
     }
 
     public record SlotMachineConfigWithId(Identifier id, SlotMachineConfig config) {

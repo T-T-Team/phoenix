@@ -20,6 +20,8 @@ import net.minecraft.world.level.Level;
 import java.util.List;
 import java.util.Optional;
 
+import static dev.tnt.phoenix.Phoenix.NETWORK_MARKER;
+
 public record C2S_SlotMachinePayoutRequest(BlockPos pos, List<PayoutRequestEntry> payouts) implements CustomPacketPayload {
 
     public static final Identifier ID = Phoenix.identifier("slot_machine_payout_request");
@@ -38,32 +40,32 @@ public record C2S_SlotMachinePayoutRequest(BlockPos pos, List<PayoutRequestEntry
     public void handle(Player player) {
         Level level = player.level();
         String traceId = Phoenix.getTraceId(this.pos, player.getUUID());
-        Phoenix.LOGGER.debug("[{}] Received slot machine payout request with {} unique payouts: {}", traceId, this.payouts.size(), this.payouts);
+        Phoenix.LOGGER.debug(NETWORK_MARKER, "[{}] Received slot machine payout request with {} unique payouts: {}", traceId, this.payouts.size(), this.payouts);
         if (!level.isLoaded(this.pos)) {
-            Phoenix.LOGGER.warn("[{}] Discarding request as slot machine is not loaded at position {}", traceId, this.pos);
+            Phoenix.LOGGER.warn(NETWORK_MARKER, "[{}] Discarding request as slot machine is not loaded at position {}", traceId, this.pos);
             return;
         }
         level.getBlockEntity(this.pos, Phoenix.BLOCK_ENTITY_PHOENIX_SLOT_MACHINE.get()).ifPresent(slotMachine -> {
             PlayerGameInstance instance = slotMachine.getPlayerData(player.getUUID());
             AccountBalance balance = instance.getAccountBalance();
-            Phoenix.LOGGER.debug("[{}] Player linked correctly with slot machine and payout request. Available balance for payout: {}", traceId, balance.getMultiWinBalance());
+            Phoenix.LOGGER.debug(NETWORK_MARKER, "[{}] Player linked correctly with slot machine and payout request. Available balance for payout: {}", traceId, balance.getMultiWinBalance());
             SlotMachinePayoutApi payoutApi = Phoenix.PLATFORM.getSlotMachinePayouts();
             for (PayoutRequestEntry request : this.payouts) {
                 Optional<SlotMachinePayout> payoutOptional = payoutApi.findPayout(request);
-                Phoenix.LOGGER.debug("[{}] Processing payout ID '{}': {}x {}", traceId, request.payoutId(), request.quantity(), payoutOptional);
+                Phoenix.LOGGER.debug(NETWORK_MARKER, "[{}] Processing payout ID '{}': {}x {}", traceId, request.payoutId(), request.quantity(), payoutOptional);
                 boolean success = payoutOptional.map(payout -> {
                     int price = payout.price();
                     for (int i = 0; i < request.quantity(); i++) {
                         if (!balance.hasBalanceInAccount(AccountType.MULTIWIN, price)) {
-                            Phoenix.LOGGER.warn("[{}] Not enough balance in multiWin account to payout '{}', terminating payouts...", traceId, request.payoutId());
+                            Phoenix.LOGGER.warn(NETWORK_MARKER, "[{}] Not enough balance in multiWin account to payout '{}', terminating payouts...", traceId, request.payoutId());
                             return false;
                         }
                         ItemStack itemStack = payout.assemble();
                         ItemStack insertItem = itemStack.copy();
                         if (!player.addItem(insertItem)) {
-                            Phoenix.LOGGER.warn("[{}] Failed to insert payout '{}' result into inventory, terminating payouts...", traceId, request.payoutId());
+                            Phoenix.LOGGER.warn(NETWORK_MARKER, "[{}] Failed to insert payout '{}' result into inventory, terminating payouts...", traceId, request.payoutId());
                             if (itemStack.getCount() != insertItem.getCount()) {
-                                Phoenix.LOGGER.warn("[{}] Payout was partially inserted to inventory, subtracting full price!", traceId);
+                                Phoenix.LOGGER.warn(NETWORK_MARKER, "[{}] Payout was partially inserted to inventory, subtracting full price!", traceId);
                                 balance.subtractBalance(AccountType.MULTIWIN, price);
                             }
                             return false;
@@ -73,11 +75,11 @@ public record C2S_SlotMachinePayoutRequest(BlockPos pos, List<PayoutRequestEntry
                     return true;
                 }).orElse(false);
                 if (!success) {
-                    Phoenix.LOGGER.warn("[{}] Failed to fully process payout, terminating...", traceId);
+                    Phoenix.LOGGER.warn(NETWORK_MARKER, "[{}] Failed to fully process payout, terminating...", traceId);
                     break;
                 }
             }
-            Phoenix.LOGGER.debug("[{}] Payout request processed successfully", traceId);
+            Phoenix.LOGGER.debug(NETWORK_MARKER, "[{}] Payout request processed successfully", traceId);
             slotMachine.markUpdated();
         });
     }

@@ -4,6 +4,7 @@ import dev.tnt.phoenix.Phoenix;
 import dev.tnt.phoenix.data.game.AccountType;
 import dev.toma.configuration.config.Config;
 import dev.toma.configuration.config.Configurable;
+import dev.toma.configuration.config.UpdateRestrictions;
 
 @Config(id = Phoenix.MOD_ID)
 public final class PhoenixConfig {
@@ -48,6 +49,10 @@ public final class PhoenixConfig {
     @Configurable
     @Configurable.Range(min = 1, max = 100)
     public int multiWinSpinPriceMultiplier = 4;
+
+    @Configurable
+    @Configurable.UpdateRestriction(UpdateRestrictions.MAIN_MENU)
+    public boolean showItemInputValue = true;
 
     public static final class SpinConfiguration {
 

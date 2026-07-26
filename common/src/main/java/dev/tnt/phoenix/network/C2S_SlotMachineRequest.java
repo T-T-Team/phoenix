@@ -30,7 +30,7 @@ public record C2S_SlotMachineRequest(BlockPos pos, ActionType actionType) implem
         if (!(blockEntity instanceof PhoenixSlotMachineBlockEntity slotMachineBlockEntity))
             return;
         String traceId = Phoenix.getTraceId(this.pos, player.getUUID());
-        Phoenix.LOGGER.debug("[{}] Received slot machine request for action '{}'", traceId, this.actionType);
+        Phoenix.LOGGER.debug(Phoenix.NETWORK_MARKER, "[{}] Received slot machine request for action '{}'", traceId, this.actionType);
         slotMachineBlockEntity.performAction(player, this.actionType);
         slotMachineBlockEntity.updatePlayerView(player);
     }

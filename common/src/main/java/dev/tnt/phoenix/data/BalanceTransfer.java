@@ -6,6 +6,7 @@ import dev.tnt.phoenix.Phoenix;
 import dev.tnt.phoenix.block.entity.PhoenixSlotMachineBlockEntity;
 import dev.tnt.phoenix.data.game.AccountType;
 import dev.tnt.phoenix.data.game.Lock;
+import dev.tnt.phoenix.data.game.PlayerGameInstance;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.StringRepresentable;
 import org.jspecify.annotations.Nullable;
@@ -78,7 +79,7 @@ public final class BalanceTransfer {
         int transferCycles = totalDuration / TRANSFER_CYCLE_LENGTH;
         this.transferAmount = Math.max(amount / transferCycles, 1);
         this.initiatorType = initiatorType;
-        Phoenix.LOGGER.debug("[{}] Initiating balance transfer of {}. Max duration is {} with transfer amount of {} per tick from account {} to {} initiated by {}", sourceId, amount, totalDuration, this.transferAmount, sourceAccount, targetAccount, initiatorType);
+        Phoenix.LOGGER.debug(PlayerGameInstance.MARKER, "[{}] Initiating balance transfer of {}. Max duration is {} with transfer amount of {} per tick from account {} to {} initiated by {}", sourceId, amount, totalDuration, this.transferAmount, sourceAccount, targetAccount, initiatorType);
     }
 
     public boolean isActive() {

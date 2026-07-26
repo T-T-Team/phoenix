@@ -23,6 +23,8 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.Marker;
+import org.apache.logging.log4j.MarkerManager;
 
 import java.util.Locale;
 import java.util.Set;
@@ -34,6 +36,8 @@ public class Phoenix {
     public static final String MOD_ID = "phoenix";
     public static final Logger LOGGER = LogManager.getLogger("Phoenix");
     public static final org.slf4j.Logger LOGGER_SLF4J = LogUtils.getLogger();
+    public static final Marker NETWORK_MARKER = MarkerManager.getMarker("Network");
+    public static final Marker DATA_MARKER = MarkerManager.getMarker("Data");
     public static final Platform PLATFORM = Services.load(Platform.class);
     public static final PhoenixConfig CONFIG = Configuration.registerSimpleJsonConfig(PhoenixConfig.class);
 
