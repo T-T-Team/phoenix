@@ -23,6 +23,7 @@ public final class PhoenixFabric implements ModInitializer {
 
     @Override
     public void onInitialize() {
+        Phoenix.LOGGER.debug("Phoenix bootstrap - Fabric platform");
         FabricPlatform.bindRegistries();
 
         // data managers
@@ -52,8 +53,11 @@ public final class PhoenixFabric implements ModInitializer {
         ServerPlayNetworking.registerGlobalReceiver(C2S_SlotMachinePayoutRequest.TYPE, (payload, ctx) -> payload.handle(ctx.player()));
 
         ServerLifecycleEvents.SYNC_DATA_PACK_CONTENTS.register((player, _) -> {
-            S2C_SyncSlotMachineConfigs payload = Phoenix.SLOT_MACHINES.getPayload();
-            ServerPlayNetworking.send(player, payload);
+            S2C_SyncSlotMachineConfigs slotMachineConfigPayload = Phoenix.SLOT_MACHINES.getPayload();
+            ServerPlayNetworking.send(player, slotMachineConfigPayload);
+
+            S2C_SyncSlotMachineInputs slotMachineInputPayload = INPUT_MANAGER.getPayload();
+            ServerPlayNetworking.send(player, slotMachineInputPayload);
         });
     }
 }
