@@ -13,10 +13,7 @@ import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemInstance;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static dev.tnt.phoenix.Phoenix.DATA_MARKER;
 
@@ -45,7 +42,7 @@ public abstract class SlotMachineInputManager extends MultiPlatformJsonReloadLis
     }
 
     public S2C_SyncSlotMachineInputs getPayload() {
-        return new S2C_SyncSlotMachineInputs(this.values);
+        return new S2C_SyncSlotMachineInputs(Phoenix.CONFIG.showItemInputValue ? this.values : Collections.emptyList());
     }
 
     public void receivePayload(S2C_SyncSlotMachineInputs payload) {

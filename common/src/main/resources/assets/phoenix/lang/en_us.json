@@ -14,6 +14,8 @@
   "label.phoenix.ui.button_risk_clubs": "Risk Clubs",
   "label.phoenix.ui.button_risk_hearts": "Risk Hearts",
   "label.phoenix.ui.button_start": "Start",
+  "label.phoenix.slot_machine_input.value": "Phoenix Input Value: %s",
+  "label.phoenix.slot_machine_input.value_stack": "Phoenix Input Value: %s (total %s)",
 
   "gui.phoenix.previous": "Previous",
   "gui.phoenix.next": "Next"

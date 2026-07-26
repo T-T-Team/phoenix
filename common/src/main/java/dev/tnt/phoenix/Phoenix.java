@@ -5,6 +5,8 @@ import dev.tnt.phoenix.block.PhoenixSlotMachineBlock;
 import dev.tnt.phoenix.block.entity.PhoenixSlotMachineBlockEntity;
 import dev.tnt.phoenix.config.PhoenixConfig;
 import dev.tnt.phoenix.data.SlotMachineDataManager;
+import dev.tnt.phoenix.data.input.SlotMachineInput;
+import dev.tnt.phoenix.data.input.SlotMachineInputApi;
 import dev.tnt.phoenix.platform.Platform;
 import dev.tnt.phoenix.platform.Services;
 import dev.tnt.phoenix.platform.init.Reference;
@@ -13,11 +15,13 @@ import dev.toma.configuration.Configuration;
 import net.minecraft.core.Vec3i;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -29,6 +33,7 @@ import org.apache.logging.log4j.MarkerManager;
 import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class Phoenix {
@@ -70,6 +75,18 @@ public class Phoenix {
 
     public static String getTraceId(Vec3i pos, UUID uid) {
         return String.format(Locale.ROOT, "%s@[%d %d %d]", uid, pos.getX(), pos.getY(), pos.getZ());
+    }
+
+    public static void modifyTooltip(ItemStack itemStack, Consumer<Component> tooltipAdder) {
+        SlotMachineInputApi api = PLATFORM.getSlotMachineInputs();
+        int stackValue = api.getItemValue(itemStack, true);
+        int value = api.getItemValue(itemStack, false);
+        if (value > 0) {
+            Component component = value != stackValue
+                    ? SlotMachineInput.getStackDisplayLabel(value, stackValue)
+                    : SlotMachineInput.getDisplayLabel(value);
+            tooltipAdder.accept(component);
+        }
     }
 
     private static <T extends Block> Reference<T> registerBlock(String name, Function<BlockBehaviour.Properties, T> block) {

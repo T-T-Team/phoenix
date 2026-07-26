@@ -3,18 +3,22 @@ package dev.tnt.phoenix;
 import dev.tnt.phoenix.data.NeoForgeSlotMachineInputManager;
 import dev.tnt.phoenix.data.NeoForgeSlotMachinePayoutManager;
 import dev.tnt.phoenix.data.SlotMachineDataManager;
+import dev.tnt.phoenix.data.input.SlotMachineInput;
 import dev.tnt.phoenix.data.input.SlotMachineInputManager;
 import dev.tnt.phoenix.data.payout.SlotMachinePayoutManager;
 import dev.tnt.phoenix.network.*;
 import dev.tnt.phoenix.platform.NeoForgePlatform;
 import dev.tnt.phoenix.platform.NeoForgeRegistrationManager;
 import net.minecraft.core.Registry;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.AddServerReloadListenersEvent;
 import net.neoforged.neoforge.event.OnDatapackSyncEvent;
+import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.HandlerThread;
@@ -33,6 +37,7 @@ public final class PhoenixNeoForge {
         modEventBus.addListener(this::initNetworking);
         NeoForge.EVENT_BUS.addListener(this::registerDataPacks);
         NeoForge.EVENT_BUS.addListener(this::onDatapackSync);
+        NeoForge.EVENT_BUS.addListener(this::onTooltip);
     }
 
     private void registerDataPacks(AddServerReloadListenersEvent event) {
@@ -60,6 +65,11 @@ public final class PhoenixNeoForge {
             PacketDistributor.sendToPlayer(player, configPayload);
             PacketDistributor.sendToPlayer(player, inputPayload);
         });
+    }
+
+    private void onTooltip(ItemTooltipEvent event) {
+        ItemStack itemStack = event.getItemStack();
+        Phoenix.modifyTooltip(itemStack, event.getToolTip()::add);
     }
 
     @SuppressWarnings("unchecked")

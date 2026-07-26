@@ -8,6 +8,7 @@ import dev.tnt.phoenix.data.payout.SlotMachinePayoutManager;
 import dev.tnt.phoenix.network.*;
 import dev.tnt.phoenix.platform.FabricPlatform;
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -59,5 +60,7 @@ public final class PhoenixFabric implements ModInitializer {
             S2C_SyncSlotMachineInputs slotMachineInputPayload = INPUT_MANAGER.getPayload();
             ServerPlayNetworking.send(player, slotMachineInputPayload);
         });
+
+        ItemTooltipCallback.EVENT.register((stack, _, _, lines) -> Phoenix.modifyTooltip(stack, lines::add));
     }
 }

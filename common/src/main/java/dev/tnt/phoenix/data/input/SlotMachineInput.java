@@ -2,9 +2,11 @@ package dev.tnt.phoenix.data.input;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.HolderSetCodec;
@@ -28,6 +30,17 @@ public record SlotMachineInput(HolderSet<Item> holderSet, int value, int order) 
 
     public boolean isForItem(Item item) {
         return this.holderSet.contains(item.builtInRegistryHolder());
+    }
+
+    public static Component getDisplayLabel(int value) {
+        Component valueLabel = Component.literal(String.valueOf(value)).withStyle(ChatFormatting.YELLOW);
+        return Component.translatable("label.phoenix.slot_machine_input.value", valueLabel).withStyle(ChatFormatting.GRAY);
+    }
+
+    public static Component getStackDisplayLabel(int value, int stackValue) {
+        Component valueLabel = Component.literal(String.valueOf(value)).withStyle(ChatFormatting.YELLOW);
+        Component totalLabel = Component.literal(String.valueOf(stackValue)).withStyle(ChatFormatting.YELLOW);
+        return Component.translatable("label.phoenix.slot_machine_input.value_stack", valueLabel, totalLabel).withStyle(ChatFormatting.GRAY);
     }
 
     @Override
