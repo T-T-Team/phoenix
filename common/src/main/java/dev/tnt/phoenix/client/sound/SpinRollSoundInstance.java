@@ -2,7 +2,6 @@ package dev.tnt.phoenix.client.sound;
 
 import dev.tnt.phoenix.Phoenix;
 import dev.tnt.phoenix.api.SpinGame;
-import dev.tnt.phoenix.data.component.PlayerGameInstance;
 import net.minecraft.client.resources.sounds.AbstractTickableSoundInstance;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
@@ -17,9 +16,13 @@ public final class SpinRollSoundInstance extends AbstractTickableSoundInstance {
         this.gameInstance = gameInstance;
     }
 
+    public static boolean canPlay(SpinGame game) {
+        return game.isRolling();
+    }
+
     @Override
     public void tick() {
-        if (!this.gameInstance.isRolling()) {
+        if (!canPlay(this.gameInstance)) {
             this.stop();
         }
     }

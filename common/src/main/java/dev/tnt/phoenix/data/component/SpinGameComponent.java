@@ -81,7 +81,7 @@ public final class SpinGameComponent extends PhoenixComponent implements SpinGam
         for (SpinWheel wheel : activeWheels) {
             wheel.update(level, pos);
         }
-        this.winInfo.tick();
+        this.winInfo.tick(level, pos);
     }
 
     public void updateFrom(SpinGameComponent holder) {
@@ -360,6 +360,8 @@ public final class SpinGameComponent extends PhoenixComponent implements SpinGam
 
             // Win animation
             this.winInfo.assignWinCombination(wins);
+            if (!wins.isEmpty())
+                this.winInfo.playHitSound(level, pos);
 
             if (!wins.isEmpty()) {
                 // Won, locking hold for next round

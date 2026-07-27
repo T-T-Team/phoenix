@@ -2,7 +2,11 @@ package dev.tnt.phoenix.data;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.tnt.phoenix.Phoenix;
+import net.minecraft.core.BlockPos;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.ExtraCodecs;
+import net.minecraft.world.level.Level;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -42,7 +46,7 @@ public final class GameWinInfo {
         return new GameWinInfo(Collections.emptyList(), 0, 0, false, false);
     }
 
-    public void tick() {
+    public void tick(Level level, BlockPos pos) {
         if (this.combinations.isEmpty())
             return;
         if (this.remainingHighlightDuration > 0) {
@@ -54,6 +58,7 @@ public final class GameWinInfo {
             if (this.animationIndex < this.combinations.size() - 1) {
                 ++this.animationIndex;
                 this.resetAnimation();
+                this.playHitSound(level, pos);
             } else if (!this.animateAll) {
                 this.animateAll = true;
             }
@@ -84,8 +89,17 @@ public final class GameWinInfo {
         this.resetAnimation();
     }
 
+    public void playHitSound(Level level, BlockPos pos) {
+        float pitch = 1.0F + this.animationIndex * 0.05F;
+        level.playSound(null, pos, Phoenix.SOUND_HIT.get(), SoundSource.BLOCKS, 1.0F, pitch);
+    }
+
     public void transitionToBlinkMode() {
         this.blinkMode = true;
+    }
+
+    public int getAnimationIndex() {
+        return animationIndex;
     }
 
     public void cancelBlinkMode() {
