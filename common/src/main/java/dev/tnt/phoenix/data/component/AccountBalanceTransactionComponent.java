@@ -83,6 +83,7 @@ public final class AccountBalanceTransactionComponent extends PhoenixComponent i
         int transferCycles = transferDuration / TRANSFER_CYCLE_LENGTH;
         this.transferAmount = Math.max(Math.round((float) transactionVolume / transferCycles), 1);
         this.transactionSource = source;
+        this.instanceAccess.lock(source.getLock());
         Phoenix.LOGGER.debug(MARKER, "[{}] Initiating transaction of {} volume. Max duration is {} with transfer amount of {} per tick from account {} to {} initiated by {}", this.instanceAccess.traceId(), this.amount, transferDuration, this.transferAmount, this.source, this.target, this.source);
     }
 
