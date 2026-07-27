@@ -131,7 +131,7 @@ public final class GameWinInfo {
     }
 
     private void resetAnimation() {
-        this.remainingHighlightDuration = 40;
+        this.remainingHighlightDuration = 20;
         this.blinkMode = false;
     }
 
