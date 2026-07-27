@@ -8,6 +8,7 @@ import dev.tnt.phoenix.block.entity.ActionType;
 import dev.tnt.phoenix.block.entity.PhoenixSlotMachineBlockEntity;
 import dev.tnt.phoenix.client.PhoenixClient;
 import dev.tnt.phoenix.client.screen.widget.*;
+import dev.tnt.phoenix.client.sound.CountSoundInstance;
 import dev.tnt.phoenix.client.sound.RiskSoundInstance;
 import dev.tnt.phoenix.client.sound.SpinRollSoundInstance;
 import dev.tnt.phoenix.client.sound.WinSoundInstance;
@@ -60,6 +61,7 @@ public class PhoenixSlotMachineScreen extends Screen {
     private static SpinRollSoundInstance spinRollSound;
     private static WinSoundInstance winSound;
     private static RiskSoundInstance riskSound;
+    private static CountSoundInstance countSound;
 
     public PhoenixSlotMachineScreen(BlockPos pos) {
         super(PhoenixSlotMachineBlock.NAME);
@@ -301,23 +303,21 @@ public class PhoenixSlotMachineScreen extends Screen {
         RiskGameComponent riskGame = instance.getRiskGame();
         GameWinInfo winInfo = spinGame.getWinInfo();
         RandomSource random = this.minecraft.level.getRandom();
-        if (SpinRollSoundInstance.canPlay(spinGame)) {
-            if (this.needsRestart(manager, spinRollSound)) {
-                spinRollSound = new SpinRollSoundInstance(random, spinGame);
-                manager.play(spinRollSound);
-            }
+        if (SpinRollSoundInstance.canPlay(spinGame) && this.needsRestart(manager, spinRollSound)) {
+            spinRollSound = new SpinRollSoundInstance(random, spinGame);
+            manager.play(spinRollSound);
         }
-        if (WinSoundInstance.canPlay(winInfo)) {
-            if (this.needsRestart(manager, winSound)) {
-                winSound = new WinSoundInstance(random, winInfo);
-                manager.play(winSound);
-            }
+        if (WinSoundInstance.canPlay(winInfo) && this.needsRestart(manager, winSound)) {
+            winSound = new WinSoundInstance(random, winInfo);
+            manager.play(winSound);
         }
-        if (RiskSoundInstance.canPlay(riskGame)) {
-            if (this.needsRestart(manager, riskSound)) {
-                riskSound = new RiskSoundInstance(random, riskGame);
-                manager.play(riskSound);
-            }
+        if (RiskSoundInstance.canPlay(riskGame) && this.needsRestart(manager, riskSound)) {
+            riskSound = new RiskSoundInstance(random, riskGame);
+            manager.play(riskSound);
+        }
+        if (CountSoundInstance.canPlay(instance) && this.needsRestart(manager, countSound)) {
+            countSound = new CountSoundInstance(random, instance);
+            manager.play(countSound);
         }
     }
 
