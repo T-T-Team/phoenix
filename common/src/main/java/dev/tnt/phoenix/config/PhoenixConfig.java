@@ -14,7 +14,7 @@ public final class PhoenixConfig {
     public SpinConfiguration lowSpinConfig = new SpinConfiguration(30, 5, 15, 0.9F);
 
     @Configurable
-    public SpinConfiguration highSpinConfig = new SpinConfiguration(30, 5, 15, 0.9F);
+    public SpinConfiguration highSpinConfig = new SpinConfiguration(35, 5, 15, 0.9F);
 
     @Configurable
     @Configurable.Synchronized

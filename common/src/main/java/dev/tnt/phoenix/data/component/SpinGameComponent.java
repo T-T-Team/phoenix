@@ -338,11 +338,11 @@ public final class SpinGameComponent extends PhoenixComponent implements SpinGam
 
     private void playStartSound(Entity source) {
         Level level = source.level();
-        level.playSound(null, source, Phoenix.SOUND_START.get(), SoundSource.BLOCKS, 1.0F, 1.0F);
+        level.playSound(null, source, Phoenix.SOUND_START.get(), SoundSource.BLOCKS, 0.4F, 1.0F);
     }
 
     private void playSlotSound(Level level, BlockPos pos) {
-        level.playSound(null, pos, Phoenix.SOUND_SLOT.get(), SoundSource.BLOCKS, 1.0F, 1.0F);
+        level.playSound(null, pos, Phoenix.SOUND_SLOT.get(), SoundSource.BLOCKS, 0.4F, 1.0F);
     }
 
     private void onSpinFinished(Level level, BlockPos pos) {

@@ -229,10 +229,12 @@ public class PhoenixSlotMachineScreen extends Screen {
         IconButtonWithHighlightWidget advancedButton = this.addRenderableWidget(new IconButtonWithHighlightWidget(rowLeft, rowTop, 16, 16, Component.translatable("label.phoenix.ui.button_advanced"), BUTTON_ADVANCED, this::onAdvancedButtonClicked));
         advancedButton.active = spinGame.canSwapGameType();
         advancedButton.setClickSound(Phoenix.SOUND_BET);
+        advancedButton.setVolume(0.1F);
 
         IconButtonWithHighlightWidget betButton = this.addRenderableWidget(new IconButtonWithHighlightWidget(rowLeft + buttonWidth, rowTop, 16, 16, Component.translatable("label.phoenix.ui.button_bet"), BUTTON_BET, this::onBetButtonClicked));
         betButton.active = spinGame.canToggleBet();
         betButton.setClickSound(Phoenix.SOUND_BET);
+        betButton.setVolume(0.1F);
 
         for (int i = 0; i < SPIN_WHEELS; i++) {
             int posIndex = i + 2;

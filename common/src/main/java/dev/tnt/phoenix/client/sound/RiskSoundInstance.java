@@ -14,7 +14,7 @@ public final class RiskSoundInstance extends AbstractTickableSoundInstance {
         super(Phoenix.SOUND_GAMBLE.get(), SoundSource.BLOCKS, random);
         this.riskGame = riskGame;
         this.looping = true;
-        this.volume = 0.6F;
+        this.volume = 0.4F;
     }
 
     public static boolean canPlay(RiskGame riskGame) {

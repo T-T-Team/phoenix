@@ -25,6 +25,7 @@ public final class IconButtonWithHighlightWidget extends AbstractButton {
     private Long blinkInterval = 500L;
     private boolean lightOnDisabled = false;
     private @Nullable SoundEvent clickSound;
+    private float volume = 0.2F;
 
     public IconButtonWithHighlightWidget(int x, int y, int width, int height, Component tooltip, Identifier icon, ClickHandler onClick) {
         super(x, y, width, height, CommonComponents.EMPTY);
@@ -52,6 +53,10 @@ public final class IconButtonWithHighlightWidget extends AbstractButton {
         this.setClickSound(clickSound.get());
     }
 
+    public void setVolume(float volume) {
+        this.volume = volume;
+    }
+
     @Override
     protected void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
         boolean on = this.blinkInterval == null || (System.currentTimeMillis() % (this.blinkInterval * 2L)) <= this.blinkInterval;
@@ -74,7 +79,7 @@ public final class IconButtonWithHighlightWidget extends AbstractButton {
     @Override
     public void playDownSound(SoundManager soundManager) {
         if (this.clickSound != null) {
-            soundManager.play(SimpleSoundInstance.forUI(this.clickSound, 1.0F));
+            soundManager.play(SimpleSoundInstance.forUI(this.clickSound, 1.0F, this.volume));
         }
     }
 

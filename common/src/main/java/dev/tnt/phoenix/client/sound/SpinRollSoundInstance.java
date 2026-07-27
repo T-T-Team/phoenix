@@ -14,6 +14,7 @@ public final class SpinRollSoundInstance extends AbstractTickableSoundInstance {
         super(Phoenix.SOUND_ROLL.get(), SoundSource.BLOCKS, random);
         this.looping = true;
         this.gameInstance = gameInstance;
+        this.volume = 0.5F;
     }
 
     public static boolean canPlay(SpinGame game) {

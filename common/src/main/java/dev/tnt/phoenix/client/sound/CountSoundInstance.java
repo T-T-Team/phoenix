@@ -15,7 +15,7 @@ public final class CountSoundInstance extends AbstractTickableSoundInstance {
         super(Phoenix.SOUND_COUNT.get(), SoundSource.BLOCKS, random);
         this.gameInstance = gameInstance;
         this.looping = true;
-        this.volume = 0.5F;
+        this.volume = 0.2F;
     }
 
     public static boolean canPlay(PlayerGameInstance instance) {

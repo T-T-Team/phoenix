@@ -92,7 +92,7 @@ public final class GameWinInfo {
 
     public void playHitSound(Level level, BlockPos pos) {
         float pitch = 1.0F + this.animationIndex * 0.05F;
-        level.playSound(null, pos, Phoenix.SOUND_HIT.get(), SoundSource.BLOCKS, 1.0F, pitch);
+        level.playSound(null, pos, Phoenix.SOUND_HIT.get(), SoundSource.BLOCKS, 0.3F, pitch);
     }
 
     public void transitionToBlinkMode() {

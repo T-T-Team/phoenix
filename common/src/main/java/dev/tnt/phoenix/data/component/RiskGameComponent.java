@@ -139,7 +139,7 @@ public final class RiskGameComponent extends PhoenixComponent implements RiskGam
         AccountBalance balance = this.instanceAccess.account();
 
         float pitch = 1.0F + this.winStreak * 0.05F;
-        level.playSound(null, pos, Phoenix.SOUND_GAMBLE_WIN.get(), SoundSource.BLOCKS, 1.0F, pitch);
+        level.playSound(null, pos, Phoenix.SOUND_GAMBLE_WIN.get(), SoundSource.BLOCKS, 0.3F, pitch);
 
         ++this.winStreak;
         int multiplier = config.riskGameWinMultiplier - 1;
@@ -155,7 +155,7 @@ public final class RiskGameComponent extends PhoenixComponent implements RiskGam
         AccountBalance balance = this.instanceAccess.account();
         balance.clearBalance(AccountType.WIN);
 
-        level.playSound(null, pos, Phoenix.SOUND_GAMBLE_LOSE.get(), SoundSource.BLOCKS, 1.0F, 1.0F);
+        level.playSound(null, pos, Phoenix.SOUND_GAMBLE_LOSE.get(), SoundSource.BLOCKS, 0.3F, 1.0F);
 
         this.stop();
     }

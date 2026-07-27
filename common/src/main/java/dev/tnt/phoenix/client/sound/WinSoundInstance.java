@@ -14,7 +14,7 @@ public final class WinSoundInstance extends AbstractTickableSoundInstance {
         super(Phoenix.SOUND_WIN.get(), SoundSource.BLOCKS, random);
         this.winInfo = winInfo;
         this.looping = true;
-        this.volume = 0.7F;
+        this.volume = 0.3F;
         this.updatePitch();
     }
 
