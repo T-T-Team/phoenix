@@ -21,6 +21,7 @@ import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.jspecify.annotations.Nullable;
@@ -98,9 +99,11 @@ public class PhoenixSlotMachineScreen extends Screen {
         // top right buttons
         IconButtonWithHighlightWidget multiWin = this.addRenderableWidget(new IconButtonWithHighlightWidget(this.leftPos + CONTENT_WIDTH - 46, this.topPos + 4, 16, 16, Component.translatable("label.phoenix.ui.button_multiwin"), BUTTON_MULTI_WIN, this::onMultiWinButtonClicked));
         multiWin.active = instance.canWithdrawMultiWin();
+        multiWin.setClickSound(Phoenix.SOUND_HOLD);
 
         IconButtonWithHighlightWidget payout = this.addRenderableWidget(new IconButtonWithHighlightWidget(this.leftPos + CONTENT_WIDTH - 26, this.topPos + 4, 16, 16, Component.translatable("label.phoenix.ui.button_pay"), BUTTON_PAY, this::onPayoutButtonClicked));
         payout.active = !instance.isLocked() && accountBalance.hasBalanceInAccount(AccountType.MULTIWIN);
+        payout.setClickSound(Phoenix.SOUND_HOLD);
 
         // wheels
         this.addSpinWheels(instance, config);
@@ -241,12 +244,15 @@ public class PhoenixSlotMachineScreen extends Screen {
         boolean riskGameAvailable = riskGame.canStart();
         IconButtonWithHighlightWidget riskClubs = this.addRenderableWidget(new IconButtonWithHighlightWidget(rowLeft + buttonWidth * 5, rowTop, 16, 16, Component.translatable("label.phoenix.ui.button_risk_clubs"), BUTTON_RISK_CLUBS, this::onRiskClubsButtonClicked));
         riskClubs.active = riskGameAvailable;
+        riskClubs.setClickSound((SoundEvent) null);
 
         IconButtonWithHighlightWidget riskHearts = this.addRenderableWidget(new IconButtonWithHighlightWidget(rowLeft + buttonWidth * 6, rowTop, 16, 16, Component.translatable("label.phoenix.ui.button_risk_hearts"), BUTTON_RISK_HEARTS, this::onRiskHeartsButtonClicked));
         riskHearts.active = riskGameAvailable;
+        riskHearts.setClickSound((SoundEvent) null);
 
         IconButtonWithHighlightWidget startButton = this.addRenderableWidget(new IconButtonWithHighlightWidget(rowLeft + buttonWidth * 7, rowTop, 16, 16, Component.translatable("label.phoenix.ui.button_start"), BUTTON_START, this::onStartButtonClicked));
         startButton.active = instance.getSpinGame().canSpinOrTransfer();
+        startButton.setClickSound((SoundEvent) null);
     }
 
     private void onMultiWinButtonClicked() {
