@@ -8,6 +8,7 @@ import dev.tnt.phoenix.block.entity.ActionType;
 import dev.tnt.phoenix.block.entity.PhoenixSlotMachineBlockEntity;
 import dev.tnt.phoenix.client.PhoenixClient;
 import dev.tnt.phoenix.client.screen.widget.*;
+import dev.tnt.phoenix.client.sound.RiskSoundInstance;
 import dev.tnt.phoenix.client.sound.SpinRollSoundInstance;
 import dev.tnt.phoenix.client.sound.WinSoundInstance;
 import dev.tnt.phoenix.data.*;
@@ -58,6 +59,7 @@ public class PhoenixSlotMachineScreen extends Screen {
 
     private static SpinRollSoundInstance spinRollSound;
     private static WinSoundInstance winSound;
+    private static RiskSoundInstance riskSound;
 
     public PhoenixSlotMachineScreen(BlockPos pos) {
         super(PhoenixSlotMachineBlock.NAME);
@@ -296,6 +298,7 @@ public class PhoenixSlotMachineScreen extends Screen {
     private void initiateLoopSounds(PlayerGameInstance instance) {
         SoundManager manager = this.minecraft.getSoundManager();
         SpinGameComponent spinGame = instance.getSpinGame();
+        RiskGameComponent riskGame = instance.getRiskGame();
         GameWinInfo winInfo = spinGame.getWinInfo();
         RandomSource random = this.minecraft.level.getRandom();
         if (SpinRollSoundInstance.canPlay(spinGame)) {
@@ -308,6 +311,12 @@ public class PhoenixSlotMachineScreen extends Screen {
             if (this.needsRestart(manager, winSound)) {
                 winSound = new WinSoundInstance(random, winInfo);
                 manager.play(winSound);
+            }
+        }
+        if (RiskSoundInstance.canPlay(riskGame)) {
+            if (this.needsRestart(manager, riskSound)) {
+                riskSound = new RiskSoundInstance(random, riskGame);
+                manager.play(riskSound);
             }
         }
     }

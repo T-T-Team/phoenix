@@ -6,6 +6,8 @@ public interface RiskGame {
 
     boolean isActive();
 
+    boolean isStopped();
+
     void enable();
 
     void stop();

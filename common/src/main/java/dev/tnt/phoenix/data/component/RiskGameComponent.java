@@ -9,6 +9,7 @@ import dev.tnt.phoenix.api.RiskBet;
 import dev.tnt.phoenix.api.RiskGame;
 import dev.tnt.phoenix.config.PhoenixConfig;
 import net.minecraft.core.BlockPos;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
 import org.apache.logging.log4j.Marker;
@@ -17,7 +18,7 @@ import org.apache.logging.log4j.MarkerManager;
 public final class RiskGameComponent extends PhoenixComponent implements RiskGame {
 
     public static final Marker MARKER = MarkerManager.getMarker("RiskGame");
-    public static final int RISK_RESULT_FREEZE_DURATION = 40;
+    public static final int RISK_RESULT_FREEZE_DURATION = 25;
 
     public static final Codec<RiskGameComponent> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.BOOL.optionalFieldOf("enabled", false).forGetter(t -> t.enabled),
@@ -76,7 +77,7 @@ public final class RiskGameComponent extends PhoenixComponent implements RiskGam
         if (this.enabled) {
             ++this.gameTick;
             if (this.stopDelay > 0 && --this.stopDelay <= 0) {
-                this.onRiskFinished();
+                this.onRiskFinished(level, pos);
             }
         }
     }
@@ -116,25 +117,30 @@ public final class RiskGameComponent extends PhoenixComponent implements RiskGam
         return bet;
     }
 
+    @Override
     public boolean isStopped() {
         return this.freezeDuration > 0;
     }
 
-    private void onRiskFinished() {
+    private void onRiskFinished(Level level, BlockPos pos) {
         this.freezeDuration = RISK_RESULT_FREEZE_DURATION;
         RiskBet winningBet = this.resolveWinningBet();
         Phoenix.LOGGER.debug(MARKER, "[{}] Risk bet finished. Winning bet: {}", this.instanceAccess.traceId(), winningBet);
         if (winningBet == this.bet) {
-            this.onRiskWon();
+            this.onRiskWon(level, pos);
         } else {
-            this.onRiskLost();
+            this.onRiskLost(level, pos);
         }
         this.instanceAccess.setChanged();
     }
 
-    private void onRiskWon() {
+    private void onRiskWon(Level level, BlockPos pos) {
         PhoenixConfig config = Phoenix.CONFIG;
         AccountBalance balance = this.instanceAccess.account();
+
+        float pitch = 1.0F + this.winStreak * 0.05F;
+        level.playSound(null, pos, Phoenix.SOUND_GAMBLE_WIN.get(), SoundSource.BLOCKS, 1.0F, pitch);
+
         ++this.winStreak;
         int multiplier = config.riskGameWinMultiplier - 1;
         int winningBalance = balance.getBalance(AccountType.WIN) * multiplier; // TODO streak multiplier
@@ -143,11 +149,14 @@ public final class RiskGameComponent extends PhoenixComponent implements RiskGam
         balance.addBalance(config.riskGameTargetAccount, winningBalance);
     }
 
-    private void onRiskLost() {
+    private void onRiskLost(Level level, BlockPos pos) {
         this.winStreak = 0;
         Phoenix.LOGGER.debug(MARKER, "[{}] Risk bet lost, removing winning balance", this.instanceAccess.traceId());
         AccountBalance balance = this.instanceAccess.account();
         balance.clearBalance(AccountType.WIN);
+
+        level.playSound(null, pos, Phoenix.SOUND_GAMBLE_LOSE.get(), SoundSource.BLOCKS, 1.0F, 1.0F);
+
         this.stop();
     }
 }

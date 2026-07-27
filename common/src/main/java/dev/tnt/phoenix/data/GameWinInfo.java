@@ -14,6 +14,7 @@ import java.util.List;
 
 public final class GameWinInfo {
 
+    public static final int HIGHLIGHT_DURATION = 20;
     public static final Codec<GameWinInfo> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             MatchedWinCombination.CODEC.listOf().optionalFieldOf("combinations", Collections.emptyList()).forGetter(t -> t.combinations),
             ExtraCodecs.NON_NEGATIVE_INT.optionalFieldOf("animation_index", 0).forGetter(t -> t.animationIndex),
@@ -131,7 +132,7 @@ public final class GameWinInfo {
     }
 
     private void resetAnimation() {
-        this.remainingHighlightDuration = 20;
+        this.remainingHighlightDuration = HIGHLIGHT_DURATION;
         this.blinkMode = false;
     }
 
