@@ -1,4 +1,4 @@
-package dev.tnt.phoenix.data.game;
+package dev.tnt.phoenix.api;
 
 import com.mojang.serialization.Codec;
 import net.minecraft.util.StringRepresentable;

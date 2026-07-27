@@ -2,9 +2,9 @@ package dev.tnt.phoenix.network;
 
 import dev.tnt.phoenix.Phoenix;
 import dev.tnt.phoenix.data.PayoutRequestEntry;
-import dev.tnt.phoenix.data.game.AccountBalance;
-import dev.tnt.phoenix.data.game.AccountType;
-import dev.tnt.phoenix.data.game.PlayerGameInstance;
+import dev.tnt.phoenix.data.component.AccountBalanceComponent;
+import dev.tnt.phoenix.api.AccountType;
+import dev.tnt.phoenix.data.component.PlayerGameInstance;
 import dev.tnt.phoenix.data.payout.SlotMachinePayout;
 import dev.tnt.phoenix.data.payout.SlotMachinePayoutApi;
 import net.minecraft.core.BlockPos;
@@ -47,8 +47,8 @@ public record C2S_SlotMachinePayoutRequest(BlockPos pos, List<PayoutRequestEntry
         }
         level.getBlockEntity(this.pos, Phoenix.BLOCK_ENTITY_PHOENIX_SLOT_MACHINE.get()).ifPresent(slotMachine -> {
             PlayerGameInstance instance = slotMachine.getPlayerData(player.getUUID());
-            AccountBalance balance = instance.getAccountBalance();
-            Phoenix.LOGGER.debug(NETWORK_MARKER, "[{}] Player linked correctly with slot machine and payout request. Available balance for payout: {}", traceId, balance.getMultiWinBalance());
+            AccountBalanceComponent balance = instance.getAccountBalance();
+            Phoenix.LOGGER.debug(NETWORK_MARKER, "[{}] Player linked correctly with slot machine and payout request. Available balance for payout: {}", traceId, balance.getBalance(AccountType.MULTIWIN));
             SlotMachinePayoutApi payoutApi = Phoenix.PLATFORM.getSlotMachinePayouts();
             for (PayoutRequestEntry request : this.payouts) {
                 Optional<SlotMachinePayout> payoutOptional = payoutApi.findPayout(request);

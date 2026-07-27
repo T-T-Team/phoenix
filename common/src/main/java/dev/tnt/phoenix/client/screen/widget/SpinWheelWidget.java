@@ -6,8 +6,7 @@ import dev.tnt.phoenix.data.GameWinInfo;
 import dev.tnt.phoenix.data.MatchedWinCombination;
 import dev.tnt.phoenix.data.SlotMachineConfig;
 import dev.tnt.phoenix.data.SpriteType;
-import dev.tnt.phoenix.data.game.PlayerGameInstance;
-import dev.tnt.phoenix.data.game.SpinWheel;
+import dev.tnt.phoenix.data.component.SpinWheel;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -30,15 +29,15 @@ public final class SpinWheelWidget extends AbstractWidget {
     private final SpinWheel spinWheel;
     private final int displayedIcons;
     private final int wheelIndex;
-    private final PlayerGameInstance instance;
+    private final GameWinInfo winInfo;
 
-    public SpinWheelWidget(int x, int y, int width, int height, int wheelIndex, SlotMachineConfig config, SpinWheel spinWheel, PlayerGameInstance instance) {
+    public SpinWheelWidget(int x, int y, int width, int height, int wheelIndex, SlotMachineConfig config, SpinWheel spinWheel, GameWinInfo winInfo) {
         super(x, y, width, height, CommonComponents.EMPTY);
         this.wheelIndex = wheelIndex;
         this.config = config;
         this.spinWheel = spinWheel;
         this.displayedIcons = height / (ICON_SIZE + 2) + 1;
-        this.instance = instance;
+        this.winInfo = winInfo;
     }
 
     @Override
@@ -51,9 +50,8 @@ public final class SpinWheelWidget extends AbstractWidget {
         float spin = this.spinWheel.getSpinAmount(delta);
         int startSpinIndex = Mth.floor(spin);
         int spinOffset = Mth.floor((spin - startSpinIndex) * ICON_SIZE);
-        GameWinInfo winInfo = this.instance.getWinInfo();
-        MatchedWinCombination winCombination = winInfo.isAnimatingWin() ? winInfo.getAnimatedWinCombination() : null;
-        boolean isBlinkMode = winInfo.isBlinkMode();
+        MatchedWinCombination winCombination = this.winInfo.isAnimatingWin() ? this.winInfo.getAnimatedWinCombination() : null;
+        boolean isBlinkMode = this.winInfo.isBlinkMode();
         List<Integer> winIndexes = winCombination != null ? winCombination.pattern().indexes() : Collections.emptyList();
         List<String> sequence = this.spinWheel.getSequence();
         for (int i = startSpinIndex; i < startSpinIndex + this.displayedIcons; i++) {
@@ -75,11 +73,10 @@ public final class SpinWheelWidget extends AbstractWidget {
         if (!this.active) {
             return SpriteType.DISABLED;
         }
-        GameWinInfo winInfo = this.instance.getWinInfo();
-        if (winInfo.isAnimateAll()) {
-            return winInfo.isWinningIndex(this.wheelIndex, index) ? SpriteType.ENABLED : SpriteType.DISABLED;
+        if (this.winInfo.isAnimateAll()) {
+            return this.winInfo.isWinningIndex(this.wheelIndex, index) ? SpriteType.ENABLED : SpriteType.DISABLED;
         }
-        if (winInfo.isAnimatingWin()) {
+        if (this.winInfo.isAnimatingWin()) {
             boolean highlight = true;
             if (isBlinkMode) {
                 long time = System.currentTimeMillis();
@@ -94,8 +91,7 @@ public final class SpinWheelWidget extends AbstractWidget {
         if (!this.active) {
             return SPRITE_SLOT;
         }
-        GameWinInfo winInfo = this.instance.getWinInfo();
-        if (winInfo.isAnimatingWin() || winInfo.isAnimateAll()) {
+        if (this.winInfo.isAnimatingWin() || this.winInfo.isAnimateAll()) {
             return SPRITE_SLOT;
         }
         return SPRITE_SLOT_ON;

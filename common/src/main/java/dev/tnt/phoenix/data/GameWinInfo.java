@@ -2,7 +2,6 @@ package dev.tnt.phoenix.data;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.tnt.phoenix.block.entity.PhoenixSlotMachineBlockEntity;
 import net.minecraft.util.ExtraCodecs;
 
 import java.util.ArrayList;
@@ -43,12 +42,12 @@ public final class GameWinInfo {
         return new GameWinInfo(Collections.emptyList(), 0, 0, false, false);
     }
 
-    public void update(PhoenixSlotMachineBlockEntity slotMachine) {
+    public void tick() {
         if (this.combinations.isEmpty())
             return;
         if (this.remainingHighlightDuration > 0) {
             if (--this.remainingHighlightDuration <= 0) {
-                this.highlightCompleteCallback.onHighlightComplete(slotMachine);
+                this.highlightCompleteCallback.onHighlightComplete();
                 this.blinkMode = true;
             }
         } else if (!this.blinkMode) {
@@ -137,7 +136,7 @@ public final class GameWinInfo {
         return false;
     }
 
-    public void update(GameWinInfo winInfo) {
+    public void updateFrom(GameWinInfo winInfo) {
         this.combinations.clear();
         this.combinations.addAll(winInfo.combinations);
         this.animationIndex = winInfo.animationIndex;
@@ -148,6 +147,6 @@ public final class GameWinInfo {
 
     @FunctionalInterface
     public interface HighlightCompleteCallback {
-        void onHighlightComplete(PhoenixSlotMachineBlockEntity slotMachine);
+        void onHighlightComplete();
     }
 }

@@ -2,7 +2,7 @@ package dev.tnt.phoenix.data;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.tnt.phoenix.data.game.SpinWheel;
+import dev.tnt.phoenix.data.component.SpinWheel;
 
 import java.util.Collections;
 import java.util.List;

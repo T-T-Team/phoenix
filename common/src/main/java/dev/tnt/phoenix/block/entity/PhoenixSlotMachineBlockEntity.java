@@ -2,10 +2,13 @@ package dev.tnt.phoenix.block.entity;
 
 import com.mojang.serialization.Codec;
 import dev.tnt.phoenix.Phoenix;
+import dev.tnt.phoenix.api.AccountBalance;
+import dev.tnt.phoenix.api.AccountType;
+import dev.tnt.phoenix.api.RiskBet;
 import dev.tnt.phoenix.data.SlotMachineConfig;
-import dev.tnt.phoenix.data.game.AccountBalance;
-import dev.tnt.phoenix.data.game.AccountType;
-import dev.tnt.phoenix.data.game.PlayerGameInstance;
+import dev.tnt.phoenix.data.component.PlayerGameInstance;
+import dev.tnt.phoenix.data.component.RiskGameComponent;
+import dev.tnt.phoenix.data.component.SpinGameComponent;
 import dev.tnt.phoenix.data.input.SlotMachineInputApi;
 import dev.tnt.phoenix.data.payout.SlotMachinePayout;
 import dev.tnt.phoenix.data.payout.SlotMachinePayoutApi;
@@ -19,6 +22,7 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemInstance;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -50,21 +54,24 @@ public final class PhoenixSlotMachineBlockEntity extends BlockEntity {
     }
 
     public void tick() {
-        this.data.forEach(instance -> instance.tick(this));
+        this.data.forEach(instance -> instance.tick(this.level, this.worldPosition));
     }
 
     public void performAction(Player player, ActionType actionType) {
         PlayerGameInstance instance = this.getPlayerData(player.getUUID());
+        RandomSource random = player.getRandom();
+        SpinGameComponent spinGameComponent = instance.getSpinGame();
+        RiskGameComponent riskGameComponent = instance.getRiskGame();
         switch (actionType) {
-            case PLAY -> instance.startPlaying(player);
-            case BET -> instance.toggleBetMultiplier();
-            case RISK_CLUBS -> instance.startRisk(player, false);
-            case RISK_HEARTS -> instance.startRisk(player, true);
-            case ADVANCED -> instance.swapGameType();
+            case PLAY -> spinGameComponent.start(player);
+            case BET -> spinGameComponent.toggleBet();
+            case RISK_CLUBS -> riskGameComponent.start(random, RiskBet.CLUBS);
+            case RISK_HEARTS -> riskGameComponent.start(random, RiskBet.HEARTS);
+            case ADVANCED -> spinGameComponent.swapGameType(false);
             case MULTIWIN -> instance.transferMultiWin();
-            case HOLD_1 -> instance.hold(0);
-            case HOLD_2 -> instance.hold(1);
-            case HOLD_3 -> instance.hold(2);
+            case HOLD_1 -> spinGameComponent.hold(0);
+            case HOLD_2 -> spinGameComponent.hold(1);
+            case HOLD_3 -> spinGameComponent.hold(2);
             case PAYOUT -> this.payoutSelection(instance, player);
         }
         this.markUpdated();
@@ -120,8 +127,7 @@ public final class PhoenixSlotMachineBlockEntity extends BlockEntity {
 
     public void onPlayerInteracted(ServerPlayer serverPlayer) {
         if (!this.data.data.containsKey(serverPlayer.getUUID())) {
-            SlotMachineConfig config = Phoenix.SLOT_MACHINES.getSlotMachineOrThrow(Phoenix.SLOT_MACHINE_CONFIG_PHOENIX);
-            PlayerGameInstance instance = PlayerGameInstance.createForPlayer(serverPlayer, this.getBlockPos(), config);
+            PlayerGameInstance instance = PlayerGameInstance.createForPlayer(serverPlayer, this.getBlockPos());
             this.data.data.put(serverPlayer.getUUID(), instance);
             this.markUpdated();
         }

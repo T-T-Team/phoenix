@@ -1,6 +1,8 @@
 package dev.tnt.phoenix.client.screen;
 
 import dev.tnt.phoenix.Phoenix;
+import dev.tnt.phoenix.api.AccountType;
+import dev.tnt.phoenix.api.LockReason;
 import dev.tnt.phoenix.block.PhoenixSlotMachineBlock;
 import dev.tnt.phoenix.block.entity.ActionType;
 import dev.tnt.phoenix.block.entity.PhoenixSlotMachineBlockEntity;
@@ -8,7 +10,7 @@ import dev.tnt.phoenix.client.PhoenixClient;
 import dev.tnt.phoenix.client.screen.widget.*;
 import dev.tnt.phoenix.client.sound.SpinRollSoundInstance;
 import dev.tnt.phoenix.data.*;
-import dev.tnt.phoenix.data.game.*;
+import dev.tnt.phoenix.data.component.*;
 import dev.tnt.phoenix.network.C2S_SlotMachineRequest;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -18,6 +20,7 @@ import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.jspecify.annotations.Nullable;
 
@@ -73,8 +76,8 @@ public class PhoenixSlotMachineScreen extends Screen {
             this.isLoading = true;
             return;
         }
-        AccountBalance accountBalance = instance.getAccountBalance();
-        Game game = instance.getGame();
+        AccountBalanceComponent accountBalance = instance.getAccountBalance();
+        SpinGameComponent spinGame = instance.getSpinGame();
         this.leftPos = (this.width - CONTENT_WIDTH) / 2;
         this.topPos = (this.height - CONTENT_HEIGHT) / 2;
         this.holdButtons.clear();
@@ -95,7 +98,7 @@ public class PhoenixSlotMachineScreen extends Screen {
         multiWin.active = instance.canWithdrawMultiWin();
 
         IconButtonWithHighlightWidget payout = this.addRenderableWidget(new IconButtonWithHighlightWidget(this.leftPos + CONTENT_WIDTH - 26, this.topPos + 4, 16, 16, Component.translatable("label.phoenix.ui.button_pay"), BUTTON_PAY, this::onPayoutButtonClicked));
-        payout.active = !instance.isLocked() && accountBalance.getMultiWinBalance() > 0;
+        payout.active = !instance.isLocked() && accountBalance.hasBalanceInAccount(AccountType.MULTIWIN);
 
         // wheels
         this.addSpinWheels(instance, config);
@@ -103,8 +106,8 @@ public class PhoenixSlotMachineScreen extends Screen {
         // win combinations - low
         WinConfigurationConfig winConfigurationConfig = config.getWinningConfiguration();
         WinConfiguration lowConfiguration = winConfigurationConfig.getConfigForGame(GameType.LOW);
-        GameType activeGameType = instance.getGame().getSelectedGameType();
-        GameWinInfo winInfo = instance.getWinInfo();
+        GameType activeGameType = spinGame.gameType();
+        GameWinInfo winInfo = spinGame.getWinInfo();
         boolean isLowGameAvailable = activeGameType.isLow() && (accountBalance.hasBalanceInEitherAccount(1, AccountType.INPUT, AccountType.MULTIWIN) || instance.getLockReason().isActiveGame());
         List<WinCombination> winCombinationsDisplay = lowConfiguration.getDisplayableCombinations(true);
         WinCombinationsWidget lowWinsWidget = this.addRenderableOnly(new WinCombinationsWidget(this.leftPos + 10, this.topPos + CONTENT_HEIGHT - 51, CONTENT_WIDTH - 20, 30, this.font, config, winCombinationsDisplay, winInfo));
@@ -128,7 +131,7 @@ public class PhoenixSlotMachineScreen extends Screen {
         specialWinsWidget.active = isLowGameAvailable;
 
         // bet multiplier
-        BalanceWidget betAmount = this.addRenderableOnly(new BalanceWidget(this.leftPos + 10, firstButton.getY() - 100, 41, 16, instance::getBetMultiplierValue, this.font));
+        BalanceWidget betAmount = this.addRenderableOnly(new BalanceWidget(this.leftPos + 10, firstButton.getY() - 100, 41, 16, spinGame::getBetValue, this.font));
         betAmount.setDigits(3);
         betAmount.setTextColor(0xFF00FF00);
         betAmount.setTextCorrectionOffset(0.5F, 0.5F);
@@ -145,14 +148,14 @@ public class PhoenixSlotMachineScreen extends Screen {
         highWinsWidget.active = activeGameType.isHigh();
 
         // multi win balance
-        BalanceWidget multiWinBalanceWidget = this.addRenderableOnly(new BalanceWidget(firstButton.getX() - 11, this.topPos + 115, 80, 24, accountBalance::getMultiWinBalance, this.font));
+        BalanceWidget multiWinBalanceWidget = this.addRenderableOnly(new BalanceWidget(firstButton.getX() - 11, this.topPos + 115, 80, 24, () -> accountBalance.getBalance(AccountType.MULTIWIN), this.font));
         multiWinBalanceWidget.setTextScale(2.0F);
         multiWinBalanceWidget.setTextColor(0xFFFFFF00);
         multiWinBalanceWidget.setDigits(6);
         multiWinBalanceWidget.setTextCorrectionOffset(-16.75F, 0.25F);
 
         // account balance
-        BalanceWidget accountBalanceWidget = this.addRenderableOnly(new BalanceWidget(this.leftPos + CONTENT_WIDTH - 70, this.topPos + CONTENT_HEIGHT - 69, 60, 16, accountBalance::getInputBalance, this.font));
+        BalanceWidget accountBalanceWidget = this.addRenderableOnly(new BalanceWidget(this.leftPos + CONTENT_WIDTH - 70, this.topPos + CONTENT_HEIGHT - 69, 60, 16, () -> accountBalance.getBalance(AccountType.INPUT), this.font));
         accountBalanceWidget.setDigits(9);
         accountBalanceWidget.setTextCorrectionOffset(0.5F, 0.5F);
 
@@ -163,8 +166,9 @@ public class PhoenixSlotMachineScreen extends Screen {
         winBalanceWidget.setTextCorrectionOffset(0.5F, 0.5F);
 
         // risk
-        RiskWidget riskWidget = this.addRenderableOnly(new RiskWidget(this.leftPos + CONTENT_WIDTH - 60, this.topPos + CONTENT_HEIGHT - 109, 40, 20, game));
-        riskWidget.active = (!instance.isLocked() && game.isRiskActive()) || game.isFrozen();
+        RiskGameComponent riskGame = instance.getRiskGame();
+        RiskWidget riskWidget = this.addRenderableOnly(new RiskWidget(this.leftPos + CONTENT_WIDTH - 60, this.topPos + CONTENT_HEIGHT - 109, 40, 20, riskGame));
+        riskWidget.active = (!instance.isLocked() && riskGame.isActive()) || riskGame.isStopped();
 
         this.initiateLoopSounds(instance);
     }
@@ -187,50 +191,52 @@ public class PhoenixSlotMachineScreen extends Screen {
     }
 
     private void addSpinWheels(PlayerGameInstance instance, SlotMachineConfig config) {
-        GameType activeGame = instance.getGame().getSelectedGameType();
-        AccountBalance account = instance.getAccountBalance();
+        SpinGameComponent spinGame = instance.getSpinGame();
+        GameType activeGame = spinGame.gameType();
+        AccountBalanceComponent account = instance.getAccountBalance();
+        GameWinInfo winInfo = spinGame.getWinInfo();
         // wheels
         for (int i = 0; i < this.holdButtons.size(); i++) {
             IconButtonWithHighlightWidget holdButton = this.holdButtons.get(i);
             int offset = (i - 1) * 5;
-            SpinWheel lowSpinWheel = instance.getSpinWheel(GameType.LOW, i);
-            SpinWheelWidget lowWidget = this.addRenderableOnly(new SpinWheelWidget(holdButton.getX() - 2 + offset, holdButton.getY() - 89, holdButton.getWidth() + 4, 55, i, config, lowSpinWheel, instance));
+            SpinWheel lowSpinWheel = spinGame.getWheel(GameType.LOW, i);
+            SpinWheelWidget lowWidget = this.addRenderableOnly(new SpinWheelWidget(holdButton.getX() - 2 + offset, holdButton.getY() - 89, holdButton.getWidth() + 4, 55, i, config, lowSpinWheel, winInfo));
             lowWidget.active = activeGame.isLow() && (account.hasBalanceInEitherAccount(1, AccountType.INPUT, AccountType.MULTIWIN) || instance.getLockReason().is(LockReason.SPIN, LockReason.RISK));
 
-            SpinWheel highSpinWheel = instance.getSpinWheel(GameType.HIGH, i);
-            SpinWheelWidget highWidget = this.addRenderableOnly(new SpinWheelWidget(holdButton.getX() - 2 + offset, holdButton.getY() - 185, holdButton.getWidth() + 4, 55, i, config, highSpinWheel, instance));
+            SpinWheel highSpinWheel = spinGame.getWheel(GameType.HIGH, i);
+            SpinWheelWidget highWidget = this.addRenderableOnly(new SpinWheelWidget(holdButton.getX() - 2 + offset, holdButton.getY() - 185, holdButton.getWidth() + 4, 55, i, config, highSpinWheel, winInfo));
             highWidget.active = activeGame.isHigh();
         }
     }
 
     private void addBottomButtonRow(PlayerGameInstance instance) {
-        Game game = instance.getGame();
-        AccountBalance accountBalance = instance.getAccountBalance();
+        SpinGameComponent spinGame = instance.getSpinGame();
+        RiskGameComponent riskGame = instance.getRiskGame();
         int buttonOffset = 5;
         int buttonWidth = 16 + buttonOffset;
         int rowLeft = this.leftPos + (CONTENT_WIDTH - (8 * buttonWidth - buttonOffset)) / 2;
         int rowTop = this.topPos + CONTENT_HEIGHT - 20;
 
         IconButtonWithHighlightWidget advancedButton = this.addRenderableWidget(new IconButtonWithHighlightWidget(rowLeft, rowTop, 16, 16, Component.translatable("label.phoenix.ui.button_advanced"), BUTTON_ADVANCED, this::onAdvancedButtonClicked));
-        advancedButton.active = instance.canSwapGameType();
+        advancedButton.active = spinGame.canSwapGameType();
         advancedButton.setClickSound(Phoenix.SOUND_BET);
 
         IconButtonWithHighlightWidget betButton = this.addRenderableWidget(new IconButtonWithHighlightWidget(rowLeft + buttonWidth, rowTop, 16, 16, Component.translatable("label.phoenix.ui.button_bet"), BUTTON_BET, this::onBetButtonClicked));
-        betButton.active = instance.canToggleBetMultiplier();
+        betButton.active = spinGame.canToggleBet();
         betButton.setClickSound(Phoenix.SOUND_BET);
 
         for (int i = 0; i < SPIN_WHEELS; i++) {
             int posIndex = i + 2;
             final int index = i;
             IconButtonWithHighlightWidget widget = this.addRenderableWidget(new IconButtonWithHighlightWidget(rowLeft + buttonWidth * posIndex, rowTop, 16, 16, Component.translatable("label.phoenix.ui.button_hold"), BUTTON_HOLD, () -> this.onHoldButtonClicked(index)));
-            boolean isHeld = game.getSelectedGameType() == GameType.LOW && game.isHeld(i);
-            widget.active = instance.canHold(i);
+            boolean isHeld = spinGame.gameType().isLow() && spinGame.isWheelHeld(i);
+            widget.active = spinGame.canHold(i);
             widget.setLightOnDisabled(isHeld);
             widget.setClickSound(Phoenix.SOUND_HOLD);
             this.holdButtons.add(widget);
         }
 
-        boolean riskGameAvailable = instance.canStartRisk();
+        boolean riskGameAvailable = riskGame.canStart();
         IconButtonWithHighlightWidget riskClubs = this.addRenderableWidget(new IconButtonWithHighlightWidget(rowLeft + buttonWidth * 5, rowTop, 16, 16, Component.translatable("label.phoenix.ui.button_risk_clubs"), BUTTON_RISK_CLUBS, this::onRiskClubsButtonClicked));
         riskClubs.active = riskGameAvailable;
 
@@ -238,7 +244,7 @@ public class PhoenixSlotMachineScreen extends Screen {
         riskHearts.active = riskGameAvailable;
 
         IconButtonWithHighlightWidget startButton = this.addRenderableWidget(new IconButtonWithHighlightWidget(rowLeft + buttonWidth * 7, rowTop, 16, 16, Component.translatable("label.phoenix.ui.button_start"), BUTTON_START, this::onStartButtonClicked));
-        startButton.active = instance.canSpinOrTransfer();
+        startButton.active = instance.getSpinGame().canSpinOrTransfer();
     }
 
     private void onMultiWinButtonClicked() {
@@ -281,9 +287,11 @@ public class PhoenixSlotMachineScreen extends Screen {
 
     private void initiateLoopSounds(PlayerGameInstance instance) {
         SoundManager manager = this.minecraft.getSoundManager();
-        if (instance.isRolling()) {
+        SpinGameComponent spinGame = instance.getSpinGame();
+        RandomSource random = this.minecraft.level.getRandom();
+        if (spinGame.isRolling()) {
             if (this.needsRestart(manager, this.spinRollSound)) {
-                this.spinRollSound = new SpinRollSoundInstance(this.minecraft.level.getRandom(), instance);
+                this.spinRollSound = new SpinRollSoundInstance(random, spinGame);
                 manager.play(this.spinRollSound);
             }
         }

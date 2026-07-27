@@ -1,4 +1,4 @@
-package dev.tnt.phoenix.data.game;
+package dev.tnt.phoenix.api;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -12,12 +12,9 @@ public record Lock(boolean locked, LockReason reason) {
     ).apply(instance, Lock::new));
 
     public static final Lock EMPTY = new Lock(false, LockReason.NONE);
-    public static final Lock SPIN = new Lock(LockReason.SPIN);
-    public static final Lock RISK = new Lock(LockReason.RISK);
-    public static final Lock TRANSFER = new Lock(LockReason.TRANSFER);
 
-    public Lock(LockReason reason) {
-        this(true, reason);
+    public static Lock create(LockReason reason) {
+        return new Lock(true, reason);
     }
 
     @Override

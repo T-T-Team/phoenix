@@ -1,9 +1,9 @@
-package dev.tnt.phoenix.data.game;
+package dev.tnt.phoenix.api;
 
 import com.mojang.serialization.Codec;
 import net.minecraft.util.StringRepresentable;
 
-public enum BetMultiplier implements StringRepresentable {
+public enum Bet implements StringRepresentable {
 
     X1("x1", 1, 0),
     X2("x2", 2, 10),
@@ -13,12 +13,12 @@ public enum BetMultiplier implements StringRepresentable {
     X50("x50", 50, 50),
     X100("x100", 100, 60);
 
-    public static final Codec<BetMultiplier> CODEC = StringRepresentable.fromEnum(BetMultiplier::values);
+    public static final Codec<Bet> CODEC = StringRepresentable.fromEnum(Bet::values);
     private final String serializedName;
     private final int multiplier;
     private final int additionalTransferDuration;
 
-    BetMultiplier(String serializedName, int multiplier, int additionalTransferDuration) {
+    Bet(String serializedName, int multiplier, int additionalTransferDuration) {
         this.serializedName = serializedName;
         this.multiplier = multiplier;
         this.additionalTransferDuration = additionalTransferDuration;
@@ -37,7 +37,7 @@ public enum BetMultiplier implements StringRepresentable {
         return 40 + this.additionalTransferDuration;
     }
 
-    int getMultiplier() {
-        return multiplier;
+    public int multiplier() {
+        return this.multiplier;
     }
 }

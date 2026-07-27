@@ -3,7 +3,7 @@ package dev.tnt.phoenix.block;
 import com.mojang.serialization.MapCodec;
 import dev.tnt.phoenix.Phoenix;
 import dev.tnt.phoenix.block.entity.PhoenixSlotMachineBlockEntity;
-import dev.tnt.phoenix.data.game.AccountType;
+import dev.tnt.phoenix.api.AccountType;
 import dev.tnt.phoenix.network.S2C_OpenPhoenixMachineScreen;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;

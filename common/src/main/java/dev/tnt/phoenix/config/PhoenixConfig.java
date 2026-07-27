@@ -1,7 +1,8 @@
 package dev.tnt.phoenix.config;
 
 import dev.tnt.phoenix.Phoenix;
-import dev.tnt.phoenix.data.game.AccountType;
+import dev.tnt.phoenix.api.AccountType;
+import dev.tnt.phoenix.data.GameType;
 import dev.toma.configuration.config.Config;
 import dev.toma.configuration.config.Configurable;
 import dev.toma.configuration.config.UpdateRestrictions;
@@ -53,6 +54,12 @@ public final class PhoenixConfig {
     @Configurable
     @Configurable.UpdateRestriction(UpdateRestrictions.MAIN_MENU)
     public boolean showItemInputValue = true;
+
+    public SpinConfiguration getSpinConfiguration(GameType type) {
+        return type.isLow()
+                ? this.lowSpinConfig
+                : this.highSpinConfig;
+    }
 
     public static final class SpinConfiguration {
 
