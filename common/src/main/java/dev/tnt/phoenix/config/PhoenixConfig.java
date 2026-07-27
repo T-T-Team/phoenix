@@ -39,8 +39,8 @@ public final class PhoenixConfig {
     public int minRiskDuration = 1;
 
     @Configurable
-    @Configurable.Range(min = 1)
-    public int additionalRiskDuration = 1;
+    @Configurable.Range(min = 3)
+    public int additionalRiskDuration = 4;
 
     @Configurable
     @Configurable.Range(min = 2, max = 5)
