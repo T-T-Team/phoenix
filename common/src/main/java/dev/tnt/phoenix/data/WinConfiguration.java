@@ -21,9 +21,7 @@ public record WinConfiguration(List<WinPattern> patterns, List<WinCombination> c
 
     public WinConfiguration(List<WinPattern> patterns, List<WinCombination> combinations) {
         this.patterns = patterns;
-        this.combinations = new ArrayList<>();
-        combinations.stream().flatMap(WinCombination::spread)
-                .forEach(this.combinations::add);
+        this.combinations = new ArrayList<>(combinations);
     }
 
     public List<MatchedWinCombination> resolveWins(List<String> wildcardSymbols, List<SpinWheel> spinWheels) {
@@ -47,15 +45,10 @@ public record WinConfiguration(List<WinPattern> patterns, List<WinCombination> c
         return wins;
     }
 
-    public List<WinCombination> getDisplayableCombinations(boolean special) {
-        return this.getDisplayableCombinations(special, Comparator.comparingInt(WinCombination::amount));
-    }
-
-    public List<WinCombination> getDisplayableCombinations(boolean special, Comparator<WinCombination> comparator) {
+    public List<WinCombination> getWinCombinations(boolean special, Comparator<WinCombination> comparator) {
         return this.combinations.stream()
-                .filter(c -> c.shouldRender(special))
+                .filter(c -> c.matchesTag(special))
                 .sorted(comparator)
-                .flatMap(WinCombination::spread)
                 .toList();
     }
 

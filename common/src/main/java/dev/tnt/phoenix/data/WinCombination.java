@@ -7,42 +7,29 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.ExtraCodecs;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Stream;
-
-public record WinCombination(List<String> symbols, int count, int amount, int orderIndex, boolean render) {
+public record WinCombination(String symbol, int count, int amount, int orderIndex, boolean special) {
 
     public static final Codec<WinCombination> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.STRING.listOf(1, Integer.MAX_VALUE).fieldOf("symbols").forGetter(WinCombination::symbols),
-            ExtraCodecs.POSITIVE_INT.fieldOf("count").forGetter(WinCombination::count),
-            ExtraCodecs.POSITIVE_INT.fieldOf("amount").forGetter(WinCombination::amount),
+            Codec.STRING.fieldOf("symbol").forGetter(WinCombination::symbol),
+            ExtraCodecs.POSITIVE_INT.fieldOf("match_count").forGetter(WinCombination::count),
+            ExtraCodecs.POSITIVE_INT.fieldOf("win_amount").forGetter(WinCombination::amount),
             Codec.INT.optionalFieldOf("order_index", 0).forGetter(WinCombination::orderIndex),
-            Codec.BOOL.optionalFieldOf("render", true).forGetter(WinCombination::render)
+            Codec.BOOL.optionalFieldOf("special", false).forGetter(WinCombination::special)
     ).apply(instance, WinCombination::new));
     public static final StreamCodec<ByteBuf, WinCombination> STREAM_CODEC = StreamCodec.composite(
-            ByteBufCodecs.STRING_UTF8.apply(ByteBufCodecs.list()), WinCombination::symbols,
+            ByteBufCodecs.STRING_UTF8, WinCombination::symbol,
             ByteBufCodecs.INT, WinCombination::count,
             ByteBufCodecs.INT, WinCombination::amount,
             ByteBufCodecs.INT, WinCombination::orderIndex,
-            ByteBufCodecs.BOOL, WinCombination::render,
+            ByteBufCodecs.BOOL, WinCombination::special,
             WinCombination::new
     );
 
-    public Stream<WinCombination> spread() {
-        return this.symbols.stream()
-                .map(symbol -> new WinCombination(Collections.singletonList(symbol), this.count, this.amount, this.orderIndex, this.render));
-    }
-
-    public String getCombinationSymbol() {
-        return this.symbols.getFirst();
-    }
-
     public boolean testInput(String symbol) {
-        return this.symbols.contains(symbol);
+        return this.symbol.equals(symbol);
     }
 
-    public boolean shouldRender(boolean mode) {
-        return this.render == mode;
+    public boolean matchesTag(boolean special) {
+        return this.special == special;
     }
 }

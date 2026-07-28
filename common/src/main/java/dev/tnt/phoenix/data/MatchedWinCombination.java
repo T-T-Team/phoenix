@@ -2,7 +2,6 @@ package dev.tnt.phoenix.data;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.util.Mth;
 
 public record MatchedWinCombination(int matchTypeBonus, WinConfiguration.WinPattern pattern, WinCombination combination) {
 
@@ -31,7 +30,6 @@ public record MatchedWinCombination(int matchTypeBonus, WinConfiguration.WinPatt
     public boolean is(WinCombination combination) {
         if (this.combination.count() != combination.count())
             return false;
-        String firstSymbol = combination.symbols().getFirst(); // for this comparison there should be always only one symbol
-        return this.combination.symbols().contains(firstSymbol);
+        return this.combination.testInput(combination.symbol());
     }
 }

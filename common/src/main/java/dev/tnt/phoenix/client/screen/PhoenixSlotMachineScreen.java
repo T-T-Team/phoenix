@@ -52,6 +52,10 @@ public class PhoenixSlotMachineScreen extends Screen {
     private static final int CONTENT_WIDTH = 220;
     private static final int CONTENT_HEIGHT = 256;
     private static final int SPIN_WHEELS = 3;
+    // win combination comparators
+    private static final Comparator<WinCombination> LOW_GAME = Comparator.comparingInt(WinCombination::amount);
+    private static final Comparator<WinCombination> LOW_GAME_SPECIAL = Comparator.comparingInt(WinCombination::orderIndex).thenComparingInt(WinCombination::amount);
+    private static final Comparator<WinCombination> HIGH_GAME = Comparator.comparingInt(WinCombination::amount).reversed();
 
     private final BlockPos pos;
     private final List<IconButtonWithHighlightWidget> holdButtons = new ArrayList<>();
@@ -121,7 +125,7 @@ public class PhoenixSlotMachineScreen extends Screen {
         GameType activeGameType = spinGame.gameType();
         GameWinInfo winInfo = spinGame.getWinInfo();
         boolean isLowGameAvailable = activeGameType.isLow() && (accountBalance.hasBalanceInEitherAccount(1, AccountType.INPUT, AccountType.MULTIWIN) || this.gameInstance.getLockReason().isActiveGame());
-        List<WinCombination> winCombinationsDisplay = lowConfiguration.getDisplayableCombinations(true);
+        List<WinCombination> winCombinationsDisplay = lowConfiguration.getWinCombinations(false, LOW_GAME);
         WinCombinationsWidget lowWinsWidget = this.addRenderableOnly(new WinCombinationsWidget(this.leftPos + 10, this.topPos + CONTENT_HEIGHT - 51, CONTENT_WIDTH - 20, 30, this.font, config, winCombinationsDisplay, winInfo));
         lowWinsWidget.setGrid(3, 6, 3);
         lowWinsWidget.setLayout(8, 5, 1, 3);
@@ -133,7 +137,7 @@ public class PhoenixSlotMachineScreen extends Screen {
 
         // win combinations - special
         IconButtonWithHighlightWidget firstButton = this.holdButtons.getFirst();
-        List<WinCombination> specialCombinationsDisplay = lowConfiguration.getDisplayableCombinations(false, Comparator.comparingInt(WinCombination::orderIndex).thenComparingInt(WinCombination::amount));
+        List<WinCombination> specialCombinationsDisplay = lowConfiguration.getWinCombinations(true, LOW_GAME_SPECIAL);
         WinCombinationsWidget specialWinsWidget = this.addRenderableOnly(new WinCombinationsWidget(this.leftPos + 10, firstButton.getY() - 79, 41, 45, this.font, config, specialCombinationsDisplay, winInfo));
         specialWinsWidget.setGrid(4, 1, 3);
         specialWinsWidget.setLayout(8, 5, 3, 3);
@@ -150,7 +154,7 @@ public class PhoenixSlotMachineScreen extends Screen {
 
         // win combinations - high
         WinConfiguration highConfiguration = winConfigurationConfig.getConfigForGame(GameType.HIGH);
-        List<WinCombination> highCombinationsDisplay = highConfiguration.getDisplayableCombinations(true, Comparator.comparingInt(WinCombination::amount).reversed());
+        List<WinCombination> highCombinationsDisplay = highConfiguration.getWinCombinations(false, HIGH_GAME);
         WinCombinationsWidget highWinsWidget = this.addRenderableOnly(new WinCombinationsWidget(this.leftPos + CONTENT_WIDTH - 65, this.topPos + 23, 55, 120, this.font, config, highCombinationsDisplay, winInfo));
         highWinsWidget.setGrid(10, 1, 3);
         highWinsWidget.setLayout(12, 7, 1, 3);

@@ -101,7 +101,7 @@ public class WinCombinationsWidget extends AbstractWidget {
                             break;
                         graphics.blit(this.blankSprite, left, py, left + this.iconSize, py + this.iconSize, 0.0F, 1.0F, 0.0F, 1.0F);
                     } else {
-                        String symbol = combination.getCombinationSymbol();
+                        String symbol = combination.symbol();
                         SymbolRenderHelper.renderSymbol(symbol, this.config, graphics, left, py, this.iconSize, this.iconSize, spriteType);
                     }
                 }

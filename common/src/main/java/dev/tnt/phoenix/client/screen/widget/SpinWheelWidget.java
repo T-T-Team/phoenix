@@ -55,9 +55,10 @@ public final class SpinWheelWidget extends AbstractWidget {
             int spriteIndex = Math.floorMod(i, sequence.size());
             int positionIndex = i - startSpinIndex;
             String symbol = sequence.get(spriteIndex);
-            boolean indexMatch = wheelIndexes.contains(WinConfiguration.Index.of(this.wheelIndex, positionIndex));
+            boolean indexMatch = !wheelIndexes.isEmpty() && wheelIndexes.contains(WinConfiguration.Index.of(this.wheelIndex, positionIndex));
+            SpriteType symbolSpriteType = this.resolveSpriteType(indexMatch, positionIndex, isBlinkMode);
             int y = this.getY() + 2 + positionIndex * (ICON_SIZE + 2);
-            SymbolRenderHelper.renderSymbol(symbol, this.config, graphics, this.getX() + 2, y - spinOffset, ICON_SIZE, ICON_SIZE, this.resolveSpriteType(indexMatch, positionIndex, isBlinkMode));
+            SymbolRenderHelper.renderSymbol(symbol, this.config, graphics, this.getX() + 2, y - spinOffset, ICON_SIZE, ICON_SIZE, symbolSpriteType);
         }
         graphics.disableScissor();
     }

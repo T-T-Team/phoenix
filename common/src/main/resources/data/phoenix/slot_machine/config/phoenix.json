@@ -412,103 +412,27 @@
           }
         ],
         "combinations": [
-          {
-            "symbols": [
-              "cherry",
-              "lemon",
-              "orange"
-            ],
-            "count": 2,
-            "amount": 2
-          },
-          {
-            "symbols": [
-              "plum",
-              "bell",
-              "grapes",
-              "melon"
-            ],
-            "count": 2,
-            "amount": 4
-          },
-          {
-            "symbols": [
-              "cherry"
-            ],
-            "count": 3,
-            "amount": 8
-          },
-          {
-            "symbols": [
-              "lemon"
-            ],
-            "count": 3,
-            "amount": 8
-          },
-          {
-            "symbols": [
-              "orange"
-            ],
-            "count": 3,
-            "amount": 12
-          },
-          {
-            "symbols": [
-              "bar",
-              "barbar"
-            ],
-            "count": 2,
-            "amount": 12
-          },
-          {
-            "symbols": [
-              "plum",
-              "bell"
-            ],
-            "count": 3,
-            "amount": 20
-          },
-          {
-            "symbols": [
-              "barbarbar"
-            ],
-            "count": 2,
-            "amount": 20
-          },
-          {
-            "symbols": [
-              "melon",
-              "grapes"
-            ],
-            "count": 3,
-            "amount": 40
-          },
-          {
-            "symbols": [
-              "bar",
-              "barbar"
-            ],
-            "count": 3,
-            "amount": 50,
-            "render": false
-          },
-          {
-            "symbols": [
-              "joker"
-            ],
-            "count": 3,
-            "amount": 50,
-            "order_index": 1,
-            "render": false
-          },
-          {
-            "symbols": [
-              "barbarbar"
-            ],
-            "count": 3,
-            "amount": 100,
-            "render": false
-          }
+          { "symbol": "cherry",     "match_count": 2, "win_amount": 2 },
+          { "symbol": "lemon",      "match_count": 2, "win_amount": 2 },
+          { "symbol": "orange",     "match_count": 2, "win_amount": 2 },
+          { "symbol": "plum",       "match_count": 2, "win_amount": 4 },
+          { "symbol": "bell",       "match_count": 2, "win_amount": 4 },
+          { "symbol": "grapes",     "match_count": 2, "win_amount": 4 },
+          { "symbol": "melon",      "match_count": 2, "win_amount": 4 },
+          { "symbol": "cherry",     "match_count": 3, "win_amount": 8 },
+          { "symbol": "lemon",      "match_count": 3, "win_amount": 8 },
+          { "symbol": "orange",     "match_count": 3, "win_amount": 12 },
+          { "symbol": "bar",        "match_count": 2, "win_amount": 12 },
+          { "symbol": "barbar",     "match_count": 2, "win_amount": 12 },
+          { "symbol": "plum",       "match_count": 3, "win_amount": 20 },
+          { "symbol": "bell",       "match_count": 3, "win_amount": 20 },
+          { "symbol": "barbarbar",  "match_count": 2, "win_amount": 20 },
+          { "symbol": "melon",      "match_count": 3, "win_amount": 40 },
+          { "symbol": "grapes",     "match_count": 3, "win_amount": 40 },
+          { "symbol": "bar",        "match_count": 3, "win_amount": 50, "special": true },
+          { "symbol": "barbar",     "match_count": 3, "win_amount": 50, "special": true },
+          { "symbol": "barbarbar",  "match_count": 3, "win_amount": 100, "special": true },
+          { "symbol": "joker",      "match_count": 3, "win_amount": 50, "special": true, "order_index": 1 }
         ]
       },
       "high": {
@@ -550,51 +474,15 @@
           }
         ],
         "combinations": [
-          {
-            "symbols": [
-              "orange",
-              "lemon",
-              "cherry"
-            ],
-            "count": 3,
-            "amount": 40
-          },
-          {
-            "symbols": [
-              "plum"
-            ],
-            "count": 3,
-            "amount": 60
-          },
-          {
-            "symbols": [
-              "bell",
-              "grapes"
-            ],
-            "count": 3,
-            "amount": 80
-          },
-          {
-            "symbols": [
-              "melon"
-            ],
-            "count": 3,
-            "amount": 100
-          },
-          {
-            "symbols": [
-              "seven"
-            ],
-            "count": 3,
-            "amount": 200
-          },
-          {
-            "symbols": [
-              "star"
-            ],
-            "count": 3,
-            "amount": 300
-          }
+          { "symbol": "orange",     "match_count": 3, "win_amount": 40 },
+          { "symbol": "lemon",      "match_count": 3, "win_amount": 40 },
+          { "symbol": "cherry",     "match_count": 3, "win_amount": 40 },
+          { "symbol": "plum",       "match_count": 3, "win_amount": 60 },
+          { "symbol": "bell",       "match_count": 3, "win_amount": 80 },
+          { "symbol": "grapes",     "match_count": 3, "win_amount": 80 },
+          { "symbol": "melon",      "match_count": 3, "win_amount": 100 },
+          { "symbol": "seven",      "match_count": 3, "win_amount": 200 },
+          { "symbol": "star",       "match_count": 3, "win_amount": 300 }
         ]
       }
     }
