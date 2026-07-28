@@ -1,5 +1,6 @@
 package dev.tnt.phoenix.client.screen;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import dev.tnt.phoenix.Phoenix;
 import dev.tnt.phoenix.api.AccountType;
 import dev.tnt.phoenix.api.LockReason;
@@ -18,6 +19,7 @@ import dev.tnt.phoenix.network.C2S_SlotMachineRequest;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.resources.sounds.AbstractTickableSoundInstance;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.core.BlockPos;
@@ -54,6 +56,7 @@ public class PhoenixSlotMachineScreen extends Screen {
     private final BlockPos pos;
     private final List<IconButtonWithHighlightWidget> holdButtons = new ArrayList<>();
     private PhoenixSlotMachineBlockEntity blockEntity;
+    private PlayerGameInstance gameInstance;
     private int leftPos;
     private int topPos;
     private boolean isLoading;
@@ -77,14 +80,14 @@ public class PhoenixSlotMachineScreen extends Screen {
             return;
         }
         this.blockEntity = phoenixSlotMachineBlockEntity;
-        PlayerGameInstance instance = this.blockEntity.getPlayerData(this.minecraft.player.getUUID());
+        this.gameInstance = this.blockEntity.getPlayerData(this.minecraft.player.getUUID());
         this.isLoading = false;
-        if (instance == null) {
+        if (this.gameInstance == null) {
             this.isLoading = true;
             return;
         }
-        AccountBalanceComponent accountBalance = instance.getAccountBalance();
-        SpinGameComponent spinGame = instance.getSpinGame();
+        AccountBalanceComponent accountBalance = this.gameInstance.getAccountBalance();
+        SpinGameComponent spinGame = this.gameInstance.getSpinGame();
         this.leftPos = (this.width - CONTENT_WIDTH) / 2;
         this.topPos = (this.height - CONTENT_HEIGHT) / 2;
         this.holdButtons.clear();
@@ -98,26 +101,26 @@ public class PhoenixSlotMachineScreen extends Screen {
         }
 
         // bottom buttons
-        this.addBottomButtonRow(instance);
+        this.addBottomButtonRow(this.gameInstance);
 
         // top right buttons
         IconButtonWithHighlightWidget multiWin = this.addRenderableWidget(new IconButtonWithHighlightWidget(this.leftPos + CONTENT_WIDTH - 46, this.topPos + 4, 16, 16, Component.translatable("label.phoenix.ui.button_multiwin"), BUTTON_MULTI_WIN, this::onMultiWinButtonClicked));
-        multiWin.active = instance.canWithdrawMultiWin();
+        multiWin.active = this.gameInstance.canWithdrawMultiWin();
         multiWin.setClickSound(Phoenix.SOUND_HOLD);
 
         IconButtonWithHighlightWidget payout = this.addRenderableWidget(new IconButtonWithHighlightWidget(this.leftPos + CONTENT_WIDTH - 26, this.topPos + 4, 16, 16, Component.translatable("label.phoenix.ui.button_pay"), BUTTON_PAY, this::onPayoutButtonClicked));
-        payout.active = !instance.isLocked() && accountBalance.hasBalanceInAccount(AccountType.MULTIWIN);
+        payout.active = !this.gameInstance.isLocked() && accountBalance.hasBalanceInAccount(AccountType.MULTIWIN);
         payout.setClickSound(Phoenix.SOUND_HOLD);
 
         // wheels
-        this.addSpinWheels(instance, config);
+        this.addSpinWheels(this.gameInstance, config);
 
         // win combinations - low
         WinConfigurationConfig winConfigurationConfig = config.getWinningConfiguration();
         WinConfiguration lowConfiguration = winConfigurationConfig.getConfigForGame(GameType.LOW);
         GameType activeGameType = spinGame.gameType();
         GameWinInfo winInfo = spinGame.getWinInfo();
-        boolean isLowGameAvailable = activeGameType.isLow() && (accountBalance.hasBalanceInEitherAccount(1, AccountType.INPUT, AccountType.MULTIWIN) || instance.getLockReason().isActiveGame());
+        boolean isLowGameAvailable = activeGameType.isLow() && (accountBalance.hasBalanceInEitherAccount(1, AccountType.INPUT, AccountType.MULTIWIN) || this.gameInstance.getLockReason().isActiveGame());
         List<WinCombination> winCombinationsDisplay = lowConfiguration.getDisplayableCombinations(true);
         WinCombinationsWidget lowWinsWidget = this.addRenderableOnly(new WinCombinationsWidget(this.leftPos + 10, this.topPos + CONTENT_HEIGHT - 51, CONTENT_WIDTH - 20, 30, this.font, config, winCombinationsDisplay, winInfo));
         lowWinsWidget.setGrid(3, 6, 3);
@@ -175,11 +178,11 @@ public class PhoenixSlotMachineScreen extends Screen {
         winBalanceWidget.setTextCorrectionOffset(0.5F, 0.5F);
 
         // risk
-        RiskGameComponent riskGame = instance.getRiskGame();
+        RiskGameComponent riskGame = this.gameInstance.getRiskGame();
         RiskWidget riskWidget = this.addRenderableOnly(new RiskWidget(this.leftPos + CONTENT_WIDTH - 60, this.topPos + CONTENT_HEIGHT - 109, 40, 20, riskGame));
-        riskWidget.active = (!instance.isLocked() && riskGame.isActive()) || riskGame.isStopped();
+        riskWidget.active = (!this.gameInstance.isLocked() && riskGame.isActive()) || riskGame.isStopped();
 
-        this.initiateLoopSounds(instance);
+        this.initiateLoopSounds(this.gameInstance);
     }
 
     @Override
@@ -197,6 +200,22 @@ public class PhoenixSlotMachineScreen extends Screen {
     @Override
     public boolean isPauseScreen() {
         return false;
+    }
+
+    @Override
+    public boolean keyPressed(KeyEvent event) {
+        int key = event.key();
+        if (key == InputConstants.KEY_ESCAPE) {
+            this.stopSounds();
+            return super.keyPressed(event); // keep default handling of esc key too
+        } else if (this.gameInstance != null) {
+            if (key == InputConstants.KEY_SPACE && this.gameInstance.getSpinGame().canSpinOrTransfer()) {
+                this.onStartButtonClicked();
+                return true;
+            }
+            // more interactions? Need to also play button click sound
+        }
+        return super.keyPressed(event);
     }
 
     private void addSpinWheels(PlayerGameInstance instance, SlotMachineConfig config) {
@@ -320,6 +339,22 @@ public class PhoenixSlotMachineScreen extends Screen {
         if (CountSoundInstance.canPlay(instance) && this.needsRestart(manager, countSound)) {
             countSound = new CountSoundInstance(random, instance);
             manager.play(countSound);
+        }
+    }
+
+    private void stopSounds() {
+        SoundManager manager = this.minecraft.getSoundManager();
+        if (spinRollSound != null && manager.isActive(spinRollSound)) {
+            manager.stop(spinRollSound);
+        }
+        if (winSound != null && manager.isActive(winSound)) {
+            manager.stop(winSound);
+        }
+        if (riskSound != null && manager.isActive(riskSound)) {
+            manager.stop(riskSound);
+        }
+        if (countSound != null && manager.isActive(countSound)) {
+            manager.stop(countSound);
         }
     }
 
