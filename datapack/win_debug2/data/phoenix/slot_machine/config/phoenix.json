@@ -157,28 +157,25 @@
       {
         "generator": "simple_sequence",
         "sequence": [
-          "cherry",
-          "cherry",
-          "bell",
-          "bell"
+          "joker",
+          "star",
+          "seven"
         ]
       },
       {
         "generator": "simple_sequence",
         "sequence": [
-          "cherry",
-          "cherry",
-          "bell",
-          "bell"
+          "seven",
+          "joker",
+          "star"
         ]
       },
       {
         "generator": "simple_sequence",
         "sequence": [
-          "cherry",
-          "cherry",
-          "bell",
-          "bell"
+          "star",
+          "seven",
+          "joker"
         ]
       }
     ]
