@@ -2,9 +2,10 @@ package dev.tnt.phoenix.data.component;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.tnt.phoenix.config.PhoenixConfig;
+import dev.tnt.phoenix.Phoenix;
 import dev.tnt.phoenix.data.GameType;
 import dev.tnt.phoenix.data.SlotMachineConfig;
+import it.unimi.dsi.fastutil.floats.Float2IntFunction;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
@@ -83,7 +84,21 @@ public final class SpinWheel {
     }
 
     private void normalizeSpinAmount() {
-        this.spinAmount = Math.floorMod(Mth.floor(this.spinAmount), this.sequence.size());
+        Rounding rounding = Phoenix.CONFIG.spinWheelRound;
+        this.spinAmount = Math.floorMod(rounding.roundFunction.get(this.spinAmount), this.sequence.size());
         this.lastSpinAmount = this.spinAmount;
+    }
+
+    public enum Rounding {
+
+        FLOOR(Mth::floor),
+        NEAREST(Math::round),
+        CEIL(Mth::ceil);
+
+        private final Float2IntFunction roundFunction;
+
+        Rounding(Float2IntFunction roundFunction) {
+            this.roundFunction = roundFunction;
+        }
     }
 }

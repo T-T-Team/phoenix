@@ -3,6 +3,7 @@ package dev.tnt.phoenix.config;
 import dev.tnt.phoenix.Phoenix;
 import dev.tnt.phoenix.api.AccountType;
 import dev.tnt.phoenix.data.GameType;
+import dev.tnt.phoenix.data.component.SpinWheel;
 import dev.toma.configuration.config.Config;
 import dev.toma.configuration.config.Configurable;
 import dev.toma.configuration.config.UpdateRestrictions;
@@ -18,6 +19,10 @@ public final class PhoenixConfig {
 
     @Configurable
     @Configurable.Synchronized
+    public SpinWheel.Rounding spinWheelRound = SpinWheel.Rounding.NEAREST;
+
+    @Configurable
+    @Configurable.Synchronized
     public AccountType lowGameTargetAccount = AccountType.WIN;
 
     @Configurable
@@ -29,7 +34,7 @@ public final class PhoenixConfig {
     public AccountType riskGameTargetAccount = AccountType.WIN;
 
     @Configurable
-    @Configurable.Range(min = 2, max = 20)
+    @Configurable.Range(min = 2, max = 5)
     @Configurable.Gui.Slider
     @Configurable.Synchronized
     public int riskCycleDuration = 2;
