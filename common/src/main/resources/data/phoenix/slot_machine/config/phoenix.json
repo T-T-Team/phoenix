@@ -486,11 +486,19 @@
           {
             "symbols": [
               "bar",
-              "barbar",
+              "barbar"
+            ],
+            "count": 3,
+            "amount": 50,
+            "render": false
+          },
+          {
+            "symbols": [
               "joker"
             ],
             "count": 3,
             "amount": 50,
+            "order_index": 1,
             "render": false
           },
           {

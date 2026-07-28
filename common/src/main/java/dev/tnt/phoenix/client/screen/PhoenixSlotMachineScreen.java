@@ -133,7 +133,7 @@ public class PhoenixSlotMachineScreen extends Screen {
 
         // win combinations - special
         IconButtonWithHighlightWidget firstButton = this.holdButtons.getFirst();
-        List<WinCombination> specialCombinationsDisplay = lowConfiguration.getDisplayableCombinations(false);
+        List<WinCombination> specialCombinationsDisplay = lowConfiguration.getDisplayableCombinations(false, Comparator.comparingInt(WinCombination::orderIndex).thenComparingInt(WinCombination::amount));
         WinCombinationsWidget specialWinsWidget = this.addRenderableOnly(new WinCombinationsWidget(this.leftPos + 10, firstButton.getY() - 79, 41, 45, this.font, config, specialCombinationsDisplay, winInfo));
         specialWinsWidget.setGrid(4, 1, 3);
         specialWinsWidget.setLayout(8, 5, 3, 3);
