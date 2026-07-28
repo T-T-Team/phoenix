@@ -18,5 +18,26 @@
   "label.phoenix.slot_machine_input.value_stack": "Phoenix Input Value: %s (total %s)",
 
   "gui.phoenix.previous": "Previous",
-  "gui.phoenix.next": "Next"
+  "gui.phoenix.next": "Next",
+
+  "config.screen.phoenix": "Phoenix",
+  "config.phoenix.option.lowSpinConfig": "Spin config - Low",
+  "config.phoenix.option.highSpinConfig": "Spin config - High",
+  "config.phoenix.option.spinWheelRound": "Spin wheel lock rounding",
+  "config.phoenix.option.lowGameTargetAccount": "Low game winning account",
+  "config.phoenix.option.riskGameTargetAccount": "Risk game target account",
+  "config.phoenix.option.highGameTargetAccount": "High game target account",
+  "config.phoenix.option.riskCycleDuration": "Risk cycle duration",
+  "config.phoenix.option.minRiskDuration": "Min risk stop delay",
+  "config.phoenix.option.additionalRiskDuration": "Additional randomized risk stop delay",
+  "config.phoenix.option.riskGameWinMultiplier": "Risk game win multiplier",
+  "config.phoenix.option.riskGameWinStreakMultiplier": "Risk game win streak multiplier",
+  "config.phoenix.option.multiWinSpinPriceMultiplier": "High game spin price multiplier",
+  "config.phoenix.option.showItemInputValue": "Show item values in tooltip",
+  "config.phoenix.option.generateSequenceOnEachSpin": "Generate new sequence on spin",
+
+  "config.phoenix.option.minSpinDuration": "Min wheel spin duration",
+  "config.phoenix.option.minAdditionalSpinDuration": "Next wheel extra min spin duration",
+  "config.phoenix.option.additionalSpinDuration": "Wheel randomized spin duration",
+  "config.phoenix.option.spinSpeed": "Spin speed"
 }

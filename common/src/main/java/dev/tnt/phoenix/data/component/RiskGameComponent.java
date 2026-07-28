@@ -10,6 +10,7 @@ import dev.tnt.phoenix.api.RiskGame;
 import dev.tnt.phoenix.config.PhoenixConfig;
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
 import org.apache.logging.log4j.Marker;
@@ -141,9 +142,9 @@ public final class RiskGameComponent extends PhoenixComponent implements RiskGam
         float pitch = 1.0F + this.winStreak * 0.05F;
         level.playSound(null, pos, Phoenix.SOUND_GAMBLE_WIN.get(), SoundSource.BLOCKS, 0.3F, pitch);
 
-        ++this.winStreak;
         int multiplier = config.riskGameWinMultiplier - 1;
-        int winningBalance = balance.getBalance(AccountType.WIN) * multiplier; // TODO streak multiplier
+        int winningBalance = Mth.floor(balance.getBalance(AccountType.WIN) * multiplier * (1.0F + Phoenix.CONFIG.riskGameWinStreakMultiplier * this.winStreak));
+        ++this.winStreak;
 
         Phoenix.LOGGER.debug(MARKER, "[{}] Risk bet won, adding balance {}. Current win streak: {}", this.instanceAccess.traceId(), winningBalance, this.winStreak);
         balance.addBalance(config.riskGameTargetAccount, winningBalance);

@@ -53,6 +53,12 @@ public final class PhoenixConfig {
     public int riskGameWinMultiplier = 2;
 
     @Configurable
+    @Configurable.DecimalRange(min = 0.0, max = 2.0)
+    @Configurable.Gui.Slider
+    @Configurable.Gui.NumberFormat("0.00")
+    public float riskGameWinStreakMultiplier = 0.0F;
+
+    @Configurable
     @Configurable.Range(min = 1, max = 100)
     public int multiWinSpinPriceMultiplier = 4;
 
