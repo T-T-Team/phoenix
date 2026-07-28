@@ -14,6 +14,11 @@ public record SimpleSequenceGenerator(List<String> sequence) implements Sequence
             .fieldOf("sequence");
 
     @Override
+    public List<String> listAvailableSymbols() {
+        return this.sequence;
+    }
+
+    @Override
     public void generateSymbolSequence(RandomSource random, Consumer<String> output) {
         this.sequence.forEach(output);
     }

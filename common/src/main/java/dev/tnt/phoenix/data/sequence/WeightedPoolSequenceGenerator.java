@@ -17,6 +17,13 @@ public record WeightedPoolSequenceGenerator(List<Pool> pools) implements Sequenc
             .fieldOf("pools");
 
     @Override
+    public List<String> listAvailableSymbols() {
+        return this.pools.stream()
+                .map(pool -> pool.symbol)
+                .toList();
+    }
+
+    @Override
     public void generateSymbolSequence(RandomSource random, Consumer<String> output) {
         Generator generator = new Generator(this.pools);
         while (generator.canGenerate()) {

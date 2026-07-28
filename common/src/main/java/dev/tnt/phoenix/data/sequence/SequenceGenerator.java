@@ -5,11 +5,14 @@ import com.mojang.serialization.MapCodec;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.StringRepresentable;
 
+import java.util.List;
 import java.util.function.Consumer;
 
 public interface SequenceGenerator {
 
     Codec<SequenceGenerator> CODEC = Type.CODEC.dispatch("generator", SequenceGenerator::type, Type::codec);
+
+    List<String> listAvailableSymbols();
 
     void generateSymbolSequence(RandomSource random, Consumer<String> output);
 
