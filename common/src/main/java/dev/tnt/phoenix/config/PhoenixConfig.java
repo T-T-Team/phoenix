@@ -55,6 +55,9 @@ public final class PhoenixConfig {
     @Configurable.UpdateRestriction(UpdateRestrictions.MAIN_MENU)
     public boolean showItemInputValue = true;
 
+    @Configurable
+    public boolean generateSequenceOnEachSpin = true;
+
     public SpinConfiguration getSpinConfiguration(GameType type) {
         return type.isLow()
                 ? this.lowSpinConfig

@@ -134,7 +134,10 @@ public final class SpinGameComponent extends PhoenixComponent implements SpinGam
             // Reload sequences on active wheels
             RandomSource random = player.getRandom();
             List<SpinWheel> spinWheels = this.getSpinWheelsForGame();
-            this.updateSequences(random);
+            if (Phoenix.CONFIG.generateSequenceOnEachSpin) {
+                this.updateSequences(random);
+            }
+
             this.activeWheels = spinWheels.size() - this.hold.size();
 
             // Lock slot machine
