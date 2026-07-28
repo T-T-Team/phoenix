@@ -2,6 +2,7 @@ package dev.tnt.phoenix.data;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.util.Mth;
 
 public record MatchedWinCombination(int matchTypeBonus, WinConfiguration.WinPattern pattern, WinCombination combination) {
 
@@ -21,6 +22,10 @@ public record MatchedWinCombination(int matchTypeBonus, WinConfiguration.WinPatt
 
     public int amount() {
         return this.combination.amount();
+    }
+
+    public int getTotalWinAmount() {
+        return this.pattern.getWinAmount(this.amount());
     }
 
     public boolean is(WinCombination combination) {

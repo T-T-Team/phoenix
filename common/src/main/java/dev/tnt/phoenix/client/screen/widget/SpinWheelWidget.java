@@ -2,10 +2,7 @@ package dev.tnt.phoenix.client.screen.widget;
 
 import dev.tnt.phoenix.Phoenix;
 import dev.tnt.phoenix.client.screen.SymbolRenderHelper;
-import dev.tnt.phoenix.data.GameWinInfo;
-import dev.tnt.phoenix.data.MatchedWinCombination;
-import dev.tnt.phoenix.data.SlotMachineConfig;
-import dev.tnt.phoenix.data.SpriteType;
+import dev.tnt.phoenix.data.*;
 import dev.tnt.phoenix.data.component.SpinWheel;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
@@ -51,16 +48,16 @@ public final class SpinWheelWidget extends AbstractWidget {
         int startSpinIndex = Mth.floor(spin);
         int spinOffset = Mth.floor((spin - startSpinIndex) * ICON_SIZE);
         MatchedWinCombination winCombination = this.winInfo.isAnimatingWin() ? this.winInfo.getAnimatedWinCombination() : null;
+        List<WinConfiguration.Index> wheelIndexes = winCombination != null && this.wheelIndex < winCombination.count() ? winCombination.pattern().getIndexesForWheel(this.wheelIndex) : Collections.emptyList();
         boolean isBlinkMode = this.winInfo.isBlinkMode();
-        List<Integer> winIndexes = winCombination != null ? winCombination.pattern().indexes() : Collections.emptyList();
         List<String> sequence = this.spinWheel.getSequence();
         for (int i = startSpinIndex; i < startSpinIndex + this.displayedIcons; i++) {
             int spriteIndex = Math.floorMod(i, sequence.size());
             int positionIndex = i - startSpinIndex;
             String symbol = sequence.get(spriteIndex);
-            int winningIndex = winCombination != null && this.wheelIndex < winCombination.count() ? winIndexes.get(this.wheelIndex) : -1;
+            boolean indexMatch = wheelIndexes.contains(WinConfiguration.Index.of(this.wheelIndex, positionIndex));
             int y = this.getY() + 2 + positionIndex * (ICON_SIZE + 2);
-            SymbolRenderHelper.renderSymbol(symbol, this.config, graphics, this.getX() + 2, y - spinOffset, ICON_SIZE, ICON_SIZE, this.resolveSpriteType(positionIndex, winningIndex, isBlinkMode));
+            SymbolRenderHelper.renderSymbol(symbol, this.config, graphics, this.getX() + 2, y - spinOffset, ICON_SIZE, ICON_SIZE, this.resolveSpriteType(indexMatch, positionIndex, isBlinkMode));
         }
         graphics.disableScissor();
     }
@@ -69,7 +66,7 @@ public final class SpinWheelWidget extends AbstractWidget {
     protected void updateWidgetNarration(NarrationElementOutput output) {
     }
 
-    private SpriteType resolveSpriteType(int index, int winningIndex, boolean isBlinkMode) {
+    private SpriteType resolveSpriteType(boolean indexMatch, int index, boolean isBlinkMode) {
         if (!this.active) {
             return SpriteType.DISABLED;
         }
@@ -82,7 +79,7 @@ public final class SpinWheelWidget extends AbstractWidget {
                 long time = System.currentTimeMillis();
                 highlight = (time % 150L) < 75L;
             }
-            return winningIndex == index ? (highlight ? SpriteType.ENABLED : SpriteType.DEFAULT) : SpriteType.DISABLED;
+            return indexMatch ? (highlight ? SpriteType.ENABLED : SpriteType.DEFAULT) : SpriteType.DISABLED;
         }
         return SpriteType.DEFAULT;
     }

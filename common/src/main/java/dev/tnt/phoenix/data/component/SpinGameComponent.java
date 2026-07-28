@@ -360,10 +360,11 @@ public final class SpinGameComponent extends PhoenixComponent implements SpinGam
 
             // Win animation
             this.winInfo.assignWinCombination(wins);
-            if (!wins.isEmpty())
-                this.winInfo.playHitSound(level, pos);
 
+            // Win handling
             if (!wins.isEmpty()) {
+                // Hit sound
+                this.winInfo.playHitSound(level, pos);
                 // Won, locking hold for next round
                 Phoenix.LOGGER.debug(MARKER, "[{}] Found {} winning combinations, freezing hold for next round. Combinations: {}", this.instanceAccess.traceId(), wins.size(), wins);
                 this.holdEnabled = false;
@@ -386,7 +387,7 @@ public final class SpinGameComponent extends PhoenixComponent implements SpinGam
     private void onWinHighlightFinished() {
         MatchedWinCombination winCombination = this.winInfo.getAnimatedWinCombination();
         AccountType targetAccount = this.gameType.isHigh() ? Phoenix.CONFIG.highGameTargetAccount : Phoenix.CONFIG.lowGameTargetAccount;
-        int winAmount = this.bet.getValue(winCombination.amount());
+        int winAmount = this.bet.getValue(winCombination.getTotalWinAmount());
         AccountBalanceTransaction transaction = this.instanceAccess.transactions();
         transaction.initiate(TransactionSource.SPIN, targetAccount, winAmount);
         this.winInfo.transitionToBlinkMode();

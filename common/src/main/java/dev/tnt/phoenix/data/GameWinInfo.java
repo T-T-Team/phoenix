@@ -141,10 +141,12 @@ public final class GameWinInfo {
     }
 
     public boolean isWinningIndex(int wheelIndex, int position) {
+        WinConfiguration.Index index = WinConfiguration.Index.of(wheelIndex, position);
         for (MatchedWinCombination combination : this.combinations) {
+            if (wheelIndex < combination.count())
+                continue;
             WinConfiguration.WinPattern pattern = combination.pattern();
-            int index = pattern.indexes().get(wheelIndex);
-            if (wheelIndex < combination.count() && index == position) {
+            if (pattern.indexMatches(index)) {
                 return true;
             }
         }
