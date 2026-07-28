@@ -4,6 +4,7 @@ import com.mojang.serialization.Codec;
 import dev.tnt.phoenix.Phoenix;
 import dev.tnt.phoenix.api.AccountBalance;
 import dev.tnt.phoenix.api.AccountType;
+import net.minecraft.util.Mth;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
 import org.jspecify.annotations.Nullable;
@@ -54,7 +55,7 @@ public final class AccountBalanceComponent extends PhoenixComponent implements A
     }
 
     public void setBalance(AccountType type, int amount) {
-        int balance = Math.max(0, amount);
+        int balance = Mth.clamp(amount, 0, Integer.MAX_VALUE);
         int original = this.balances.getOrDefault(type, 0);
         if (original != balance) {
             this.balances.put(type, balance);
