@@ -68,7 +68,7 @@ public final class RiskGameComponent extends PhoenixComponent implements RiskGam
     public void tick(Level level, BlockPos pos) {
         if (this.freezeDuration > 0) {
             if (--this.freezeDuration <= 0) {
-                Phoenix.LOGGER.debug("[{}] Risk result freeze finished", this.instanceAccess.traceId());
+                Phoenix.LOGGER.debug(MARKER, "[{}] Risk result freeze finished", this.instanceAccess.traceId());
                 this.instanceAccess.unlock(LOCK);
                 this.instanceAccess.setChanged();
             }
