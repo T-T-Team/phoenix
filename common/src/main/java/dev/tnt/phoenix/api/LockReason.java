@@ -8,6 +8,7 @@ public enum LockReason implements StringRepresentable {
     NONE("none"),
     SPIN("spin"),
     RISK("risk"),
+    RISK_PENDING("risk_pending"),
     TRANSFER("transfer");
 
     public static final Codec<LockReason> CODEC = StringRepresentable.fromEnum(LockReason::values);

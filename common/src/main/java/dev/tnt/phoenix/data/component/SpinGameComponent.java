@@ -203,7 +203,7 @@ public final class SpinGameComponent extends PhoenixComponent implements SpinGam
     }
 
     public boolean canSpinOrTransfer() {
-        if (this.instanceAccess.isLocked()) {
+        if (this.instanceAccess.isLocked() && !this.instanceAccess.isLockedWithReason(LockReason.RISK_PENDING)) {
             return false;
         }
         AccountBalance balance = this.instanceAccess.account();
@@ -275,6 +275,7 @@ public final class SpinGameComponent extends PhoenixComponent implements SpinGam
                 this.swapGameType(true);
             }
             this.instanceAccess.unlock(LOCK);
+            this.instanceAccess.lock(RiskGame.LOCK_PENDING);
         }
     }
 

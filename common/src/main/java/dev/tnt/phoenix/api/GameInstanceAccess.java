@@ -14,6 +14,8 @@ public interface GameInstanceAccess {
 
     boolean isLocked();
 
+    boolean isLockedWithReason(LockReason reason, LockReason... other);
+
     AccountBalance account();
 
     SpinGame spin();

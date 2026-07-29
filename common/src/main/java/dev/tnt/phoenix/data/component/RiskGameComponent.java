@@ -3,10 +3,7 @@ package dev.tnt.phoenix.data.component;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.tnt.phoenix.Phoenix;
-import dev.tnt.phoenix.api.AccountBalance;
-import dev.tnt.phoenix.api.AccountType;
-import dev.tnt.phoenix.api.RiskBet;
-import dev.tnt.phoenix.api.RiskGame;
+import dev.tnt.phoenix.api.*;
 import dev.tnt.phoenix.config.PhoenixConfig;
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundSource;
@@ -94,7 +91,7 @@ public final class RiskGameComponent extends PhoenixComponent implements RiskGam
 
     public boolean canStart() {
         AccountBalance accountBalance = this.instanceAccess.account();
-        return !this.instanceAccess.isLocked() && this.enabled && !this.isStopped() && accountBalance.hasBalanceInAccount(AccountType.WIN);
+        return (!this.instanceAccess.isLocked() || this.instanceAccess.isLockedWithReason(LockReason.RISK_PENDING)) && this.enabled && !this.isStopped() && accountBalance.hasBalanceInAccount(AccountType.WIN);
     }
 
     public void start(RandomSource random, RiskBet bet) {

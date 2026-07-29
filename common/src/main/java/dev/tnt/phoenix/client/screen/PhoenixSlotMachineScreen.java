@@ -184,7 +184,7 @@ public class PhoenixSlotMachineScreen extends Screen {
         // risk
         RiskGameComponent riskGame = this.gameInstance.getRiskGame();
         RiskWidget riskWidget = this.addRenderableOnly(new RiskWidget(this.leftPos + CONTENT_WIDTH - 60, this.topPos + CONTENT_HEIGHT - 109, 40, 20, riskGame));
-        riskWidget.active = (!this.gameInstance.isLocked() && riskGame.isActive()) || riskGame.isStopped();
+        riskWidget.active = ((!this.gameInstance.isLocked() || this.gameInstance.getLockReason().is(LockReason.RISK_PENDING)) && riskGame.isActive()) || riskGame.isStopped();
 
         this.initiateLoopSounds(this.gameInstance);
     }

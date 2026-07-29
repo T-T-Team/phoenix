@@ -215,6 +215,11 @@ public final class PlayerGameInstance {
         }
 
         @Override
+        public boolean isLockedWithReason(LockReason reason, LockReason... other) {
+            return this.isLocked() && this.delegate.lock.reason().is(reason, other);
+        }
+
+        @Override
         public AccountBalance account() {
             return this.delegate.accountBalance;
         }
