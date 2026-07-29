@@ -1,7 +1,0 @@
-{
-  "pack": {
-    "description": "Pack for debugging winning patterns",
-    "min_format": 101,
-    "max_format": 9999
-  }
-}
