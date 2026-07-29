@@ -3,6 +3,9 @@ This mod adds vintage slot machine called Phoenix where you can play for various
 
 Simply place the block, insert valuable metals or gems, and you can play as long as your balance is above zero.
 
+![slot machine block](https://media.forgecdn.net/attachments/1829/276/block-png.png)
+![slot machine UI](https://media.forgecdn.net/attachments/1829/275/slotmachine-png.png)
+
 ### What to insert?
 You can by default insert Copper ingot, Iron ingot, Gold Ingot, Emerald, Diamond or Netherite ingot. Each material gives different value.
 
