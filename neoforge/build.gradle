@@ -68,8 +68,9 @@ tasks.register("curseforge", TaskPublishCurseForge) {
     artifact.releaseType = Constants.RELEASE_TYPE_RELEASE
     artifact.displayName = "phoenix-neoforge-${version}"
     artifact.addModLoader("NeoForge")
-    artifact.addEnvironment("Client")
+    artifact.addEnvironment("Client", "Server")
     artifact.addJavaVersion("Java 25")
+    artifact.addRequirement("configuration")
     versionList.each { gameVersion ->
         artifact.addGameVersion(gameVersion)
     }
@@ -84,7 +85,15 @@ modrinth {
     versionName = "phoenix-neoforge-${version}"
     versionType = "release"
     gameVersions = versionList
-    changelog = file("../CHANGELOG.md").exists() ? file("../CHANGELOG.md").text : "-- No changelog --"
+    changelog.set(
+            providers.provider {
+                def changelogFile = file("./CHANGELOG.md")
+                changelogFile.exists() ? changelogFile.text : "-- No changelog provided --"
+            }
+    )
     loaders = ["neoforge"]
+    dependencies {
+        required.project("configuration")
+    }
 }
 tasks.modrinth.dependsOn(tasks.jar)
