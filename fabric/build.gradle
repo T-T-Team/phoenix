@@ -103,7 +103,7 @@ modrinth {
     gameVersions = versionList
     changelog.set(
             providers.provider {
-                def changelogFile = file("./CHANGELOG.md")
+                def changelogFile = file("../CHANGELOG.md")
                 changelogFile.exists() ? changelogFile.text : "-- No changelog provided --"
             }
     )
