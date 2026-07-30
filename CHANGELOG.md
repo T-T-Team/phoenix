@@ -1,2 +1,2 @@
-# Release 1.0.1+26.2
-- Updated to 26.2
+# Release 1.0.0+26.2
+- Initial release
