@@ -1,6 +1,7 @@
 modLoader = "javafml"
 loaderVersion = "[4,)"
 license = "${mod_license}"
+issueTrackerURL = "https://github.com/T-T-Team/phoenix/issues"
 
 [[mods]]
 modId = "${mod_id}"
@@ -8,6 +9,7 @@ version = "${version}"
 displayName = "${mod_name}"
 authors = "${mod_authors}"
 updateJSONURL = "https://raw.githubusercontent.com/T-T-Team/phoenix/refs/heads/main/versions.json"
+logoFile = "assets/icon.png"
 description = '''
 ${mod_description}
 '''

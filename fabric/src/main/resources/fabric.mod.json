@@ -8,10 +8,11 @@
     "${mod_authors}"
   ],
   "contact": {
-    "homepage": "",
-    "sources": "",
-    "issues": ""
+    "homepage": "https://www.curseforge.com/minecraft/mc-mods/phoenix",
+    "sources": "https://github.com/T-T-Team/phoenix",
+    "issues": "https://github.com/T-T-Team/phoenix/issues"
   },
+  "icon": "assets/icon.png",
   "license": "${mod_license}",
   "environment": "*",
   "entrypoints": {
