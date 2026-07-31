@@ -96,15 +96,3 @@ subprojects {
         enabled = false
     }
 }
-
-task uploadToCurseForge(dependsOn: [':fabric:curseforge', ':neoforge:curseforge']) {
-    group = "publishing"
-}
-
-task uploadToModrinth(dependsOn: [':fabric:modrinth', ':neoforge:modrinth']) {
-    group = "publishing"
-}
-
-task releaseMod(dependsOn: ['uploadToCurseForge', 'uploadToModrinth']) {
-    group = "publishing"
-}
