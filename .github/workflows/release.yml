@@ -69,7 +69,7 @@ jobs:
         with:
           name: artifact-${{ matrix.loader.id }}
           path: 'artifacts'
-      - uses: T-T-Team/curseforge-publish-action@v1.2.1
+      - uses: T-T-Team/curseforge-publish-action@v1
         with:
           artifact-directory: 'artifacts'
           token: ${{ secrets.CF_TOKEN }}
@@ -96,7 +96,7 @@ jobs:
         with:
           name: artifact-${{ matrix.loader.id }}
           path: 'artifacts'
-      - uses: T-T-Team/modrinth-publish-action@v1.0.0
+      - uses: T-T-Team/modrinth-publish-action@v1
         with:
           artifact-directory: 'artifacts'
           token: ${{ secrets.MODRINTH_TOKEN }}
