@@ -4,8 +4,6 @@ on:
     tags:
       - 'version/*'
 
-  workflow_dispatch:
-
 env:
   JAVA_VENDOR: 'microsoft'
   JAVA_VERSION: '25'
@@ -14,7 +12,7 @@ env:
   GAME_DEPENDENCIES: 'configuration'
   CURSEFORGE_PROJECT: '1630968'
   MODRINTH_PROJECT: 'SirewTwV'
-  DEBUG: 'true'
+  DEBUG: 'false'
 
 concurrency:
   group: release-${{ github.ref }}
