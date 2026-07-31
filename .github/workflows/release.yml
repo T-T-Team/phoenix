@@ -1,9 +1,10 @@
 name: Release
 on:
-  workflow_dispatch:
   push:
     tags:
       - 'version/*'
+
+  workflow_dispatch:
 
 env:
   JAVA_VENDOR: 'microsoft'
@@ -14,11 +15,6 @@ env:
   CURSEFORGE_PROJECT: '1630968'
   MODRINTH_PROJECT: 'SirewTwV'
   DEBUG: 'true'
-  LOADERS: |
-    [
-      { "id": "neoforge", "name": "NeoForge" },
-      { "id": "fabric", "name": "Fabric" }
-    ]
 
 concurrency:
   group: release-${{ github.ref }}
@@ -30,7 +26,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        loader: ${{ fromJSON(env.LOADERS) }}
+        loader: ${{ fromJSON(vars.LOADERS) }}
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-java@v5
@@ -67,7 +63,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        loader: ${{ fromJSON(env.LOADERS) }}
+        loader: ${{ fromJSON(vars.LOADERS) }}
     steps:
       - uses: actions/download-artifact@v8
         with:
@@ -94,7 +90,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        loader: ${{ fromJSON(env.LOADERS) }}
+        loader: ${{ fromJSON(vars.LOADERS) }}
     steps:
       - uses: actions/download-artifact@v8
         with:
