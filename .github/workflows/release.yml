@@ -7,7 +7,6 @@ on:
 env:
   JAVA_VENDOR: 'microsoft'
   JAVA_VERSION: '25'
-  GAME_VERSION: '26.2'
   GAME_DEPENDENCIES: 'configuration'
   CURSEFORGE_PROJECT: '1630968'
   MODRINTH_PROJECT: 'SirewTwV'
@@ -66,11 +65,8 @@ jobs:
           path: 'artifacts'
       - uses: T-T-Team/curseforge-publish-action@v2
         with:
-          artifact-directory: 'artifacts'
           token: ${{ secrets.CF_TOKEN }}
           project-id: ${{ env.CURSEFORGE_PROJECT }}
-          game-version: ${{ env.GAME_VERSION }}
-          mod-loader: ${{ matrix.loader }}
           java-version: Java ${{ env.JAVA_VERSION }}
           changelog-content: ${{ needs.prepare-changelog.outputs.changelog }}
           required-dependencies: ${{ env.GAME_DEPENDENCIES }}
@@ -90,11 +86,8 @@ jobs:
           path: 'artifacts'
       - uses: T-T-Team/modrinth-publish-action@v2
         with:
-          artifact-directory: 'artifacts'
           token: ${{ secrets.MODRINTH_TOKEN }}
           project-id: ${{ env.MODRINTH_PROJECT }}
-          game-version: ${{ env.GAME_VERSION }}
-          mod-loader: ${{ matrix.loader }}
           changelog-content: ${{ needs.prepare-changelog.outputs.changelog }}
           required-dependencies: ${{ env.GAME_DEPENDENCIES }}
           debug-mode: ${{ vars.DEBUG }}
