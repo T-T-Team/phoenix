@@ -82,9 +82,7 @@ public final class PhoenixSlotMachineBlockEntity extends BlockEntity {
         int value = inputApi.getItemValue(instance, insertAll);
         if (value > 0) {
             PlayerGameInstance holder = this.data.getData(owner);
-            AccountBalance balance = holder.getAccountBalance();
-            balance.addBalance(AccountType.INPUT, value);
-            insertionCallback.onInsertion(value, balance);
+            holder.insertBalance(instance, value, insertionCallback);
             this.markUpdated();
             return true;
         }

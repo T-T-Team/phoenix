@@ -4,11 +4,13 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.tnt.phoenix.Phoenix;
 import dev.tnt.phoenix.api.*;
+import dev.tnt.phoenix.block.entity.PhoenixSlotMachineBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemInstance;
 import net.minecraft.world.level.Level;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
@@ -116,6 +118,12 @@ public final class PlayerGameInstance {
 
     public AccountBalanceComponent getAccountBalance() {
         return accountBalance;
+    }
+
+    public void insertBalance(ItemInstance instance, int value, PhoenixSlotMachineBlockEntity.ItemInsertionCallback insertionCallback) {
+        Phoenix.LOGGER.debug(MARKER, "[{}] Inserting item {} with value of {}", this.traceId, instance, value);
+        this.accountBalance.addBalance(AccountType.INPUT, value);
+        insertionCallback.onInsertion(value, this.accountBalance);
     }
 
     public void lock(Lock lock) {
