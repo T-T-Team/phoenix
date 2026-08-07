@@ -9,7 +9,7 @@ version = "${version}"
 displayName = "${mod_name}"
 authors = "${mod_authors}"
 updateJSONURL = "https://raw.githubusercontent.com/T-T-Team/phoenix/refs/heads/main/versions.json"
-logoFile = "assets/icon.png"
+iconFile = "assets/icon.png"
 description = '''
 ${mod_description}
 '''
