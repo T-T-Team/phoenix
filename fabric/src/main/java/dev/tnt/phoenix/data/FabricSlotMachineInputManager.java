@@ -5,10 +5,11 @@ import net.minecraft.core.HolderLookup;
 
 public final class FabricSlotMachineInputManager extends SlotMachineInputManager {
 
-    private final HolderLookup.Provider provider;
+    private HolderLookup.Provider provider;
 
-    public FabricSlotMachineInputManager(HolderLookup.Provider provider) {
+    public FabricSlotMachineInputManager withHolderLookupProvider(HolderLookup.Provider provider) {
         this.provider = provider;
+        return this;
     }
 
     @Override

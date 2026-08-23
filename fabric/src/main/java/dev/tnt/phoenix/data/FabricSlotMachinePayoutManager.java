@@ -5,10 +5,11 @@ import net.minecraft.core.HolderLookup;
 
 public final class FabricSlotMachinePayoutManager extends SlotMachinePayoutManager {
 
-    private final HolderLookup.Provider provider;
+    private HolderLookup.Provider provider;
 
-    public FabricSlotMachinePayoutManager(HolderLookup.Provider provider) {
+    public FabricSlotMachinePayoutManager withHolderLookupProvider(HolderLookup.Provider provider) {
         this.provider = provider;
+        return this;
     }
 
     @Override

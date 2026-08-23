@@ -19,8 +19,8 @@ import net.minecraft.server.packs.PackType;
 
 public final class PhoenixFabric implements ModInitializer {
 
-    public static FabricSlotMachineInputManager INPUT_MANAGER;
-    public static FabricSlotMachinePayoutManager PAYOUT_MANAGER;
+    public static final FabricSlotMachineInputManager INPUT_MANAGER = new FabricSlotMachineInputManager();
+    public static final FabricSlotMachinePayoutManager PAYOUT_MANAGER = new FabricSlotMachinePayoutManager();
 
     @Override
     public void onInitialize() {
@@ -30,14 +30,8 @@ public final class PhoenixFabric implements ModInitializer {
         // data managers
         DataResourceLoader resourceLoader = (DataResourceLoader) ResourceLoader.get(PackType.SERVER_DATA);
         resourceLoader.registerReloadListener(SlotMachineDataManager.DATA_MANAGER_IDENTIFIER, Phoenix.SLOT_MACHINES);
-        resourceLoader.registerReloadListener(SlotMachineInputManager.DATA_MANAGER_IDENTIFIER, provider -> {
-            INPUT_MANAGER = new FabricSlotMachineInputManager(provider);
-            return INPUT_MANAGER;
-        });
-        resourceLoader.registerReloadListener(SlotMachinePayoutManager.DATA_MANAGER_IDENTIFIER, provider -> {
-            PAYOUT_MANAGER = new FabricSlotMachinePayoutManager(provider);
-            return PAYOUT_MANAGER;
-        });
+        resourceLoader.registerReloadListener(SlotMachineInputManager.DATA_MANAGER_IDENTIFIER, INPUT_MANAGER::withHolderLookupProvider);
+        resourceLoader.registerReloadListener(SlotMachinePayoutManager.DATA_MANAGER_IDENTIFIER, PAYOUT_MANAGER::withHolderLookupProvider);
 
         // packets
         PayloadTypeRegistry<RegistryFriendlyByteBuf> s2c = PayloadTypeRegistry.clientboundPlay();
