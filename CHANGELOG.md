@@ -1,2 +1,3 @@
-# Release 1.0.1+26.2
-- Fixed missing sound effects
+# Release 1.0.2+26.2
+- Fixed some server connection issues
+- Improved internal item insertion logic
