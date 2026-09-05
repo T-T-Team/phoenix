@@ -31,6 +31,7 @@ public final class SpinGameComponent extends PhoenixComponent implements SpinGam
             Codec.INT.optionalFieldOf("active_wheels", 0).forGetter(t -> t.activeWheels),
             GameType.CODEC.optionalFieldOf("active_game_type", GameType.LOW).forGetter(t -> t.gameType),
             Bet.CODEC.optionalFieldOf("bet", Bet.X1).forGetter(t -> t.bet),
+            Codec.BOOL.optionalFieldOf("bet_changed", false).forGetter(t -> t.betChanged),
             GameWinInfo.CODEC.optionalFieldOf("win_info", GameWinInfo.create()).forGetter(t -> t.winInfo),
             Codec.BOOL.optionalFieldOf("hold_enabled", false).forGetter(t -> t.holdEnabled),
             Codec.INT.listOf().optionalFieldOf("hold", Collections.emptyList()).forGetter(t -> new ArrayList<>(t.hold))
@@ -40,15 +41,17 @@ public final class SpinGameComponent extends PhoenixComponent implements SpinGam
     private int activeWheels;
     private GameType gameType;
     private Bet bet;
+    private boolean betChanged;
     private final GameWinInfo winInfo;
     private boolean holdEnabled;
     private final IntSet hold;
 
-    private SpinGameComponent(Map<GameType, List<SpinWheel>> wheels, int activeWheels, GameType gameType, Bet betMultiplier, GameWinInfo winInfo, boolean holdEnabled, List<Integer> hold) {
+    private SpinGameComponent(Map<GameType, List<SpinWheel>> wheels, int activeWheels, GameType gameType, Bet betMultiplier, boolean betChanged, GameWinInfo winInfo, boolean holdEnabled, List<Integer> hold) {
         this.wheels = new EnumMap<>(wheels);
         this.activeWheels = activeWheels;
         this.gameType = gameType;
         this.bet = betMultiplier;
+        this.betChanged = betChanged;
         this.winInfo = winInfo;
         this.holdEnabled = holdEnabled;
         this.hold = new IntOpenHashSet(hold);
@@ -72,7 +75,7 @@ public final class SpinGameComponent extends PhoenixComponent implements SpinGam
         }
 
         return new SpinGameComponent(
-                wheels, 0, GameType.LOW, Bet.X1, GameWinInfo.create(), false, Collections.emptyList()
+                wheels, 0, GameType.LOW, Bet.X1, false, GameWinInfo.create(), false, Collections.emptyList()
         );
     }
 
@@ -95,6 +98,7 @@ public final class SpinGameComponent extends PhoenixComponent implements SpinGam
         this.activeWheels = holder.activeWheels;
         this.gameType = holder.gameType;
         this.bet = holder.bet;
+        this.betChanged = holder.betChanged;
         this.winInfo.updateFrom(holder.winInfo);
         this.holdEnabled = holder.holdEnabled;
         this.hold.clear();
@@ -120,6 +124,9 @@ public final class SpinGameComponent extends PhoenixComponent implements SpinGam
         } else {
             // Spin initiation logic
             this.playStartSound(player);
+
+            // Unlock bets/holds
+            this.betChanged = false;
 
             // Low game balance reduction
             int spinCost = this.getSpinCost(GameType.LOW);
@@ -240,10 +247,11 @@ public final class SpinGameComponent extends PhoenixComponent implements SpinGam
         }
         Phoenix.LOGGER.debug(MARKER, "[{}] Bet multiplier changed {} -> {}", this.instanceAccess.traceId(), this.bet, newBet);
         this.bet = newBet;
+        this.betChanged = true;
     }
 
     public boolean canHold(int slot) {
-        return !this.instanceAccess.isLocked() && this.gameType.isLow() && this.holdEnabled && this.hold.size() < 2 && !this.hold.contains(slot) && this.hasSufficientBalanceForGame(this.gameType);
+        return !this.instanceAccess.isLocked() && !this.betChanged && this.gameType.isLow() && this.holdEnabled && this.hold.size() < 2 && !this.hold.contains(slot) && this.hasSufficientBalanceForGame(this.gameType);
     }
 
     public void hold(int slot) {
