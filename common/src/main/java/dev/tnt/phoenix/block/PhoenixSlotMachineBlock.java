@@ -1,9 +1,8 @@
 package dev.tnt.phoenix.block;
 
-import com.mojang.serialization.MapCodec;
 import dev.tnt.phoenix.Phoenix;
-import dev.tnt.phoenix.block.entity.PhoenixSlotMachineBlockEntity;
 import dev.tnt.phoenix.api.AccountType;
+import dev.tnt.phoenix.block.entity.PhoenixSlotMachineBlockEntity;
 import dev.tnt.phoenix.network.S2C_OpenPhoenixMachineScreen;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -34,7 +33,6 @@ import java.util.UUID;
 
 public class PhoenixSlotMachineBlock extends HorizontalDirectionalBlock implements EntityBlock {
 
-    public static final MapCodec<PhoenixSlotMachineBlock> CODEC = simpleCodec(PhoenixSlotMachineBlock::new);
     public static final Component NAME = Component.translatable("container.phoenix.phoenix_slot_machine");
     private static final VoxelShape HITBOX = Block.column(16.0, 0.0, 24.0);
 
@@ -115,10 +113,5 @@ public class PhoenixSlotMachineBlock extends HorizontalDirectionalBlock implemen
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(FACING);
-    }
-
-    @Override
-    protected MapCodec<? extends HorizontalDirectionalBlock> codec() {
-        return CODEC;
     }
 }
