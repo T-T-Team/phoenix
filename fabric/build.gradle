@@ -6,6 +6,10 @@ repositories {
     maven { url 'https://maven.terraformersmc.com/' }
 }
 
+base {
+    archivesBaseName = "${mod_id}-fabric"
+}
+
 dependencies {
     minecraft "com.mojang:minecraft:${minecraft_version}"
     mappings loom.officialMojangMappings()
@@ -56,7 +60,6 @@ jar {
     }
 
     exclude("META-INF/accesstransformer.cfg")
-    archiveFileName = "${mod_id}-fabric-${project.version}.jar"
 }
 
 processResources {
