@@ -79,7 +79,7 @@ public class PhoenixSlotMachineScreen extends Screen {
     protected void init() {
         BlockEntity blockEntity = this.minecraft.level.getBlockEntity(this.pos);
         if (!(blockEntity instanceof PhoenixSlotMachineBlockEntity phoenixSlotMachineBlockEntity)) {
-            this.minecraft.gui.setScreen(null);
+            this.minecraft.setScreen(null);
             this.minecraft.player.sendOverlayMessage(Component.literal("Invalid slot machine!").withStyle(ChatFormatting.RED));
             return;
         }
@@ -99,7 +99,7 @@ public class PhoenixSlotMachineScreen extends Screen {
         SlotMachineConfig config = Phoenix.SLOT_MACHINES.getSlotMachine(Phoenix.SLOT_MACHINE_CONFIG_PHOENIX)
                 .orElse(null);
         if (config == null) {
-            this.minecraft.gui.setScreen(null);
+            this.minecraft.setScreen(null);
             this.minecraft.player.sendOverlayMessage(Component.literal("Invalid slot machine config!").withStyle(ChatFormatting.RED));
             return;
         }

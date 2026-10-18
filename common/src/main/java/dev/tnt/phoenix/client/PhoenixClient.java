@@ -35,7 +35,7 @@ public final class PhoenixClient {
 
     public static void handlePayoutScreenOpenRequest(S2C_OpenPayoutScreen request) {
         Minecraft minecraft = Minecraft.getInstance();
-        minecraft.gui.setScreen(new PayoutScreen(minecraft.gui.screen(), request.pos(), request.payouts(), request.balance()));
+        minecraft.setScreen(new PayoutScreen(minecraft.screen, request.pos(), request.payouts(), request.balance()));
     }
 
     public static void handlePhoenixScreenOpenRequest(S2C_OpenPhoenixMachineScreen request) {
@@ -44,10 +44,10 @@ public final class PhoenixClient {
             ProblemReporter problemReporter = new ProblemReporter.ScopedCollector(slotMachine.problemPath(), Phoenix.LOGGER_SLF4J);
             ValueInput valueInput = TagValueInput.create(problemReporter, instance.level.registryAccess(), request.tag());
             slotMachine.loadWithComponents(valueInput);
-            if (request.refreshOnly() && !(instance.gui.screen() instanceof PhoenixSlotMachineScreen)) {
+            if (request.refreshOnly() && !(instance.screen instanceof PhoenixSlotMachineScreen)) {
                 return;
             }
-            instance.gui.setScreen(new PhoenixSlotMachineScreen(request.pos()));
+            instance.setScreen(new PhoenixSlotMachineScreen(request.pos()));
         });
     }
 }

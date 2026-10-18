@@ -131,11 +131,11 @@ public final class PayoutScreen extends Screen {
     private void confirmButtonClicked(Button button) {
         List<PayoutRequestEntry> payout = this.preparePayoutsForRequest();
         PhoenixClient.PLATFORM.sendPacket(new C2S_SlotMachinePayoutRequest(this.pos, payout));
-        this.minecraft.gui.setScreen(null);
+        this.minecraft.setScreen(null);
     }
 
     private void cancelButtonClicked(Button button) {
-        this.minecraft.gui.setScreen(this.parent);
+        this.minecraft.setScreen(this.parent);
     }
 
     private void updateQuantity(SlotMachinePayout payout, int quantity) {
