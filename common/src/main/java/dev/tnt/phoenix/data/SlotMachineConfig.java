@@ -6,10 +6,10 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.tnt.phoenix.data.sequence.EmptySequenceGenerator;
 import dev.tnt.phoenix.data.sequence.SequenceGenerator;
 import io.netty.buffer.ByteBuf;
+import net.minecraft.Util;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.RandomSource;
-import net.minecraft.util.Util;
 
 import java.util.*;
 import java.util.function.Function;

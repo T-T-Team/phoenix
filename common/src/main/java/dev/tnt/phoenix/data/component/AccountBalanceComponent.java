@@ -7,7 +7,6 @@ import dev.tnt.phoenix.api.AccountType;
 import net.minecraft.util.Mth;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
-import org.jspecify.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -85,7 +84,7 @@ public final class AccountBalanceComponent extends PhoenixComponent implements A
         return false;
     }
 
-    public @Nullable Integer getWinBalanceForDisplay() {
+    public Integer getWinBalanceForDisplay() {
         int balance = this.getBalance(AccountType.WIN);
         return balance != 0 ? balance : null;
     }

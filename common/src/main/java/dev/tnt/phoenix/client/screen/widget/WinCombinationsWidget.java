@@ -7,19 +7,18 @@ import dev.tnt.phoenix.data.SlotMachineConfig;
 import dev.tnt.phoenix.data.SpriteType;
 import dev.tnt.phoenix.data.WinCombination;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
-import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.List;
 
 public class WinCombinationsWidget extends AbstractWidget {
 
-    private static final Identifier SPRITE_PRICE_SLOT = Phoenix.identifier("price_slot");
+    private static final ResourceLocation SPRITE_PRICE_SLOT = Phoenix.identifier("price_slot");
 
     private final Font font;
     private final SlotMachineConfig config;
@@ -36,7 +35,7 @@ public class WinCombinationsWidget extends AbstractWidget {
     private int verticalOffset;
     private int textColor = 0xFFFFFFFF;
     private int textColorDisabled = 0xFF808080;
-    private Identifier blankSprite;
+    private ResourceLocation blankSprite;
 
     public WinCombinationsWidget(int x, int y, int width, int height, Font font, SlotMachineConfig config, List<WinCombination> combinations, GameWinInfo winInfo) {
         super(x, y, width, height, CommonComponents.EMPTY);
@@ -76,14 +75,14 @@ public class WinCombinationsWidget extends AbstractWidget {
         this.textColorDisabled = textColor;
     }
 
-    public void setBlankSprite(Identifier sprite) {
+    public void setBlankSprite(ResourceLocation sprite) {
         this.blankSprite = sprite;
     }
 
     @Override
-    protected void extractWidgetRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+    protected void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float a) {
         graphics.enableScissor(this.getX(), this.getY(), this.getRight(), this.getBottom());
-        graphics.blitSprite(RenderPipelines.GUI_TEXTURED, SPRITE_PRICE_SLOT, this.getX(), this.getY(), this.getWidth(), this.getHeight());
+        graphics.blitSprite(SPRITE_PRICE_SLOT, this.getX(), this.getY(), this.getWidth(), this.getHeight());
         for (int x = 0; x < this.columns; x++) {
             for (int y = 0; y < this.rows; y++) {
                 int index = x * this.rows + y;
@@ -99,14 +98,14 @@ public class WinCombinationsWidget extends AbstractWidget {
                     if (i >= combination.count()) {
                         if (this.blankSprite == null)
                             break;
-                        graphics.blit(this.blankSprite, left, py, left + this.iconSize, py + this.iconSize, 0.0F, 1.0F, 0.0F, 1.0F);
+                        graphics.blit(this.blankSprite, left, py, 0, 0.0F, 0.0F, this.iconSize, this.iconSize, this.iconSize, this.iconSize);
                     } else {
                         String symbol = combination.symbol();
                         SymbolRenderHelper.renderSymbol(symbol, this.config, graphics, left, py, this.iconSize, this.iconSize, spriteType);
                     }
                 }
                 Component amountLabel = Component.literal(String.valueOf(combination.amount()));
-                graphics.text(this.font, amountLabel, px + this.maxColumnSize * this.iconSize - 5, py + (this.iconSize - this.font.lineHeight) / 2, this.active ? this.textColor : this.textColorDisabled, true);
+                graphics.drawString(this.font, amountLabel, px + this.maxColumnSize * this.iconSize - 5, py + (this.iconSize - this.font.lineHeight) / 2, this.active ? this.textColor : this.textColorDisabled, true);
             }
         }
         graphics.disableScissor();

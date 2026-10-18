@@ -20,10 +20,10 @@ public final class PhoenixFabricClient implements ClientModInitializer {
         PhoenixClient.init();
         PlatformScreenManager.getInstance().registerScreenConstructors(this::registerMenuScreen);
 
-        ClientPlayNetworking.registerGlobalReceiver(S2C_SyncSlotMachineConfigs.TYPE, (payload, _) -> payload.handle());
-        ClientPlayNetworking.registerGlobalReceiver(S2C_OpenPhoenixMachineScreen.TYPE, (payload, _) -> payload.handle());
-        ClientPlayNetworking.registerGlobalReceiver(S2C_OpenPayoutScreen.TYPE, (payload, _) -> payload.handle());
-        ClientPlayNetworking.registerGlobalReceiver(S2C_SyncSlotMachineInputs.TYPE, (payload, _) -> payload.handle());
+        ClientPlayNetworking.registerGlobalReceiver(S2C_SyncSlotMachineConfigs.TYPE, (payload, ctx) -> payload.handle());
+        ClientPlayNetworking.registerGlobalReceiver(S2C_OpenPhoenixMachineScreen.TYPE, (payload, ctx) -> payload.handle());
+        ClientPlayNetworking.registerGlobalReceiver(S2C_OpenPayoutScreen.TYPE, (payload, ctx) -> payload.handle());
+        ClientPlayNetworking.registerGlobalReceiver(S2C_SyncSlotMachineInputs.TYPE, (payload, ctx) -> payload.handle());
     }
 
     private <M extends AbstractContainerMenu, S extends Screen & MenuAccess<M>> void registerMenuScreen(MenuType<M> menuType, PlatformScreenManager.ScreenConstructor<M, S> constructor) {

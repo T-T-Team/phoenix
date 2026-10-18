@@ -4,12 +4,11 @@ import dev.tnt.phoenix.Phoenix;
 import dev.tnt.phoenix.network.S2C_SyncSlotMachineInputs;
 import dev.tnt.phoenix.platform.MultiPlatformJsonReloadListener;
 import net.minecraft.core.Holder;
-import net.minecraft.resources.FileToIdConverter;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemInstance;
+import net.minecraft.world.item.ItemStack;
 
 import java.util.*;
 
@@ -17,12 +16,12 @@ import static dev.tnt.phoenix.Phoenix.DATA_MARKER;
 
 public abstract class SlotMachineInputManager extends MultiPlatformJsonReloadListener<List<SlotMachineInput>> implements SlotMachineInputApi {
 
-    public static final Identifier DATA_MANAGER_IDENTIFIER = Phoenix.identifier("item_value_manager");
+    public static final ResourceLocation DATA_MANAGER_IDENTIFIER = Phoenix.identifier("item_value_manager");
     private final List<SlotMachineInput> values = new ArrayList<>();
     private final Map<Item, Integer> cache = new IdentityHashMap<>();
 
     public SlotMachineInputManager() {
-        super(SlotMachineInput.CODEC.listOf(), FileToIdConverter.json("slot_machine/input"));
+        super(SlotMachineInput.CODEC.listOf(), "slot_machine/input");
     }
 
     @Override
@@ -31,11 +30,11 @@ public abstract class SlotMachineInputManager extends MultiPlatformJsonReloadLis
     }
 
     @Override
-    public int getItemValue(ItemInstance instance, boolean useCount) {
-        Holder<Item> holder = instance.typeHolder();
+    public int getItemValue(ItemStack instance, boolean useCount) {
+        Holder<Item> holder = instance.getItemHolder();
         int value = this.getItemValue(holder);
         if (useCount)
-            value *= instance.count();
+            value *= instance.getCount();
         return value;
     }
 
@@ -51,7 +50,7 @@ public abstract class SlotMachineInputManager extends MultiPlatformJsonReloadLis
     }
 
     @Override
-    protected void apply(Map<Identifier, List<SlotMachineInput>> preparations, ResourceManager manager, ProfilerFiller profiler) {
+    protected void apply(Map<ResourceLocation, List<SlotMachineInput>> preparations, ResourceManager manager, ProfilerFiller profiler) {
         this.values.clear();
         this.cache.clear();
         preparations.values().stream()

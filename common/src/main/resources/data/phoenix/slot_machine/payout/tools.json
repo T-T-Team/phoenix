@@ -47,22 +47,6 @@
     }
   },
   {
-    "payout_id": "phoenix:netherite_spear",
-    "payout_price": 25000,
-    "item_template": {
-      "id": "minecraft:netherite_spear",
-      "components": {
-        "minecraft:enchantments": {
-          "minecraft:mending": 1,
-          "minecraft:unbreaking": 5,
-          "minecraft:looting": 5,
-          "minecraft:lunge": 3,
-          "minecraft:sharpness": 10
-        }
-      }
-    }
-  },
-  {
     "payout_id": "phoenix:bow",
     "payout_price": 23000,
     "item_template": {

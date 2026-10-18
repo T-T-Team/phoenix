@@ -12,7 +12,7 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -24,7 +24,7 @@ import static dev.tnt.phoenix.Phoenix.NETWORK_MARKER;
 
 public record C2S_SlotMachinePayoutRequest(BlockPos pos, List<PayoutRequestEntry> payouts) implements CustomPacketPayload {
 
-    public static final Identifier ID = Phoenix.identifier("slot_machine_payout_request");
+    public static final ResourceLocation ID = Phoenix.identifier("slot_machine_payout_request");
     public static final Type<C2S_SlotMachinePayoutRequest> TYPE = new Type<>(ID);
     public static final StreamCodec<RegistryFriendlyByteBuf, C2S_SlotMachinePayoutRequest> STREAM_CODEC = StreamCodec.composite(
             BlockPos.STREAM_CODEC, C2S_SlotMachinePayoutRequest::pos,

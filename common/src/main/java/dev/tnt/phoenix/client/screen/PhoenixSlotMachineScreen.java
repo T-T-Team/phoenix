@@ -17,18 +17,16 @@ import dev.tnt.phoenix.data.*;
 import dev.tnt.phoenix.data.component.*;
 import dev.tnt.phoenix.network.C2S_SlotMachineRequest;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.resources.sounds.AbstractTickableSoundInstance;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -38,16 +36,16 @@ import java.util.function.Supplier;
 public class PhoenixSlotMachineScreen extends Screen {
 
     // textures
-    private static final Identifier BUTTON_ADVANCED = Phoenix.identifier("textures/gui/button_advanced.png");
-    private static final Identifier BUTTON_BET = Phoenix.identifier("textures/gui/button_bet.png");
-    private static final Identifier BUTTON_HOLD = Phoenix.identifier("textures/gui/button_hold.png");
-    private static final Identifier BUTTON_MULTI_WIN = Phoenix.identifier("textures/gui/button_multiwin.png");
-    private static final Identifier BUTTON_PAY = Phoenix.identifier("textures/gui/button_pay.png");
-    private static final Identifier BUTTON_RISK_CLUBS = Phoenix.identifier("textures/gui/button_risk_clubs.png");
-    private static final Identifier BUTTON_RISK_HEARTS = Phoenix.identifier("textures/gui/button_risk_hearts.png");
-    private static final Identifier BUTTON_START = Phoenix.identifier("textures/gui/button_start.png");
-    private static final Identifier BLANK = Phoenix.identifier("textures/spinwheel/blank.png");
-    private static final Identifier BACKGROUND = Phoenix.identifier("textures/gui/phoenix_screen.png");
+    private static final ResourceLocation BUTTON_ADVANCED = Phoenix.identifier("textures/gui/button_advanced.png");
+    private static final ResourceLocation BUTTON_BET = Phoenix.identifier("textures/gui/button_bet.png");
+    private static final ResourceLocation BUTTON_HOLD = Phoenix.identifier("textures/gui/button_hold.png");
+    private static final ResourceLocation BUTTON_MULTI_WIN = Phoenix.identifier("textures/gui/button_multiwin.png");
+    private static final ResourceLocation BUTTON_PAY = Phoenix.identifier("textures/gui/button_pay.png");
+    private static final ResourceLocation BUTTON_RISK_CLUBS = Phoenix.identifier("textures/gui/button_risk_clubs.png");
+    private static final ResourceLocation BUTTON_RISK_HEARTS = Phoenix.identifier("textures/gui/button_risk_hearts.png");
+    private static final ResourceLocation BUTTON_START = Phoenix.identifier("textures/gui/button_start.png");
+    private static final ResourceLocation BLANK = Phoenix.identifier("textures/spinwheel/blank.png");
+    private static final ResourceLocation BACKGROUND = Phoenix.identifier("textures/gui/phoenix_screen.png");
     // layout
     private static final int CONTENT_WIDTH = 220;
     private static final int CONTENT_HEIGHT = 256;
@@ -80,7 +78,7 @@ public class PhoenixSlotMachineScreen extends Screen {
         BlockEntity blockEntity = this.minecraft.level.getBlockEntity(this.pos);
         if (!(blockEntity instanceof PhoenixSlotMachineBlockEntity phoenixSlotMachineBlockEntity)) {
             this.minecraft.setScreen(null);
-            this.minecraft.player.sendOverlayMessage(Component.literal("Invalid slot machine!").withStyle(ChatFormatting.RED));
+            this.minecraft.player.displayClientMessage(Component.literal("Invalid slot machine!").withStyle(ChatFormatting.RED), true);
             return;
         }
         this.blockEntity = phoenixSlotMachineBlockEntity;
@@ -100,7 +98,7 @@ public class PhoenixSlotMachineScreen extends Screen {
                 .orElse(null);
         if (config == null) {
             this.minecraft.setScreen(null);
-            this.minecraft.player.sendOverlayMessage(Component.literal("Invalid slot machine config!").withStyle(ChatFormatting.RED));
+            this.minecraft.player.displayClientMessage(Component.literal("Invalid slot machine config!").withStyle(ChatFormatting.RED), true);
             return;
         }
 
@@ -190,15 +188,15 @@ public class PhoenixSlotMachineScreen extends Screen {
     }
 
     @Override
-    public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
-        super.extractBackground(graphics, mouseX, mouseY, a);
+    public void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float a) {
+        super.renderBackground(graphics, mouseX, mouseY, a);
         if (this.isLoading) {
             Component text = Component.literal("Loading data...");
-            graphics.text(this.font, text, (this.width - this.font.width(text)) / 2, (this.height - this.font.lineHeight) / 2, 0xFFFFFFFF);
+            graphics.drawString(this.font, text, (this.width - this.font.width(text)) / 2, (this.height - this.font.lineHeight) / 2, 0xFFFFFFFF);
             return;
         }
         // background
-        graphics.blit(BACKGROUND, this.leftPos, this.topPos, this.leftPos + CONTENT_WIDTH, this.topPos + CONTENT_HEIGHT, 0, 1, 0, 1);
+        graphics.blit(BACKGROUND, this.leftPos, this.topPos, 0, 0, CONTENT_WIDTH, CONTENT_HEIGHT, 220, 256);
     }
 
     @Override
@@ -207,11 +205,10 @@ public class PhoenixSlotMachineScreen extends Screen {
     }
 
     @Override
-    public boolean keyPressed(KeyEvent event) {
-        int key = event.key();
+    public boolean keyPressed(int key, int scanCode, int modifiers) {
         if (key == InputConstants.KEY_ESCAPE) {
             this.stopSounds();
-            return super.keyPressed(event); // keep default handling of esc key too
+            return super.keyPressed(key, scanCode, modifiers); // keep default handling of esc key too
         } else if (this.gameInstance != null) {
             if (key == InputConstants.KEY_SPACE && this.gameInstance.getSpinGame().canSpinOrTransfer()) {
                 this.onStartButtonClicked();
@@ -219,7 +216,7 @@ public class PhoenixSlotMachineScreen extends Screen {
             }
             // more interactions? Need to also play button click sound
         }
-        return super.keyPressed(event);
+        return super.keyPressed(key, scanCode, modifiers);
     }
 
     private void addSpinWheels(PlayerGameInstance instance, SlotMachineConfig config) {
@@ -362,7 +359,7 @@ public class PhoenixSlotMachineScreen extends Screen {
         }
     }
 
-    private boolean needsRestart(SoundManager manager, @Nullable AbstractTickableSoundInstance instance) {
+    private boolean needsRestart(SoundManager manager, AbstractTickableSoundInstance instance) {
         return instance == null || !manager.isActive(instance);
     }
 }

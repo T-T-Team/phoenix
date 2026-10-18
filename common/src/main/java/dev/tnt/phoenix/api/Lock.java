@@ -2,7 +2,6 @@ package dev.tnt.phoenix.api;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import org.jspecify.annotations.NonNull;
 
 public record Lock(boolean locked, LockReason reason) {
 
@@ -18,7 +17,7 @@ public record Lock(boolean locked, LockReason reason) {
     }
 
     @Override
-    public @NonNull String toString() {
+    public String toString() {
         return this.locked ? "Lock[" + reason + "]" : "<No Lock>";
     }
 }

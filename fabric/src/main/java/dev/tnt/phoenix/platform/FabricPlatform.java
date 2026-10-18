@@ -5,15 +5,18 @@ import dev.tnt.phoenix.data.input.SlotMachineInputApi;
 import dev.tnt.phoenix.data.payout.SlotMachinePayoutApi;
 import dev.tnt.phoenix.platform.init.Reference;
 import dev.tnt.phoenix.platform.init.RegistrationManager;
-import net.fabricmc.fabric.api.creativetab.v1.FabricCreativeModeTab;
+import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.Registry;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,11 +34,17 @@ public final class FabricPlatform implements Platform {
     }
 
     @Override
-    public CreativeModeTab buildCreativeTab(Identifier identifier, Reference<? extends Item> icon, Consumer<TabPopulator> populator) {
-        return FabricCreativeModeTab.builder()
+    public <T extends BlockEntity> BlockEntityType<T> createBlockEntityType(BlockEntityFactory<T> factory, Reference<? extends Block> block) {
+        return BlockEntityType.Builder.of(factory::createNewBlockEntity, block.get())
+                .build(null);
+    }
+
+    @Override
+    public CreativeModeTab buildCreativeTab(ResourceLocation identifier, Reference<? extends Item> icon, Consumer<TabPopulator> populator) {
+        return FabricItemGroup.builder()
                 .title(Component.translatable(identifier.toLanguageKey("itemGroup")))
                 .icon(() -> icon.get().getDefaultInstance())
-                .displayItems((_, out) -> populator.accept(ref -> out.accept(ref.get())))
+                .displayItems((params, out) -> populator.accept(ref -> out.accept(ref.get())))
                 .build();
     }
 

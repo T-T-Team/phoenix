@@ -8,11 +8,14 @@ import dev.tnt.phoenix.platform.init.RegistrationManager;
 import net.minecraft.core.Registry;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.HashMap;
@@ -31,11 +34,17 @@ public final class NeoForgePlatform implements Platform {
     }
 
     @Override
-    public CreativeModeTab buildCreativeTab(Identifier identifier, Reference<? extends Item> icon, Consumer<TabPopulator> populator) {
+    public <T extends BlockEntity> BlockEntityType<T> createBlockEntityType(BlockEntityFactory<T> factory, Reference<? extends Block> block) {
+        return BlockEntityType.Builder.of(factory::createNewBlockEntity, block.get())
+                .build(null);
+    }
+
+    @Override
+    public CreativeModeTab buildCreativeTab(ResourceLocation identifier, Reference<? extends Item> icon, Consumer<TabPopulator> populator) {
         return CreativeModeTab.builder()
                 .title(Component.translatable(identifier.toLanguageKey("itemGroup")))
                 .icon(() -> icon.get().getDefaultInstance())
-                .displayItems((_, out) -> populator.accept(ref -> out.accept(ref.get())))
+                .displayItems((displayParameters, out) -> populator.accept(ref -> out.accept(ref.get())))
                 .build();
     }
 

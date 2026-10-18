@@ -1,12 +1,15 @@
 package dev.tnt.phoenix.data;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.JsonOps;
 import dev.tnt.phoenix.Phoenix;
 import dev.tnt.phoenix.network.S2C_SyncSlotMachineConfigs;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.FileToIdConverter;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
@@ -15,26 +18,26 @@ import java.util.*;
 
 import static dev.tnt.phoenix.Phoenix.DATA_MARKER;
 
-public final class SlotMachineDataManager extends SimpleJsonResourceReloadListener<SlotMachineConfig> {
+public final class SlotMachineDataManager extends SimpleJsonResourceReloadListener {
 
-    public static final Identifier DATA_MANAGER_IDENTIFIER = Phoenix.identifier("slot_machine_manager");
+    public static final ResourceLocation DATA_MANAGER_IDENTIFIER = Phoenix.identifier("slot_machine_manager");
     public static final StreamCodec<ByteBuf, List<SlotMachineConfigWithId>> STREAM_CODEC = StreamCodec.composite(
-            Identifier.STREAM_CODEC, SlotMachineConfigWithId::id,
+            ResourceLocation.STREAM_CODEC, SlotMachineConfigWithId::id,
             SlotMachineConfig.STREAM_CODEC, SlotMachineConfigWithId::config,
             SlotMachineConfigWithId::new
     ).apply(ByteBufCodecs.list());
-    private final Map<Identifier, SlotMachineConfigWithId> slotMachines = new HashMap<>();
+    private final Map<ResourceLocation, SlotMachineConfigWithId> slotMachines = new HashMap<>();
 
     public SlotMachineDataManager() {
-        super(SlotMachineConfig.CODEC, FileToIdConverter.json("slot_machine/config"));
+        super(new Gson(), "slot_machine/config");
     }
 
-    public Optional<SlotMachineConfig> getSlotMachine(Identifier id) {
+    public Optional<SlotMachineConfig> getSlotMachine(ResourceLocation id) {
         Optional<SlotMachineConfigWithId> optional = Optional.ofNullable(this.slotMachines.get(id));
         return optional.map(SlotMachineConfigWithId::config);
     }
 
-    public SlotMachineConfig getSlotMachineOrThrow(Identifier id) {
+    public SlotMachineConfig getSlotMachineOrThrow(ResourceLocation id) {
         return this.getSlotMachine(id)
                 .orElseThrow(() -> new IllegalStateException("Slot machine with id " + id + " not found"));
     }
@@ -50,12 +53,18 @@ public final class SlotMachineDataManager extends SimpleJsonResourceReloadListen
     }
 
     @Override
-    protected void apply(Map<Identifier, SlotMachineConfig> preparations, ResourceManager manager, ProfilerFiller profiler) {
+    protected void apply(Map<ResourceLocation, JsonElement> preparations, ResourceManager manager, ProfilerFiller profiler) {
         this.slotMachines.clear();
-        preparations.forEach((id, config) -> this.slotMachines.put(id, new SlotMachineConfigWithId(id, config)));
+        for (var entry : preparations.entrySet()) {
+            ResourceLocation key = entry.getKey();
+            JsonElement json = entry.getValue();
+            DataResult<SlotMachineConfig> result = SlotMachineConfig.CODEC.parse(JsonOps.INSTANCE, json);
+            result.ifError(error -> Phoenix.LOGGER.error(DATA_MARKER, "Failed to parse slot machine config '{}' due to error: {}", key, error))
+                    .ifSuccess(value -> this.slotMachines.put(key, new SlotMachineConfigWithId(key, value)));
+        }
         Phoenix.LOGGER.info(DATA_MARKER, "Loaded {} slot machine configs", this.slotMachines.size());
     }
 
-    public record SlotMachineConfigWithId(Identifier id, SlotMachineConfig config) {
+    public record SlotMachineConfigWithId(ResourceLocation id, SlotMachineConfig config) {
     }
 }

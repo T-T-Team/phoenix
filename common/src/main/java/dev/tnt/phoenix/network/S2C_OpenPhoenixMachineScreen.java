@@ -8,11 +8,11 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 
 public record S2C_OpenPhoenixMachineScreen(BlockPos pos, CompoundTag tag, boolean refreshOnly) implements CustomPacketPayload {
 
-    public static final Identifier ID = Phoenix.identifier("open_phoenix_machine_screen");
+    public static final ResourceLocation ID = Phoenix.identifier("open_phoenix_machine_screen");
     public static final Type<S2C_OpenPhoenixMachineScreen> TYPE = new Type<>(ID);
     public static final StreamCodec<FriendlyByteBuf, S2C_OpenPhoenixMachineScreen> STREAM_CODEC = StreamCodec.composite(
             BlockPos.STREAM_CODEC, S2C_OpenPhoenixMachineScreen::pos,

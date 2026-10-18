@@ -3,7 +3,7 @@ package dev.tnt.phoenix.data;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.EnumMap;
 import java.util.Map;
@@ -12,15 +12,15 @@ public final class SpinWheelEntry {
 
     public static final Codec<SpinWheelEntry> CODEC = RecordCodecBuilder.<SpinWheelEntry>create(instance -> instance.group(
             Codec.STRING.fieldOf("id").forGetter(SpinWheelEntry::id),
-            Codec.unboundedMap(SpriteType.CODEC, Identifier.CODEC).fieldOf("sprites").forGetter(t -> t.sprites),
+            Codec.unboundedMap(SpriteType.CODEC, ResourceLocation.CODEC).fieldOf("sprites").forGetter(t -> t.sprites),
             Options.CODEC.optionalFieldOf("sprite_options", Options.DEFAULT).forGetter(t -> t.spriteOptions)
     ).apply(instance, SpinWheelEntry::new)).validate(SpinWheelEntry::validateCodec);
 
     private final String id;
-    private final EnumMap<SpriteType, Identifier> sprites;
+    private final EnumMap<SpriteType, ResourceLocation> sprites;
     private final Options spriteOptions;
 
-    public SpinWheelEntry(String id, Map<SpriteType, Identifier> sprites, Options spriteOptions) {
+    public SpinWheelEntry(String id, Map<SpriteType, ResourceLocation> sprites, Options spriteOptions) {
         this.id = id;
         this.sprites = new EnumMap<>(SpriteType.class);
         this.sprites.putAll(sprites);
@@ -31,8 +31,8 @@ public final class SpinWheelEntry {
         return this.id;
     }
 
-    public Identifier getSpriteForType(SpriteType type) {
-        return this.sprites.computeIfAbsent(type, _ -> this.sprites.get(SpriteType.DEFAULT));
+    public ResourceLocation getSpriteForType(SpriteType type) {
+        return this.sprites.computeIfAbsent(type, spriteType -> this.sprites.get(SpriteType.DEFAULT));
     }
 
     public Options getSpriteOptions() {

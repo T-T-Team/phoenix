@@ -8,10 +8,7 @@
         "minecraft:stored_enchantments": {
           "minecraft:mending": 1
         },
-        "minecraft:custom_name": {
-          "translate": "enchantment.minecraft.mending",
-          "italic": false
-        }
+        "minecraft:custom_name": "{\"translate\":\"enchantment.minecraft.mending\",\"italic\":false}"
       }
     }
   },
@@ -24,18 +21,7 @@
         "minecraft:stored_enchantments": {
           "minecraft:sharpness": 5
         },
-        "minecraft:custom_name": {
-          "translate": "enchantment.minecraft.sharpness",
-          "italic": false,
-          "extra": [
-            {
-              "text": " "
-            },
-            {
-              "translate": "enchantment.level.5"
-            }
-          ]
-        }
+        "minecraft:custom_name": "{\"translate\":\"enchantment.minecraft.sharpness\",\"italic\":false,\"extra\":[{\"text\":\" \"},{\"translate\":\"enchantment.level.5\"}]}"
       }
     }
   },
@@ -48,18 +34,7 @@
         "minecraft:stored_enchantments": {
           "minecraft:fortune": 3
         },
-        "minecraft:custom_name": {
-          "translate": "enchantment.minecraft.fortune",
-          "italic": false,
-          "extra": [
-            {
-              "text": " "
-            },
-            {
-              "translate": "enchantment.level.3"
-            }
-          ]
-        }
+        "minecraft:custom_name": "{\"translate\":\"enchantment.minecraft.fortune\",\"italic\":false,\"extra\":[{\"text\":\" \"},{\"translate\":\"enchantment.level.3\"}]}"
       }
     }
   },
@@ -72,10 +47,7 @@
         "minecraft:stored_enchantments": {
           "minecraft:silk_touch": 1
         },
-        "minecraft:custom_name": {
-          "translate": "enchantment.minecraft.silk_touch",
-          "italic": false
-        }
+        "minecraft:custom_name": "{\"translate\":\"enchantment.minecraft.silk_touch\",\"italic\":false}"
       }
     }
   },
@@ -88,18 +60,7 @@
         "minecraft:stored_enchantments": {
           "minecraft:smite": 5
         },
-        "minecraft:custom_name": {
-          "translate": "enchantment.minecraft.smite",
-          "italic": false,
-          "extra": [
-            {
-              "text": " "
-            },
-            {
-              "translate": "enchantment.level.5"
-            }
-          ]
-        }
+        "minecraft:custom_name": "{\"translate\":\"enchantment.minecraft.smite\",\"italic\":false,\"extra\":[{\"text\":\" \"},{\"translate\":\"enchantment.level.5\"}]}"
       }
     }
   },
@@ -112,18 +73,7 @@
         "minecraft:stored_enchantments": {
           "minecraft:unbreaking": 3
         },
-        "minecraft:custom_name": {
-          "translate": "enchantment.minecraft.unbreaking",
-          "italic": false,
-          "extra": [
-            {
-              "text": " "
-            },
-            {
-              "translate": "enchantment.level.3"
-            }
-          ]
-        }
+        "minecraft:custom_name": "{\"translate\":\"enchantment.minecraft.unbreaking\",\"italic\":false,\"extra\":[{\"text\":\" \"},{\"translate\":\"enchantment.level.3\"}]}"
       }
     }
   },
@@ -136,18 +86,7 @@
         "minecraft:stored_enchantments": {
           "minecraft:efficiency": 5
         },
-        "minecraft:custom_name": {
-          "translate": "enchantment.minecraft.efficiency",
-          "italic": false,
-          "extra": [
-            {
-              "text": " "
-            },
-            {
-              "translate": "enchantment.level.5"
-            }
-          ]
-        }
+        "minecraft:custom_name": "{\"translate\":\"enchantment.minecraft.efficiency\",\"italic\":false,\"extra\":[{\"text\":\" \"},{\"translate\":\"enchantment.level.5\"}]}"
       }
     }
   },
@@ -160,18 +99,7 @@
         "minecraft:stored_enchantments": {
           "minecraft:protection": 4
         },
-        "minecraft:custom_name": {
-          "translate": "enchantment.minecraft.protection",
-          "italic": false,
-          "extra": [
-            {
-              "text": " "
-            },
-            {
-              "translate": "enchantment.level.4"
-            }
-          ]
-        }
+        "minecraft:custom_name": "{\"translate\":\"enchantment.minecraft.protection\",\"italic\":false,\"extra\":[{\"text\":\" \"},{\"translate\":\"enchantment.level.4\"}]}"
       }
     }
   },
@@ -184,18 +112,7 @@
         "minecraft:stored_enchantments": {
           "minecraft:feather_falling": 4
         },
-        "minecraft:custom_name": {
-          "translate": "enchantment.minecraft.feather_falling",
-          "italic": false,
-          "extra": [
-            {
-              "text": " "
-            },
-            {
-              "translate": "enchantment.level.4"
-            }
-          ]
-        }
+        "minecraft:custom_name": "{\"translate\":\"enchantment.minecraft.feather_falling\",\"italic\":false,\"extra\":[{\"text\":\" \"},{\"translate\":\"enchantment.level.4\"}]}"
       }
     }
   },
@@ -208,18 +125,7 @@
         "minecraft:stored_enchantments": {
           "minecraft:depth_strider": 3
         },
-        "minecraft:custom_name": {
-          "translate": "enchantment.minecraft.depth_strider",
-          "italic": false,
-          "extra": [
-            {
-              "text": " "
-            },
-            {
-              "translate": "enchantment.level.3"
-            }
-          ]
-        }
+        "minecraft:custom_name": "{\"translate\":\"enchantment.minecraft.depth_strider\",\"italic\":false,\"extra\":[{\"text\":\" \"},{\"translate\":\"enchantment.level.3\"}]}"
       }
     }
   },
@@ -232,18 +138,7 @@
         "minecraft:stored_enchantments": {
           "minecraft:density": 5
         },
-        "minecraft:custom_name": {
-          "translate": "enchantment.minecraft.density",
-          "italic": false,
-          "extra": [
-            {
-              "text": " "
-            },
-            {
-              "translate": "enchantment.level.5"
-            }
-          ]
-        }
+        "minecraft:custom_name": "{\"translate\":\"enchantment.minecraft.density\",\"italic\":false,\"extra\":[{\"text\":\" \"},{\"translate\":\"enchantment.level.5\"}]}"
       }
     }
   },
@@ -256,18 +151,7 @@
         "minecraft:stored_enchantments": {
           "minecraft:impaling": 5
         },
-        "minecraft:custom_name": {
-          "translate": "enchantment.minecraft.impaling",
-          "italic": false,
-          "extra": [
-            {
-              "text": " "
-            },
-            {
-              "translate": "enchantment.level.5"
-            }
-          ]
-        }
+        "minecraft:custom_name": "{\"translate\":\"enchantment.minecraft.impaling\",\"italic\":false,\"extra\":[{\"text\":\" \"},{\"translate\":\"enchantment.level.5\"}]}"
       }
     }
   },
@@ -280,10 +164,7 @@
         "minecraft:stored_enchantments": {
           "minecraft:infinity": 1
         },
-        "minecraft:custom_name": {
-          "translate": "enchantment.minecraft.infinity",
-          "italic": false
-        }
+        "minecraft:custom_name": "{\"translate\":\"enchantment.minecraft.infinity\",\"italic\":false}"
       }
     }
   },
@@ -296,18 +177,7 @@
         "minecraft:stored_enchantments": {
           "minecraft:looting": 3
         },
-        "minecraft:custom_name": {
-          "translate": "enchantment.minecraft.looting",
-          "italic": false,
-          "extra": [
-            {
-              "text": " "
-            },
-            {
-              "translate": "enchantment.level.3"
-            }
-          ]
-        }
+        "minecraft:custom_name": "{\"translate\":\"enchantment.minecraft.looting\",\"italic\":false,\"extra\":[{\"text\":\" \"},{\"translate\":\"enchantment.level.3\"}]}"
       }
     }
   },
@@ -320,18 +190,7 @@
         "minecraft:stored_enchantments": {
           "minecraft:power": 5
         },
-        "minecraft:custom_name": {
-          "translate": "enchantment.minecraft.power",
-          "italic": false,
-          "extra": [
-            {
-              "text": " "
-            },
-            {
-              "translate": "enchantment.level.5"
-            }
-          ]
-        }
+        "minecraft:custom_name": "{\"translate\":\"enchantment.minecraft.power\",\"italic\":false,\"extra\":[{\"text\":\" \"},{\"translate\":\"enchantment.level.5\"}]}"
       }
     }
   },
@@ -344,18 +203,7 @@
         "minecraft:stored_enchantments": {
           "minecraft:riptide": 3
         },
-        "minecraft:custom_name": {
-          "translate": "enchantment.minecraft.riptide",
-          "italic": false,
-          "extra": [
-            {
-              "text": " "
-            },
-            {
-              "translate": "enchantment.level.3"
-            }
-          ]
-        }
+        "minecraft:custom_name": "{\"translate\":\"enchantment.minecraft.riptide\",\"italic\":false,\"extra\":[{\"text\":\" \"},{\"translate\":\"enchantment.level.3\"}]}"
       }
     }
   },
@@ -368,18 +216,7 @@
         "minecraft:stored_enchantments": {
           "minecraft:quick_charge": 3
         },
-        "minecraft:custom_name": {
-          "translate": "enchantment.minecraft.quick_charge",
-          "italic": false,
-          "extra": [
-            {
-              "text": " "
-            },
-            {
-              "translate": "enchantment.level.3"
-            }
-          ]
-        }
+        "minecraft:custom_name": "{\"translate\":\"enchantment.minecraft.quick_charge\",\"italic\":false,\"extra\":[{\"text\":\" \"},{\"translate\":\"enchantment.level.3\"}]}"
       }
     }
   }

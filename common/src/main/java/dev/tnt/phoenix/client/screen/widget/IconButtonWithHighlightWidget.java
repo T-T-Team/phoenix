@@ -1,33 +1,31 @@
 package dev.tnt.phoenix.client.screen.widget;
 
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
-import net.minecraft.client.input.InputWithModifiers;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
-import org.jspecify.annotations.Nullable;
 
 import java.time.Duration;
 import java.util.function.Supplier;
 
 public final class IconButtonWithHighlightWidget extends AbstractButton {
 
-    private final Identifier icon;
-    private final Identifier iconHighlight;
+    private final ResourceLocation icon;
+    private final ResourceLocation iconHighlight;
     private final ClickHandler onClick;
     private Long blinkInterval = 500L;
     private boolean lightOnDisabled = false;
-    private @Nullable SoundEvent clickSound;
+    private SoundEvent clickSound;
     private float volume = 0.2F;
 
-    public IconButtonWithHighlightWidget(int x, int y, int width, int height, Component tooltip, Identifier icon, ClickHandler onClick) {
+    public IconButtonWithHighlightWidget(int x, int y, int width, int height, Component tooltip, ResourceLocation icon, ClickHandler onClick) {
         super(x, y, width, height, CommonComponents.EMPTY);
         this.icon = icon;
         this.iconHighlight = icon.withPath(path -> path.replace(".png", "_on.png"));
@@ -45,7 +43,7 @@ public final class IconButtonWithHighlightWidget extends AbstractButton {
         this.lightOnDisabled = lightOnDisabled;
     }
 
-    public void setClickSound(@Nullable SoundEvent clickSound) {
+    public void setClickSound(SoundEvent clickSound) {
         this.clickSound = clickSound;
     }
 
@@ -58,17 +56,17 @@ public final class IconButtonWithHighlightWidget extends AbstractButton {
     }
 
     @Override
-    protected void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+    protected void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float a) {
         boolean on = this.blinkInterval == null || (System.currentTimeMillis() % (this.blinkInterval * 2L)) <= this.blinkInterval;
-        Identifier icon = (this.active && on) || (!this.active && this.lightOnDisabled) ? this.iconHighlight : this.icon;
-        graphics.blit(icon, this.getX(), this.getY(), this.getRight(), this.getBottom(), 0.0F, 1.0F, 0.0F, 1.0F);
+        ResourceLocation icon = (this.active && on) || (!this.active && this.lightOnDisabled) ? this.iconHighlight : this.icon;
+        graphics.blit(icon, this.getX(), this.getY(), 0, 0.0F, 0.0F, this.getWidth(), this.getHeight(), 16, 16);
         if (this.active && this.isHovered) {
             graphics.fill(this.getX(), this.getY(), this.getRight(), this.getBottom(), 0x44FFFFFF);
         }
     }
 
     @Override
-    public void onPress(InputWithModifiers input) {
+    public void onPress() {
         this.onClick.onClick();
     }
 

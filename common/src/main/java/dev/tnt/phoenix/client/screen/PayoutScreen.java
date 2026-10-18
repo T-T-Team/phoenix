@@ -7,13 +7,14 @@ import dev.tnt.phoenix.data.payout.SlotMachinePayout;
 import dev.tnt.phoenix.network.C2S_SlotMachinePayoutRequest;
 import it.unimi.dsi.fastutil.objects.Reference2IntMap;
 import it.unimi.dsi.fastutil.objects.Reference2IntOpenHashMap;
-import net.minecraft.client.gui.ActiveTextCollector;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
@@ -66,13 +67,13 @@ public final class PayoutScreen extends Screen {
                 int quantity = this.cart.getInt(payout);
                 this.addRenderableOnly(new ItemValueWidget(px, py, itemWidth, itemHeight, this.font, payout, quantity));
                 Button add = this.addRenderableWidget(
-                        Button.builder(Component.literal("+"), _ -> this.updateQuantity(payout, 1))
+                        Button.builder(Component.literal("+"), btn -> this.updateQuantity(payout, 1))
                                 .bounds(px + itemWidth - 10, py + 1, 10, 10)
                                 .build()
                 );
                 add.active = (this.availableBalance - this.checkoutPrice) >= payout.price();
                 Button remove = this.addRenderableWidget(
-                        Button.builder(Component.literal("-"), _ -> this.updateQuantity(payout, -1))
+                        Button.builder(Component.literal("-"), btn -> this.updateQuantity(payout, -1))
                                 .bounds(px + itemWidth - 10, py + itemHeight - 11, 10, 10)
                                 .build()
                 );
@@ -114,12 +115,12 @@ public final class PayoutScreen extends Screen {
     }
 
     @Override
-    public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
-        super.extractBackground(graphics, mouseX, mouseY, a);
+    public void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float a) {
+        super.renderBackground(graphics, mouseX, mouseY, a);
         int pages = this.getPageCount();
         if (pages > 1) {
             Component label = Component.literal(this.currentPage + 1 + "/" + pages);
-            graphics.text(this.font, label, 55 + (45 - this.font.width(label)) / 2, this.height - 17, 0xFFFFFFFF);
+            graphics.drawString(this.font, label, 55 + (45 - this.font.width(label)) / 2, this.height - 17, 0xFFFFFFFF);
         }
     }
 
@@ -143,7 +144,7 @@ public final class PayoutScreen extends Screen {
         this.checkoutPrice = this.cart.reference2IntEntrySet().stream()
                 .mapToInt(e -> e.getIntValue() * e.getKey().price())
                 .sum();
-        this.init(this.width, this.height);
+        this.init(this.minecraft, this.width, this.height);
     }
 
     private List<PayoutRequestEntry> preparePayoutsForRequest() {
@@ -154,7 +155,7 @@ public final class PayoutScreen extends Screen {
 
     private void changePage(int offset) {
         this.currentPage += offset;
-        this.init(this.width, this.height);
+        this.init(this.minecraft, this.width, this.height);
     }
 
     private int getPageCount() {
@@ -173,24 +174,34 @@ public final class PayoutScreen extends Screen {
             this.font = font;
             this.payout = payout;
             this.quantity = quantity;
-            this.itemStack = this.payout.template().create();
-            this.setMessage(this.itemStack.getStyledHoverName());
+            this.itemStack = this.payout.template();
+            this.setMessage(this.itemStack.getHoverName().copy().withStyle(this.itemStack.getRarity().color()));
         }
 
         @Override
-        protected void extractWidgetRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
-            graphics.item(this.itemStack, this.getX() + 2, this.getY() + 4);
+        protected void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float a) {
+            graphics.renderItem(this.itemStack, this.getX() + 2, this.getY() + 4);
 
             Component quantityLabel = Component.literal(String.valueOf(this.quantity));
             int quantityWidth = this.font.width(quantityLabel);
-            ActiveTextCollector textRenderer = graphics.textRenderer();
-            textRenderer.acceptScrolling(this.getMessage(), this.getX() + 24, this.getX() + 24, this.getRight() - 14 - quantityWidth, this.getY() + 2, this.getY() + 12);
-            graphics.text(this.font, Component.literal(String.valueOf(this.payout.price())), this.getX() + 24, this.getY() + 14, 0xFFFFFFFF);
+            renderText(graphics, this.font, this.getMessage(), this.getX() + 24, this.getRight() - 14 - quantityWidth, this.getY() + 2, 0xFFFFFFFF);
+            graphics.drawString(this.font, Component.literal(String.valueOf(this.payout.price())), this.getX() + 24, this.getY() + 14, 0xFFFFFFFF);
 
-            graphics.text(this.font, quantityLabel, this.getX() + this.getWidth() - quantityWidth - 12, this.getY() + (this.getHeight() - this.font.lineHeight) / 2 + 1, 0xFFFFFFFF);
+            graphics.drawString(this.font, quantityLabel, this.getX() + this.getWidth() - quantityWidth - 12, this.getY() + (this.getHeight() - this.font.lineHeight) / 2 + 1, 0xFFFFFFFF);
 
             if (mouseX >= this.getX() + 2 && mouseX <= this.getX() + 18 && mouseY >= this.getY() + 4 && mouseY <= this.getY() + 20) {
-                graphics.setTooltipForNextFrame(this.font, this.itemStack, mouseX, mouseY);
+                List<Component> tooltip = AbstractContainerScreen.getTooltipFromItem(Minecraft.getInstance(), this.itemStack);
+                graphics.renderTooltip(this.font, tooltip, this.itemStack.getTooltipImage(), mouseX, mouseY);
+            }
+        }
+
+        private static void renderText(GuiGraphics graphics, Font font, Component text, int x1, int x2, int y, int color) {
+            int maxWidth = x2 - x1;
+            int width = font.width(text);
+            if (width <= maxWidth) {
+                graphics.drawString(font, text, x1, y, color);
+            } else {
+                AbstractWidget.renderScrollingString(graphics, font, text, x1, y, x2, y + font.lineHeight, color);
             }
         }
 

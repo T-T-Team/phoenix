@@ -3,7 +3,7 @@ package dev.tnt.phoenix.platform;
 import dev.tnt.phoenix.Phoenix;
 import dev.tnt.phoenix.platform.init.Reference;
 import dev.tnt.phoenix.platform.init.RegistrationManager;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.registries.RegisterEvent;
 
 import java.util.ArrayList;
@@ -16,8 +16,8 @@ public final class NeoForgeRegistrationManager<T> implements RegistrationManager
     private List<Reference<?>> elements = new ArrayList<>();
 
     @Override
-    public <V extends T> Reference<V> registerElement(String name, Function<Identifier, V> element) {
-        Identifier id = Identifier.fromNamespaceAndPath(Phoenix.MOD_ID, name);
+    public <V extends T> Reference<V> registerElement(String name, Function<ResourceLocation, V> element) {
+        ResourceLocation id = ResourceLocation.fromNamespaceAndPath(Phoenix.MOD_ID, name);
         Reference<V> reference = Reference.of(id, () -> element.apply(id));
         this.elements.add(reference);
         return reference;

@@ -8,13 +8,13 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.List;
 
 public record S2C_OpenPayoutScreen(BlockPos pos, List<SlotMachinePayout> payouts, int balance) implements CustomPacketPayload {
 
-    public static final Identifier ID = Phoenix.identifier("open_payout_screen");
+    public static final ResourceLocation ID = Phoenix.identifier("open_payout_screen");
     public static final Type<S2C_OpenPayoutScreen> TYPE = new Type<>(ID);
     public static final StreamCodec<RegistryFriendlyByteBuf, S2C_OpenPayoutScreen> STREAM_CODEC = StreamCodec.composite(
             BlockPos.STREAM_CODEC, S2C_OpenPayoutScreen::pos,

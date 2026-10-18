@@ -1,7 +1,5 @@
 package dev.tnt.phoenix.api;
 
-import org.jspecify.annotations.Nullable;
-
 public interface GameInstanceAccess {
 
     String traceId();
@@ -10,7 +8,7 @@ public interface GameInstanceAccess {
 
     void lock(Lock lock);
 
-    void unlock(@Nullable Lock lock);
+    void unlock(Lock lock);
 
     boolean isLocked();
 

@@ -10,11 +10,10 @@ import net.minecraft.core.UUIDUtil;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemInstance;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
-import org.jspecify.annotations.Nullable;
 
 import java.util.UUID;
 
@@ -120,7 +119,7 @@ public final class PlayerGameInstance {
         return accountBalance;
     }
 
-    public void insertBalance(ItemInstance instance, int value, PhoenixSlotMachineBlockEntity.ItemInsertionCallback insertionCallback) {
+    public void insertBalance(ItemStack instance, int value, PhoenixSlotMachineBlockEntity.ItemInsertionCallback insertionCallback) {
         Phoenix.LOGGER.debug(MARKER, "[{}] Inserting item {} with value of {}", this.traceId, instance, value);
         this.accountBalance.addBalance(AccountType.INPUT, value);
         insertionCallback.onInsertion(value, this.accountBalance);
@@ -132,7 +131,7 @@ public final class PlayerGameInstance {
         this.markForUpdate();
     }
 
-    public void unlock(@Nullable Lock lock) {
+    public void unlock(Lock lock) {
         Phoenix.LOGGER.debug(MARKER, "[{}] Unlocking slot machine lock {}", this.traceId, lock);
         if (!this.lock.locked()) {
             Phoenix.LOGGER.warn(MARKER, "[{}] Failed to unlock: not locked", this.traceId);
@@ -163,7 +162,7 @@ public final class PlayerGameInstance {
         return this;
     }
 
-    private void handleBalanceTransferTick(TransactionSource initiatorType, int amount, int remaining, @Nullable AccountType source, AccountType targetAccount) {
+    private void handleBalanceTransferTick(TransactionSource initiatorType, int amount, int remaining, AccountType source, AccountType targetAccount) {
         this.accountBalance.addBalance(targetAccount, amount);
         if (source != null) {
             this.accountBalance.subtractBalance(source, amount);
@@ -213,7 +212,7 @@ public final class PlayerGameInstance {
         }
 
         @Override
-        public void unlock(@Nullable Lock lock) {
+        public void unlock(Lock lock) {
             this.delegate.unlock(lock);
         }
 

@@ -10,7 +10,6 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.level.Level;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
-import org.jspecify.annotations.Nullable;
 
 import java.util.Optional;
 
@@ -128,6 +127,6 @@ public final class AccountBalanceTransactionComponent extends PhoenixComponent i
 
     @FunctionalInterface
     public interface TransferHandler {
-        void performTransferOperation(TransactionSource transactionSource, int transferBalance, int remainingBalance, @Nullable AccountType source, AccountType targetAccount);
+        void performTransferOperation(TransactionSource transactionSource, int transferBalance, int remainingBalance, AccountType source, AccountType targetAccount);
     }
 }

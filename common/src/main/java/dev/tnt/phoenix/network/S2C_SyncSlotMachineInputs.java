@@ -7,13 +7,13 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.List;
 
 public record S2C_SyncSlotMachineInputs(List<SlotMachineInput> inputs) implements CustomPacketPayload {
 
-    public static final Identifier ID = Phoenix.identifier("sync_slot_machine_inputs");
+    public static final ResourceLocation ID = Phoenix.identifier("sync_slot_machine_inputs");
     public static final Type<S2C_SyncSlotMachineInputs> TYPE = new Type<>(ID);
     public static final StreamCodec<RegistryFriendlyByteBuf, S2C_SyncSlotMachineInputs> STREAM_CODEC = StreamCodec.composite(
             SlotMachineInput.STREAM_CODEC.apply(ByteBufCodecs.list()), S2C_SyncSlotMachineInputs::inputs,

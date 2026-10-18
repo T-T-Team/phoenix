@@ -1,5 +1,5 @@
 plugins {
-    id 'net.fabricmc.fabric-loom' version "${fabric_loom}"
+    id 'fabric-loom' version "${fabric_loom}"
 }
 
 repositories {
@@ -8,13 +8,14 @@ repositories {
 
 dependencies {
     minecraft "com.mojang:minecraft:${minecraft_version}"
+    mappings loom.officialMojangMappings()
 
-    implementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
-    implementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
+    modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
 
-    implementation "dev.toma.configuration:configuration-fabric:${configuration_version}"
+    modImplementation "dev.toma.configuration:configuration-${minecraft_version}:${configuration_version}-fabric"
 
-    runtimeOnly "com.terraformersmc:modmenu:${modmenu}"
+    modRuntimeOnly "com.terraformersmc:modmenu:${modmenu}"
 
     compileOnly project(":common")
 }

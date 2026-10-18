@@ -25,7 +25,6 @@
   },
   "mixins": [
   ],
-  "accessWidener": "phoenix.accesswidener",
   "depends": {
     "fabricloader": "${fabric_loader_version_range}",
     "minecraft": ">=${fabric_mc_version_range}",

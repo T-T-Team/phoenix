@@ -1,23 +1,22 @@
 package dev.tnt.phoenix.client.screen.widget;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import dev.tnt.phoenix.Phoenix;
 import dev.tnt.phoenix.client.PhoenixClient;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
-import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import org.apache.commons.lang3.StringUtils;
-import org.joml.Matrix3x2fStack;
 
 import java.util.function.Supplier;
 
 public final class BalanceWidget extends AbstractWidget {
 
-    private static final Identifier SPRITE = Phoenix.identifier("balance");
+    private static final ResourceLocation SPRITE = Phoenix.identifier("balance");
     private final Supplier<Integer> valueProvider;
     private final Font font;
     private int digits = 9;
@@ -50,21 +49,21 @@ public final class BalanceWidget extends AbstractWidget {
     }
 
     @Override
-    protected void extractWidgetRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+    protected void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float a) {
         // background
-        graphics.blitSprite(RenderPipelines.GUI_TEXTURED, SPRITE, this.getX(), this.getY(), this.getWidth(), this.getHeight());
+        graphics.blitSprite(SPRITE, this.getX(), this.getY(), this.getWidth(), this.getHeight());
         // text
         Integer value = this.valueProvider.get();
         String initialValue = value != null ? String.valueOf(value) : "";
         String formattedValue = StringUtils.leftPad(initialValue, this.digits, 'X').substring(0, this.digits);
         Component text = PhoenixClient.getDigitalText(formattedValue);
         int textWidth = this.font.width(text);
-        Matrix3x2fStack pose = graphics.pose();
-        pose.pushMatrix();
-        pose.translate(this.getX() + (this.getWidth() - textWidth) / 2.0F + this.xTextCorrection, this.getY() + 3 + this.yTextCorrection);
-        pose.scale(this.textScale);
-        graphics.text(this.font, text, 0, 0, this.textColor, false);
-        pose.popMatrix();
+        PoseStack pose = graphics.pose();
+        pose.pushPose();
+        pose.translate(this.getX() + (this.getWidth() - textWidth) / 2.0F + this.xTextCorrection, this.getY() + 3 + this.yTextCorrection, 0);
+        pose.scale(this.textScale, this.textScale, this.textScale);
+        graphics.drawString(this.font, text, 0, 0, this.textColor, false);
+        pose.popPose();
     }
 
     @Override

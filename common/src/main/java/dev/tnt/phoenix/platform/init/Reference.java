@@ -2,21 +2,21 @@ package dev.tnt.phoenix.platform.init;
 
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.Objects;
 
 public final class Reference<T> implements Supplier<T> {
 
-    private final Identifier identifier;
+    private final ResourceLocation identifier;
     private final Supplier<T> provider;
 
-    private Reference(Identifier identifier, Supplier<T> provider) {
+    private Reference(ResourceLocation identifier, Supplier<T> provider) {
         this.identifier = identifier;
         this.provider = provider;
     }
 
-    public static <T> Reference<T> of(Identifier id, Supplier<T> provider) {
+    public static <T> Reference<T> of(ResourceLocation id, Supplier<T> provider) {
         return new Reference<>(
                 id,
                 Suppliers.memoize(provider)
@@ -28,7 +28,7 @@ public final class Reference<T> implements Supplier<T> {
         return this.provider.get();
     }
 
-    public Identifier getKey() {
+    public ResourceLocation getKey() {
         return this.identifier;
     }
 

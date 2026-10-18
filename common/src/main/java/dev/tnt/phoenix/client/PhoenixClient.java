@@ -9,16 +9,13 @@ import dev.tnt.phoenix.network.S2C_OpenPhoenixMachineScreen;
 import dev.tnt.phoenix.platform.Services;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.FontDescription;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.util.ProblemReporter;
-import net.minecraft.world.level.storage.TagValueInput;
-import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.resources.ResourceLocation;
 
 public final class PhoenixClient {
 
     public static final ClientPlatform PLATFORM = Services.load(ClientPlatform.class);
-    private static final FontDescription DIGITAL_FONT = new FontDescription.Resource(Phoenix.identifier("digital"));
+    private static final ResourceLocation DIGITAL_FONT = Phoenix.identifier("digital");
 
     public static void init() {
 
@@ -41,9 +38,7 @@ public final class PhoenixClient {
     public static void handlePhoenixScreenOpenRequest(S2C_OpenPhoenixMachineScreen request) {
         Minecraft instance = Minecraft.getInstance();
         instance.level.getBlockEntity(request.pos(), Phoenix.BLOCK_ENTITY_PHOENIX_SLOT_MACHINE.get()).ifPresent(slotMachine -> {
-            ProblemReporter problemReporter = new ProblemReporter.ScopedCollector(slotMachine.problemPath(), Phoenix.LOGGER_SLF4J);
-            ValueInput valueInput = TagValueInput.create(problemReporter, instance.level.registryAccess(), request.tag());
-            slotMachine.loadWithComponents(valueInput);
+            slotMachine.loadWithComponents(request.tag(), instance.level.registryAccess());
             if (request.refreshOnly() && !(instance.screen instanceof PhoenixSlotMachineScreen)) {
                 return;
             }

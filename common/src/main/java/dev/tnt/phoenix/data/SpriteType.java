@@ -1,7 +1,7 @@
 package dev.tnt.phoenix.data;
 
 import com.mojang.serialization.Codec;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.StringRepresentable;
 
 public enum SpriteType implements StringRepresentable {
@@ -23,7 +23,7 @@ public enum SpriteType implements StringRepresentable {
         return serializedName;
     }
 
-    public Identifier getSpritePath(Identifier sprite) {
+    public ResourceLocation getSpritePath(ResourceLocation sprite) {
         return sprite.withPath(path -> path.replace(".png", this.getDefaultTexturePathSuffix() + ".png"));
     }
 

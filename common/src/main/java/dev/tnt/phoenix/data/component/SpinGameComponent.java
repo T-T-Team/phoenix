@@ -18,7 +18,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
-import org.jspecify.annotations.Nullable;
 
 import java.util.*;
 
@@ -303,7 +302,7 @@ public final class SpinGameComponent extends PhoenixComponent implements SpinGam
         return accountBalance.hasBalanceInAccount(AccountType.INPUT, lowGameSpinCost);
     }
 
-    private @Nullable Bet getNextBetMultiplier() {
+    private Bet getNextBetMultiplier() {
         int maxIterations = Bet.values().length - 1;
         Bet multiplier = this.bet;
         for (int i = 0; i < maxIterations; i++) {

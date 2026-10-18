@@ -6,12 +6,11 @@ import dev.tnt.phoenix.data.*;
 import dev.tnt.phoenix.data.component.SpinWheel;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
-import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.CommonComponents;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 
 import java.util.Collections;
@@ -19,8 +18,8 @@ import java.util.List;
 
 public final class SpinWheelWidget extends AbstractWidget {
 
-    private static final Identifier SPRITE_SLOT = Phoenix.identifier("slot");
-    private static final Identifier SPRITE_SLOT_ON = Phoenix.identifier("slot_on");
+    private static final ResourceLocation SPRITE_SLOT = Phoenix.identifier("slot");
+    private static final ResourceLocation SPRITE_SLOT_ON = Phoenix.identifier("slot_on");
     private static final int ICON_SIZE = 16;
     private final SlotMachineConfig config;
     private final SpinWheel spinWheel;
@@ -38,11 +37,11 @@ public final class SpinWheelWidget extends AbstractWidget {
     }
 
     @Override
-    protected void extractWidgetRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
-        graphics.blitSprite(RenderPipelines.GUI_TEXTURED, this.resolveBackgroundSprite(), this.getX(), this.getY(), this.getWidth(), this.getHeight());
+    protected void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float a) {
+        graphics.blitSprite(this.resolveBackgroundSprite(), this.getX(), this.getY(), this.getWidth(), this.getHeight());
         graphics.enableScissor(this.getX(), this.getY(), this.getRight(), this.getBottom());
         Minecraft instance = Minecraft.getInstance();
-        DeltaTracker tracker = instance.getDeltaTracker();
+        DeltaTracker tracker = instance.getTimer();
         float delta = tracker.getGameTimeDeltaPartialTick(true);
         float spin = this.spinWheel.getSpinAmount(delta);
         int startSpinIndex = Mth.floor(spin);
@@ -85,7 +84,7 @@ public final class SpinWheelWidget extends AbstractWidget {
         return SpriteType.DEFAULT;
     }
 
-    private Identifier resolveBackgroundSprite() {
+    private ResourceLocation resolveBackgroundSprite() {
         if (!this.active) {
             return SPRITE_SLOT;
         }

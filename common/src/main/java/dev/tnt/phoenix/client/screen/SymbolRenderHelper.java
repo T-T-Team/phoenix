@@ -3,29 +3,28 @@ package dev.tnt.phoenix.client.screen;
 import dev.tnt.phoenix.data.SlotMachineConfig;
 import dev.tnt.phoenix.data.SpinWheelEntry;
 import dev.tnt.phoenix.data.SpriteType;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.resources.Identifier;
-import net.minecraft.util.ARGB;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.resources.ResourceLocation;
 
 public final class SymbolRenderHelper {
 
-    public static void renderSymbol(String symbolId, SlotMachineConfig config, GuiGraphicsExtractor graphics, int x1, int y1, int x2, int y2, SpriteType type) {
+    public static void renderSymbol(String symbolId, SlotMachineConfig config, GuiGraphics graphics, int x1, int y1, int x2, int y2, SpriteType type) {
         SpinWheelEntry entry = config.getSymbolData(symbolId);
         if (entry != null) {
             renderSymbol(entry, graphics, x1, y1, x2, y2, type);
         }
     }
 
-    public static void renderSymbol(SpinWheelEntry entry, GuiGraphicsExtractor graphics, int x, int y, int width, int height, SpriteType type) {
+    public static void renderSymbol(SpinWheelEntry entry, GuiGraphics graphics, int x, int y, int width, int height, SpriteType type) {
         SpinWheelEntry.Options options = entry.getSpriteOptions();
         boolean specialRenderer = options.useDefaultTextureOnly();
-        Identifier sprite = entry.getSpriteForType(specialRenderer ? SpriteType.DEFAULT : type);
-        int color = specialRenderer ? getColor(type) : 0xFFFFFFFF;
-
+        ResourceLocation sprite = entry.getSpriteForType(specialRenderer ? SpriteType.DEFAULT : type);
         graphics.blit(
                 sprite,
-                x, y, x + width, y + height,
-                0.0F, 1.0F, 0.0F, 1.0F
+                x, y, 0,
+                0.0F, 0.0F,
+                width, height,
+                width, height
         );
     }
 
@@ -35,6 +34,6 @@ public final class SymbolRenderHelper {
             case ENABLED -> 0xFF;
             case DISABLED -> 0x66;
         };
-        return ARGB.color(0xFF, strength, strength, strength);
+        return (0xFF << 24) | (strength << 16) | (strength << 8) | strength;
     }
 }

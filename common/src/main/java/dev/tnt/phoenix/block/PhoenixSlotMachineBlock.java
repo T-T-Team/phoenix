@@ -12,6 +12,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -28,7 +29,6 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import org.jspecify.annotations.Nullable;
 
 import java.util.UUID;
 
@@ -36,12 +36,12 @@ public class PhoenixSlotMachineBlock extends HorizontalDirectionalBlock implemen
 
     public static final MapCodec<PhoenixSlotMachineBlock> CODEC = simpleCodec(PhoenixSlotMachineBlock::new);
     public static final Component NAME = Component.translatable("container.phoenix.phoenix_slot_machine");
-    private static final VoxelShape HITBOX = Block.column(16.0, 0.0, 24.0);
+    private static final VoxelShape HITBOX = Block.box(0.0, 0.0, 0.0, 16.0, 24.0, 16.0);
 
     public static final Component MESSAGE_ITEM_NOT_INSERTABLE = Component.translatable("message.phoenix.item_not_insertable").withStyle(ChatFormatting.RED);
 
     public PhoenixSlotMachineBlock(Properties properties) {
-        super(properties.noOcclusion().strength(2.0F, 1.0F).lightLevel(_ -> 8));
+        super(properties.noOcclusion().strength(2.0F, 1.0F).lightLevel(state -> 8));
         this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH));
     }
 
@@ -50,10 +50,10 @@ public class PhoenixSlotMachineBlock extends HorizontalDirectionalBlock implemen
         return HITBOX;
     }
 
-    @Override
+    /*@Override
     protected VoxelShape getOcclusionShape(BlockState state) {
         return HITBOX;
-    }
+    }*/
 
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
@@ -67,9 +67,9 @@ public class PhoenixSlotMachineBlock extends HorizontalDirectionalBlock implemen
     }
 
     @Override
-    protected InteractionResult useItemOn(ItemStack itemStack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
+    protected ItemInteractionResult useItemOn(ItemStack itemStack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
         if (itemStack.isEmpty()) {
-            return InteractionResult.TRY_WITH_EMPTY_HAND;
+            return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
         }
         if (!level.isClientSide()) {
             UUID uid = player.getUUID();
@@ -79,32 +79,32 @@ public class PhoenixSlotMachineBlock extends HorizontalDirectionalBlock implemen
             boolean inserted = blockEntity.insertItem(uid, itemStack, player.isCrouching(), (change, balance) -> {
                 Component changeLabel = Component.literal(String.valueOf(change)).withStyle(ChatFormatting.YELLOW);
                 Component balanceLabel = Component.literal(String.valueOf(balance.getBalance(AccountType.INPUT))).withStyle(ChatFormatting.YELLOW);
-                player.sendOverlayMessage(Component.translatable("message.phoenix.item_inserted", changeLabel, balanceLabel).withStyle(ChatFormatting.GREEN));
+                player.displayClientMessage(Component.translatable("message.phoenix.item_inserted", changeLabel, balanceLabel).withStyle(ChatFormatting.GREEN), true);
             });
             if (inserted) {
                 if (!player.isCreative()) {
-                    itemStack.shrink(player.isCrouching() ? itemStack.count() : 1);
+                    itemStack.shrink(player.isCrouching() ? itemStack.getCount() : 1);
                 }
             } else {
-                player.sendOverlayMessage(MESSAGE_ITEM_NOT_INSERTABLE);
+                player.displayClientMessage(MESSAGE_ITEM_NOT_INSERTABLE, true);
             }
         }
-        return InteractionResult.SUCCESS;
+        return ItemInteractionResult.SUCCESS;
     }
 
     @Override
-    public @Nullable BlockEntity newBlockEntity(BlockPos worldPosition, BlockState blockState) {
+    public BlockEntity newBlockEntity(BlockPos worldPosition, BlockState blockState) {
         return Phoenix.BLOCK_ENTITY_PHOENIX_SLOT_MACHINE.get().create(worldPosition, blockState);
     }
 
     @Override
-    public @Nullable <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState blockState, BlockEntityType<T> type) {
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState blockState, BlockEntityType<T> type) {
         return type == Phoenix.BLOCK_ENTITY_PHOENIX_SLOT_MACHINE.get()
-                ? (_, _, _, slotMachine) -> ((PhoenixSlotMachineBlockEntity) slotMachine).tick()
+                ? (lvl, pos, state, slotMachine) -> ((PhoenixSlotMachineBlockEntity) slotMachine).tick()
                 : null;
     }
 
-    public @Nullable BlockState getStateForPlacement(final BlockPlaceContext context) {
+    public BlockState getStateForPlacement(final BlockPlaceContext context) {
         Direction facing = context.getHorizontalDirection().getOpposite();
         BlockPos pos = context.getClickedPos();
         BlockPos relative = pos.relative(facing);

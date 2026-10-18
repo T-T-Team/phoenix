@@ -21,7 +21,7 @@ sourceSets.main.resources.srcDir 'src/generated/resources'
 
 dependencies {
     implementation "net.neoforged:neoforge:${project.neoforge_version}"
-    implementation "dev.toma.configuration:configuration-neoforge:${project.configuration_version}"
+    implementation "dev.toma.configuration:configuration-${project.minecraft_version}:${project.configuration_version}-neoforge"
     compileOnly project(":common")
 }
 

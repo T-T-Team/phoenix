@@ -5,13 +5,13 @@ import dev.tnt.phoenix.data.SlotMachineDataManager;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.List;
 
 public record S2C_SyncSlotMachineConfigs(List<SlotMachineDataManager.SlotMachineConfigWithId> definitions) implements CustomPacketPayload {
 
-    public static final Identifier ID = Phoenix.identifier("sync_slot_machine_configs");
+    public static final ResourceLocation ID = Phoenix.identifier("sync_slot_machine_configs");
     public static final Type<S2C_SyncSlotMachineConfigs> TYPE = new Type<>(ID);
     public static final StreamCodec<FriendlyByteBuf, S2C_SyncSlotMachineConfigs> STREAM_CODEC = StreamCodec.composite(
             SlotMachineDataManager.STREAM_CODEC, S2C_SyncSlotMachineConfigs::definitions,

@@ -12,12 +12,11 @@ import dev.tnt.phoenix.platform.Services;
 import dev.tnt.phoenix.platform.init.Reference;
 import dev.tnt.phoenix.platform.init.RegistrationManager;
 import dev.toma.configuration.Configuration;
+import dev.toma.configuration.config.format.ConfigFormats;
 import net.minecraft.core.Vec3i;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
-import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
@@ -32,7 +31,6 @@ import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
 
 import java.util.Locale;
-import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -45,13 +43,13 @@ public class Phoenix {
     public static final Marker NETWORK_MARKER = MarkerManager.getMarker("Network");
     public static final Marker DATA_MARKER = MarkerManager.getMarker("Data");
     public static final Platform PLATFORM = Services.load(Platform.class);
-    public static final PhoenixConfig CONFIG = Configuration.registerSimpleJsonConfig(PhoenixConfig.class);
+    public static final PhoenixConfig CONFIG = Configuration.registerConfig(PhoenixConfig.class, ConfigFormats.JSON).getConfigInstance();
 
     // Data managers
     public static final SlotMachineDataManager SLOT_MACHINES = new SlotMachineDataManager();
 
     // Slot machine configs
-    public static final Identifier SLOT_MACHINE_CONFIG_PHOENIX = identifier("phoenix");
+    public static final ResourceLocation SLOT_MACHINE_CONFIG_PHOENIX = identifier("phoenix");
 
     // Registries
     public static final RegistrationManager<Block> BLOCKS_REGISTRY = PLATFORM.createRegistryManager(BuiltInRegistries.BLOCK);
@@ -63,7 +61,7 @@ public class Phoenix {
     // Blocks
     public static final Reference<PhoenixSlotMachineBlock> BLOCK_PHOENIX_SLOT_MACHINE = registerBlock("phoenix", PhoenixSlotMachineBlock::new);
     // Block entities
-    public static final Reference<BlockEntityType<PhoenixSlotMachineBlockEntity>> BLOCK_ENTITY_PHOENIX_SLOT_MACHINE = BLOCK_ENTITY_REGISTRY.registerElement("phoenix", () -> new BlockEntityType<>(PhoenixSlotMachineBlockEntity::new, Set.of(BLOCK_PHOENIX_SLOT_MACHINE.get())));
+    public static final Reference<BlockEntityType<PhoenixSlotMachineBlockEntity>> BLOCK_ENTITY_PHOENIX_SLOT_MACHINE = BLOCK_ENTITY_REGISTRY.registerElement("phoenix", () -> PLATFORM.createBlockEntityType(PhoenixSlotMachineBlockEntity::new, BLOCK_PHOENIX_SLOT_MACHINE));
     // Items
     public static final Reference<BlockItem> ITEM_PHOENIX_SLOT_MACHINE = registerBlockItem(BLOCK_PHOENIX_SLOT_MACHINE);
     // Sounds
@@ -83,8 +81,8 @@ public class Phoenix {
         populator.apply(ITEM_PHOENIX_SLOT_MACHINE);
     }));
 
-    public static Identifier identifier(String path) {
-        return Identifier.fromNamespaceAndPath(MOD_ID, path);
+    public static ResourceLocation identifier(String path) {
+        return ResourceLocation.fromNamespaceAndPath(MOD_ID, path);
     }
 
     public static String getTraceId(Vec3i pos, UUID uid) {
@@ -105,16 +103,14 @@ public class Phoenix {
 
     private static <T extends Block> Reference<T> registerBlock(String name, Function<BlockBehaviour.Properties, T> block) {
         return BLOCKS_REGISTRY.registerElement(name, id -> {
-            BlockBehaviour.Properties properties = BlockBehaviour.Properties.of()
-                    .setId(ResourceKey.create(Registries.BLOCK, id));
+            BlockBehaviour.Properties properties = BlockBehaviour.Properties.of();
             return block.apply(properties);
         });
     }
 
     private static <T extends Item> Reference<T> registerItem(String name, Function<Item.Properties, T> item) {
         return ITEMS_REGISTRY.registerElement(name, id -> {
-            Item.Properties properties = new Item.Properties()
-                    .setId(ResourceKey.create(Registries.ITEM, id));
+            Item.Properties properties = new Item.Properties();
             return item.apply(properties);
         });
     }

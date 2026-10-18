@@ -60,17 +60,10 @@
     }
   },
   {
-    "payout_id": "phoenix:netherite_horse_armor",
-    "payout_price": 1200,
+    "payout_id": "phoenix:diamond_horse_armor",
+    "payout_price": 1000,
     "item_template": {
-      "id": "minecraft:netherite_horse_armor"
-    }
-  },
-  {
-    "payout_id": "phoenix:netherite_horse_armor",
-    "payout_price": 1200,
-    "item_template": {
-      "id": "minecraft:netherite_horse_armor"
+      "id": "minecraft:diamond_horse_armor"
     }
   }
 ]
